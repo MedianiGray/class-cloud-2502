@@ -228,6 +228,25 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-stage.phone .brw-body{flex:none;width:390px;max-width:100%;height:780px;border-radius:26px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.16);position:relative;padding-top:24px;background:#fff}
 .brw-stage.phone .brw-frame{border-radius:0}
 .brw-hint{padding:9px 14px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line);background:#FBFBF7;flex:none}
+/* ---------- 浏览器窗口：手机上通用（触屏尺寸 + 不套娃） ---------- */
+@media (max-width:640px){
+  .brw-top{padding:6px 8px 0;gap:2px}
+  .brw-tab{height:34px;font-size:12px;max-width:150px;gap:6px;padding:0 8px}
+  .brw-tab i{font-size:12px;padding:0 4px}
+  .brw-new{width:34px;height:32px;margin-bottom:2px;font-size:15px}
+  .brw-bar{padding:6px 8px;gap:5px}
+  .brw-ico,.brw-close{width:34px;height:34px;font-size:13px}
+  .brw-addr input{height:34px;font-size:12px;padding:0 10px;border-radius:17px}
+  .brw-dev button{height:34px;padding:0 12px;font-size:11px}
+  .brw-book{padding:5px 8px;gap:5px}
+  .brw-book button{height:30px;font-size:12px;padding:0 9px}
+  /* 手机上直接把手机框铺满：屏幕本身就是手机，不必再套一层 */
+  .brw-stage.phone{padding:0;overflow:hidden;align-items:stretch}
+  .brw-stage.phone .brw-body{width:100%;height:auto;flex:1;border-radius:0;box-shadow:none;padding-top:0}
+  .brw-stage.phone .brw-statusbar{display:none}
+  .brw-stage.phone .brw-frame{height:100%}
+  .brw-hint{padding:7px 10px;font-size:11px;line-height:1.6}
+}
 /* embed=ph：被浏览器窗口当作“手机端”载入时，自身不再开浏览器层，避免套娃 */
 /* ---------- 手机版 UI（只在 embed=ph 的手机框里生效，桌面版完全不受影响） ---------- */
 html.is-embed{background:#F4F4EE}
