@@ -1256,9 +1256,11 @@ function brwName(url){
 }
 
 function brwSrc(cur){
-  /* 电脑端载真实目标（WPS 桌面版）；手机端载本站自己的手机版 UI —— 390×780 真视口，
-     由本站按移动布局重排。WPS 的移动版只认 UA，页面拿不到，所以不硬塞桌面版进去。 */
+  /* 手机端：真手机访问时直接载 WPS —— 这时发出的 UA 就是手机的，WPS 会给真·移动版
+     （底部有「新建 / 下载全部 / 保存至WPS」那套）。在电脑上开手机框只是模拟，UA 仍是电脑，
+     WPS 只会给桌面版，所以退回本站自己的手机布局预览，并在提示条上说清。 */
   if (brw.mode === "phone") {
+    if (IS_MOBILE && cur && cur.url) return cur.url;
     return location.pathname + "?embed=ph" + (brw.localHash || "#/library");
   }
   return cur && cur.url ? cur.url : "about:blank";
@@ -1296,9 +1298,13 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    hint.innerHTML = brw.mode === "phone"
-      ? "手机端：390×780 真视口，跑的是班级云库自己的手机版界面（列表行、底部 tab 栏），和电脑版是两套布局。"
-      : "电脑端：WPS 的页面本身，内嵌可直接浏览。要新窗口看就点 ↗。";
+    if (brw.mode === "phone" && IS_MOBILE) {
+      hint.innerHTML = "手机端：这是 WPS 给手机的<b>真·移动版</b> —— 底部有「新建 / 下载全部 / 保存至WPS」，和电脑端是两套 UI。";
+    } else if (brw.mode === "phone") {
+      hint.innerHTML = "手机端预览：电脑上模拟的手机框按 390px 重排本页（列表行 + 底部 tab）。这台机器是电脑，发给 WPS 的 UA 还是电脑的，所以拿不到 WPS 移动版；要看真的请用「扫码」在手机上打开。";
+    } else {
+      hint.innerHTML = "电脑端：WPS 的页面本身，内嵌可直接浏览。要新窗口看就点 ↗。";
+    }
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
     b.classList.toggle("on", b.dataset.brwdev === brw.mode);
