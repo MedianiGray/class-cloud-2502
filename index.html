@@ -286,7 +286,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <span>GXAU · NET-ENG 2502</span>
     </div>
     <div class="gate-h1">班级云库</div>
-    <p class="gate-sub">网络工程技术（本）2502班 内部资源索引。输入<b>班级口令</b>进入。名册里学号只显示后三位，完整学号不落库、不上网。</p>
+    <p class="gate-sub">网络工程技术（本）2502班 内部资源索引。输入<b>班级口令</b>进入。名册只存序号与学号后三位，姓名与完整学号都不落库、不上网。</p>
     <input id="gateInput" type="text" inputmode="numeric" autocomplete="off" placeholder="班级口令" aria-label="班级口令">
     <div class="gate-err" id="gateErr"></div>
     <div class="gate-actions">
@@ -306,7 +306,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     <nav class="nav" id="nav">
       <a href="#/home" data-v="home">概览</a>
       <a href="#/library" data-v="library">班级云库</a>
-      <a href="#/lessons" data-v="lessons">课程</a>
+      <a href="#/res" data-v="res">资料库</a>
       <a href="#/portal" data-v="portal">学校入口</a>
       <a href="#/access" data-v="access">权限</a>
       <a href="#/maint" data-v="maint">维护</a>
@@ -348,7 +348,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <span class="entry-t">班级云库
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </span>
-        <span class="entry-d">共享空间与 45 个独立文件夹，按姓名或学号检索，可复制链接、尝试内嵌预览。</span>
+        <span class="entry-d">共享空间与 45 个独立文件夹，按尾号或序号检索，可复制链接、尝试内嵌预览。</span>
         <span class="entry-go">进入索引</span>
       </a>
       <a class="entry" href="#/portal">
@@ -359,13 +359,13 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <span class="entry-d">智慧学工、资源访问控制、SSL VPN、官网与 FTP 仓库，校外访问先看说明。</span>
         <span class="entry-go">打开门户</span>
       </a>
-      <a class="entry" href="#/lessons">
-        <span class="entry-k">03 / LESSONS</span>
-        <span class="entry-t">课程
+      <a class="entry" href="#/res">
+        <span class="entry-k">03 / RESOURCES</span>
+        <span class="entry-t">资料库
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </span>
-        <span class="entry-d">Python、网络、Linux 三科从 0 到 60 分的必得分块，写明哪些可以暂时放弃。</span>
-        <span class="entry-go">查看清单</span>
+        <span class="entry-d">专业学习资料、学校相关的事宜、共享社区三个 WPS 源库，逐条列出里面有什么，点开直达。</span>
+        <span class="entry-go">打开清单</span>
       </a>
       <a class="entry" href="#/access">
         <span class="entry-k">04 / ACCESS</span>
@@ -390,7 +390,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">班级云库</h1>
-      <p class="page-lead">共享库在前，成员文件夹在后。搜索支持姓名、学号、序号；点任意一条可查看详情、复制链接或尝试内嵌预览。</p>
+      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；点开可查看详情、复制链接或尝试内嵌预览。</p>
     </div>
 
     <div class="shared-card">
@@ -407,11 +407,11 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     <div class="toolbar">
       <div class="search-box">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
-        <input id="search" type="search" placeholder="输入姓名或学号，如 覃祖悦 / 0238" aria-label="搜索成员">
+        <input id="search" type="search" placeholder="输入尾号或序号，如 312 / 23" aria-label="搜索成员">
       </div>
       <div class="chips" id="chips">
-        <button class="chip on" data-s="no">按学号</button>
-        <button class="chip" data-s="name">按姓名</button>
+        <button class="chip on" data-s="no">按尾号</button>
+        <button class="chip" data-s="idx">按序号</button>
       </div>
     </div>
 
@@ -467,57 +467,26 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   </div>
 </section>
 
-<!-- ===== 视图：课程 ===== -->
-<section class="view" id="view-lessons">
+<!-- ===== 视图：资料库 ===== -->
+<section class="view" id="view-res">
   <div class="wrap">
     <div class="page-head">
-      <h1 class="page-h1">课程</h1>
-      <p class="page-lead">三科从 0 到 60 分的补丁包：只列必得分块，并明确哪些可以暂时放弃。按多数课程通用范围整理，题型与权重以老师给的考纲为准。</p>
+      <h1 class="page-h1">资料库</h1>
+      <p class="page-lead">三个 WPS 源库的入口与内容清单：专业学习资料、学校相关的事宜、共享社区。文件本体都在学校 WPS 里，按账号权限决定谁能看；这一页只负责说清「里面有什么、从哪进」。</p>
     </div>
 
-    <div class="task">
-      <div class="task-h"><span class="task-t">Linux 基础</span><span class="task-meta">必得 60 / 满分 100</span></div>
-      <div class="task-b">
-        <div class="opt"><span class="opt-n">01</span><div>文件与目录：<b>ls cd pwd cp mv rm mkdir touch</b>，绝对路径与相对路径、通配符。目标是看着题目能直接敲，不查笔记。</div></div>
-        <div class="opt"><span class="opt-n">02</span><div>权限与用户：<b>chmod 数字法</b>（644 / 755）、<b>chown</b>、whoami、sudo。rwx 三组换算必须会算，这部分几乎是送分。</div></div>
-        <div class="opt"><span class="opt-n">03</span><div>Vim 三种模式：普通、插入、命令。<b>i a o、dd yy p、/搜索、:wq</b>。会进、会改、会存、会退，就够及格。</div></div>
-        <div class="opt"><span class="opt-n">04</span><div>进程与文本：<b>ps aux、top、kill</b>，<b>grep</b>，管道 <b>|</b> 与重定向 <b>&gt;</b>。能查出谁占着某个端口。</div></div>
-        <div class="reqs">
-          <div class="req"><span>放弃</span><div>内核参数调优、iptables 深水区、复杂 shell 脚本、sed 与 awk 的高级用法。</div></div>
-          <div class="req"><span>练习</span><div>每天 20 条命令在虚拟机上敲一遍，连续 7 天；第 7 天用一张纸默写全部命令。</div></div>
-        </div>
-      </div>
+    <div class="portal-alert">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+      <div>下面三份清单是按 2026-11-14 的库内目录整理的快照。库里之后新增的文件不会自动出现在这一页，需要班委手动补一行；改动只影响这一页，不碰 WPS 里的文件。</div>
     </div>
 
-    <div class="task">
-      <div class="task-h"><span class="task-t">计算机网络</span><span class="task-meta">必得 60 / 满分 100</span></div>
-      <div class="task-b">
-        <div class="opt"><span class="opt-n">01</span><div>分层模型：OSI 七层与 TCP/IP 四层的对应关系、每层的典型协议与设备。选择和填空的高频区。</div></div>
-        <div class="opt"><span class="opt-n">02</span><div>IP 与子网划分：A/B/C 类地址范围、私有地址段、子网掩码、CIDR、可用主机数与网络地址计算。<b>这一块分值最重，必须动笔算</b>。</div></div>
-        <div class="opt"><span class="opt-n">03</span><div>常用端口：20/21、25、53、67/68、80、110、143、443、3389，对应 FTP、SMTP、DNS、DHCP、HTTP、POP3、IMAP、HTTPS、RDP。</div></div>
-        <div class="opt"><span class="opt-n">04</span><div>排障命令与流程：ping、ipconfig、tracert、nslookup、netstat。给一个「上不了网」的场景，能按顺序说清先查什么。</div></div>
-        <div class="reqs">
-          <div class="req"><span>放弃</span><div>路由协议收敛计算、BGP、复杂 VLAN 设计、无线与网络安全深水题。</div></div>
-          <div class="req"><span>练习</span><div>子网划分每天 5 题连续 10 天，每题写下网络地址、广播地址、可用主机数三个答案。</div></div>
-        </div>
-      </div>
-    </div>
+    <div id="resWrap"></div>
 
-    <div class="task">
-      <div class="task-h"><span class="task-t">Python 程序设计</span><span class="task-meta">必得 60 / 满分 100</span></div>
-      <div class="task-b">
-        <div class="opt"><span class="opt-n">01</span><div>变量与类型：int / float / str / bool / list / dict，类型转换，f-string 格式化输出。</div></div>
-        <div class="opt"><span class="opt-n">02</span><div>流程控制：<b>if-elif-else、for、while、range、break、continue</b>。上机题的第一道通常就考这个。</div></div>
-        <div class="opt"><span class="opt-n">03</span><div>容器操作：列表增删改查与切片、字典的 get 与遍历、嵌套结构取值。会这两样，多数上机题就能写完。</div></div>
-        <div class="opt"><span class="opt-n">04</span><div>函数与文件：<b>def</b>、参数与返回值、<b>with open</b> 读写文本、<b>try/except</b> 兜住异常。</div></div>
-        <div class="reqs">
-          <div class="req"><span>放弃</span><div>装饰器、生成器、类与继承、多线程、第三方库生态，及格用不到。</div></div>
-          <div class="req"><span>练习</span><div>每道题先在纸上写一遍，再上机跑通；写不出来就回看对应那一条，不要翻整章。</div></div>
-        </div>
-      </div>
+    <div class="maint-block" style="margin-top:26px">
+      <h3>期末速成：三科补到 60 分</h3>
+      <p>Linux 先保住文件与权限（ls、cd、cp、mv、rm、chmod 644/755），Vim 会进、会改、会存、会退；网络先保住分层模型与子网划分，再背常用端口；Python 先保住 if-elif-else 与 for，再到列表、字典、def。</p>
+      <p>内核调优、路由收敛计算、装饰器这一类难题可以暂时放下，先把会的分一分不丢。完整版（含子网例题、命令速查、练习与答案、四周复习节奏）已单独整理成 Word 讲义，需要时向学委索取。</p>
     </div>
-
-    <p style="font-size:12.5px;color:var(--ink3);line-height:1.7;margin-top:6px">三科的共同原则：先把「能拿的分一分不丢」做实，再谈难题。补到 60 分之后，每多 10 分要付出的时间会翻倍，先把 60 稳住。</p>
   </div>
 </section>
 
@@ -560,7 +529,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 
     <div class="maint-block" style="margin-top:28px">
       <h3>网页与文档的关系</h3>
-      <p>这套网页是「索引」，不是「仓库」。GitHub Pages 上只有班级名册和链接，没有任何文档正文、附件或成绩数据。真正的访问控制发生在 WPS：成员点开链接后，WPS 会先校验他的账号与权限，没权限的人看到的只是一张「无权访问」的提示。因此就算网页链接被转发出去，文件本身也不会泄露。</p>
+      <p>这套网页是「索引」，不是「仓库」。GitHub Pages 上只有匿名端口目录和链接，没有任何姓名、完整学号、文档正文、附件或成绩数据。真正的访问控制发生在 WPS：成员点开链接后，WPS 会先校验他的账号与权限，没权限的人看到的只是一张「无权访问」的提示。因此就算网页链接被转发出去，文件本身也不会泄露。</p>
       <p>这也是这套结构能长期用的原因：调整权限不用改代码，在 WPS 里点几下就行；网页不需要维护数据。</p>
     </div>
   </div>
@@ -591,12 +560,12 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="code">// 1) 访问口令
 const GATE_CODE = "2502";
 
-// 2) 成员名册：改姓名、换文件夹链接、加人减人
+// 2) 成员名册：只填尾号与文件夹链接，不写姓名
 const MEMBERS = [
-  { no:"201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
+  { no:"201", slug:"ctWvsvDFbsPW" },
   ...
 ];</div>
-      <p>成员链接只取 WPS 文件夹地址末尾那段（如 <span class="mono">kdocs.cn/folder/<b>ctWvsvDFbsPW</b></span> 里的 <span class="mono">ctWvsvDFbsPW</span>）。新增同学照抄一行、改姓名学号链接即可，其余排序、检索、统计会自动重算。</p>
+      <p>成员链接只取 WPS 文件夹地址末尾那段（如 <span class="mono">kdocs.cn/folder/<b>ctWvsvDFbsPW</b></span> 里的 <span class="mono">ctWvsvDFbsPW</span>）。新增同学照抄一行、填尾号与文件夹链接即可，其余排序、检索、统计会自动重算。</p>
     </div>
 
     <div class="maint-block">
@@ -609,7 +578,7 @@ const MEMBERS = [
       <h3>四、公开仓库的隐私问题</h3>
       <div class="warn-box">
         GitHub Pages 免费版只能挂公开仓库，任何人都能打开这个网址、也能在仓库里看到源码。所以名册里<b>不存完整学号</b>：45 人的学号一律只保留后三位，完整学号只存在于班级 WPS 云库。除此之外还有两层降低暴露的手段：<b>noindex 阻止搜索引擎收录</b>、<b>口令门挡住随手点开的人</b>——这两层都不是真正的安全措施，只是降低被随手翻到的概率。<br><br>
-        如果还想更稳：① 用学校服务器或教育网空间托管（可做真实鉴权）；② 名册只保留「序号 + 姓名」，连后三位也不要。文档本身的权限是安全的，因为文件都在 WPS 里。
+        如果还想更稳：① 用学校服务器或教育网空间托管（可做真实鉴权）；② 现在名册已经只保留「序号 + 尾号」，连姓名都没有；若连尾号也不想露，把 no 清空、只按端口序号对人即可。文档本身的权限是安全的，因为文件都在 WPS 里。
       </div>
     </div>
 
@@ -670,53 +639,53 @@ const GATE_CODE = "2502";        // 班级口令
 const LAST_SYNC = "2026-11-10";  // 名册最后核对日期
 const KDOC = "https://www.kdocs.cn/folder/";
 
-/* 成员名册：no 学号 / name 姓名 / slug = WPS 文件夹链接末段 */
+/* 成员名册：no = 学号后三位 / slug = WPS 文件夹链接末段。姓名不入库，页面只显示序号与尾号。 */
 const MEMBERS = [
-  { no:"312", name:"莫晞瑶",   slug:"coPIh8Gpsej1" },
-  { no:"201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
-  { no:"202", name:"唐丽春",   slug:"cnz1JZHoHLro" },
-  { no:"203", name:"黄邵华",   slug:"caPs8g8EntZf" },
-  { no:"204", name:"张雪豪",   slug:"ckngLXqMCDWT" },
-  { no:"205", name:"罗锦贤",   slug:"csS511YwbGwB" },
-  { no:"206", name:"黄雅婷",   slug:"clDRxERyyNSp" },
-  { no:"207", name:"韦嘉伟",   slug:"ci5Bc9RuR3ju" },
-  { no:"208", name:"黄子华",   slug:"caRisTWLrJUs" },
-  { no:"209", name:"李天就",   slug:"cuoQIVlYn1ML" },
-  { no:"210", name:"黄俊铭",   slug:"cqlaWryabkWl" },
-  { no:"211", name:"梁炳新",   slug:"cimfiV3s6ujY" },
-  { no:"212", name:"陆前翔",   slug:"csb3w0NPH4tE" },
-  { no:"213", name:"邓继贵",   slug:"chLoXcHp8CRt" },
-  { no:"214", name:"江雨欣",   slug:"ceeqTnq6PCYI" },
-  { no:"215", name:"王雅婷",   slug:"cuzgdcQfUXfJ" },
-  { no:"216", name:"谭志锋",   slug:"cdtfWXAEaT42" },
-  { no:"217", name:"韦荣甫",   slug:"csphjmHCUD0y" },
-  { no:"218", name:"梁紫念",   slug:"cf6pbKoI8gc2" },
-  { no:"219", name:"韦国定",   slug:"cezEo2BPznco" },
-  { no:"220", name:"梁萱姿",   slug:"ckmzQdQnLYiW" },
-  { no:"221", name:"覃敬凯",   slug:"celyolXSHzxN" },
-  { no:"223", name:"梁菲菲",   slug:"ct4edqOHe6WU" },
-  { no:"224", name:"贾佳福",   slug:"caR9ZMnn0bIe" },
-  { no:"225", name:"桂自力",   slug:"cgssOMlobSZu" },
-  { no:"226", name:"黄国栋",   slug:"cqriafeaFoa4" },
-  { no:"227", name:"农镇宝",   slug:"crDSdWfN3h4u" },
-  { no:"228", name:"刘传良",   slug:"cutSzuWv28Yh" },
-  { no:"229", name:"李永嘉",   slug:"cklDmbods1qn" },
-  { no:"230", name:"罗荣毅",   slug:"ccwldHqBQJxt" },
-  { no:"231", name:"李茂均",   slug:"cuqwnGBNSRal" },
-  { no:"232", name:"江石南",   slug:"cixUZF8G4Bfq" },
-  { no:"233", name:"莫丽英",   slug:"chvv6EbZgWEu" },
-  { no:"234", name:"陈建宇",   slug:"caTSZAAV1BCP" },
-  { no:"235", name:"赵子强",   slug:"cepwUGQkHqVQ" },
-  { no:"236", name:"王宇",     slug:"clwi4hb6kd5W" },
-  { no:"237", name:"温先创",   slug:"ckzKCB7EHMIL" },
-  { no:"238", name:"覃祖悦",   slug:"cqsFDJATdIeT" },
-  { no:"239", name:"凌良美子", slug:"ctkSEyS6oty5" },
-  { no:"240", name:"张瀚",     slug:"cbMLm40ktQqy" },
-  { no:"241", name:"何俊霖",   slug:"chNCXDw52DZ2" },
-  { no:"242", name:"何蕊",     slug:"cpaBJlArFcrc" },
-  { no:"243", name:"王玺",     slug:"cg3ObUBOo2mJ" },
-  { no:"244", name:"温耀祖",   slug:"crWiHIzHNRXx" },
-  { no:"245", name:"刘冠涵",   slug:"cuy6qjnhLmJ0" }
+  { no:"312", slug:"coPIh8Gpsej1" },
+  { no:"201", slug:"ctWvsvDFbsPW" },
+  { no:"202", slug:"cnz1JZHoHLro" },
+  { no:"203", slug:"caPs8g8EntZf" },
+  { no:"204", slug:"ckngLXqMCDWT" },
+  { no:"205", slug:"csS511YwbGwB" },
+  { no:"206", slug:"clDRxERyyNSp" },
+  { no:"207", slug:"ci5Bc9RuR3ju" },
+  { no:"208", slug:"caRisTWLrJUs" },
+  { no:"209", slug:"cuoQIVlYn1ML" },
+  { no:"210", slug:"cqlaWryabkWl" },
+  { no:"211", slug:"cimfiV3s6ujY" },
+  { no:"212", slug:"csb3w0NPH4tE" },
+  { no:"213", slug:"chLoXcHp8CRt" },
+  { no:"214", slug:"ceeqTnq6PCYI" },
+  { no:"215", slug:"cuzgdcQfUXfJ" },
+  { no:"216", slug:"cdtfWXAEaT42" },
+  { no:"217", slug:"csphjmHCUD0y" },
+  { no:"218", slug:"cf6pbKoI8gc2" },
+  { no:"219", slug:"cezEo2BPznco" },
+  { no:"220", slug:"ckmzQdQnLYiW" },
+  { no:"221", slug:"celyolXSHzxN" },
+  { no:"223", slug:"ct4edqOHe6WU" },
+  { no:"224", slug:"caR9ZMnn0bIe" },
+  { no:"225", slug:"cgssOMlobSZu" },
+  { no:"226", slug:"cqriafeaFoa4" },
+  { no:"227", slug:"crDSdWfN3h4u" },
+  { no:"228", slug:"cutSzuWv28Yh" },
+  { no:"229", slug:"cklDmbods1qn" },
+  { no:"230", slug:"ccwldHqBQJxt" },
+  { no:"231", slug:"cuqwnGBNSRal" },
+  { no:"232", slug:"cixUZF8G4Bfq" },
+  { no:"233", slug:"chvv6EbZgWEu" },
+  { no:"234", slug:"caTSZAAV1BCP" },
+  { no:"235", slug:"cepwUGQkHqVQ" },
+  { no:"236", slug:"clwi4hb6kd5W" },
+  { no:"237", slug:"ckzKCB7EHMIL" },
+  { no:"238", slug:"cqsFDJATdIeT" },
+  { no:"239", slug:"ctkSEyS6oty5" },
+  { no:"240", slug:"cbMLm40ktQqy" },
+  { no:"241", slug:"chNCXDw52DZ2" },
+  { no:"242", slug:"cpaBJlArFcrc" },
+  { no:"243", slug:"cg3ObUBOo2mJ" },
+  { no:"244", slug:"crWiHIzHNRXx" },
+  { no:"245", slug:"cuy6qjnhLmJ0" }
 ];
 
 const SHARED = { name:"【班级云库】广西农职大网络工程技术（本）2502班", slug:"ceMSyJ9Ww4NJ" };
@@ -823,18 +792,17 @@ function openUrl(u){
 
 /* ==================== 名册渲染 ==================== */
 function currentList(){
-  const q = state.q.trim().toLowerCase().replace(/尾号|学号|后三位/g, "").trim();
+  const q = state.q.trim().toLowerCase().replace(/尾号|学号|后三位|成员/g, "").trim();
   let list = MEMBERS.map((m, i) => Object.assign({}, m, { _i:i, _p:pad2(i + 1) }));
   if (q) {
     list = list.filter(m =>
-      m.name.toLowerCase().indexOf(q) > -1 ||
       m.no.indexOf(q) > -1 ||
       m._p.indexOf(q) > -1 ||
       m.slug.toLowerCase().indexOf(q) > -1
     );
   }
-  list.sort(state.sort === "name"
-    ? (a, b) => collator.compare(a.name, b.name)
+  list.sort(state.sort === "idx"
+    ? (a, b) => a._p.localeCompare(b._p)
     : (a, b) => a.no.localeCompare(b.no));
   return list;
 }
@@ -846,24 +814,24 @@ function renderGrid(){
   document.getElementById("countTxt").textContent = state.q
     ? "命中 " + list.length + " / " + MEMBERS.length + " 个成员空间"
     : MEMBERS.length + " 个成员空间";
-  document.getElementById("sortTxt").textContent = state.sort === "name" ? "按姓名排序" : "按学号排序";
+  document.getElementById("sortTxt").textContent = state.sort === "idx" ? "按序号排序" : "按尾号排序";
 
   if (!list.length) {
-    grid.innerHTML = '<div class="empty"><h4>没有找到匹配的成员</h4><p>换成姓名全称、学号其中几位，或端口序号（如 38）再试。</p><button class="btn btn-sm ghost" id="emptyReset">清空搜索</button></div>';
+    grid.innerHTML = '<div class="empty"><h4>没有找到匹配的成员</h4><p>换成尾号的后几位数字，或端口序号（如 23）再试。</p><button class="btn btn-sm ghost" id="emptyReset">清空搜索</button></div>';
     const r = document.getElementById("emptyReset");
     if (r) r.onclick = () => { state.q = ""; document.getElementById("search").value = ""; renderGrid(); };
     return;
   }
 
   grid.innerHTML = list.map(m => (
-    '<div class="cell" data-i="' + m._i + '" role="button" tabindex="0" aria-label="' + m.name + ' 的文件夹">' +
+    '<div class="cell" data-i="' + m._i + '" role="button" tabindex="0" aria-label="成员 ' + m._p + ' 的文件夹">' +
       '<span class="cell-idx">' + m._p + '</span>' +
       '<div class="cell-mid">' +
-        '<div class="cell-name">' + m.name + '</div>' +
+        '<div class="cell-name">成员 ' + m._p + '</div>' +
         '<div class="cell-no">' + fmtNo(m.no) + '</div>' +
       '</div>' +
       '<div class="cell-act"><span class="cell-dot"></span>' +
-        '<button class="cell-copy" data-copyi="' + m._i + '" aria-label="复制 ' + m.name + ' 的链接">' + ICON_COPY + '</button>' +
+        '<button class="cell-copy" data-copyi="' + m._i + '" aria-label="复制成员 ' + m._p + ' 的链接">' + ICON_COPY + '</button>' +
       '</div>' +
     '</div>'
   )).join("");
@@ -871,7 +839,7 @@ function renderGrid(){
 
 function renderPatch(){
   patchbar.innerHTML = MEMBERS.map((m, i) =>
-    '<span class="seg" data-i="' + i + '" title="' + pad2(i + 1) + ' · ' + m.name + '" role="button" tabindex="0" aria-label="跳到 ' + m.name + '"></span>'
+    '<span class="seg" data-i="' + i + '" title="' + pad2(i + 1) + ' · 尾号 ' + m.no + '" role="button" tabindex="0" aria-label="跳到成员 ' + pad2(i + 1) + '"></span>'
   ).join("");
 }
 
@@ -900,7 +868,7 @@ function openMember(i){
   openDetail({
     kind:"member",
     kicker:"MEMBER / 端口 " + pad2(i + 1),
-    name:m.name,
+    name:"成员 " + pad2(i + 1) + " · 尾号 " + m.no,
     fields:[
       ["序号", pad2(i + 1) + " / " + MEMBERS.length],
       ["学号后三位", m.no],
@@ -944,6 +912,70 @@ function loadPreview(url, mode){
       'WPS 与校内系统大多禁止被外部网页嵌套。改用「在 WPS 中打开」即可正常阅览；手机视图只是把宽度收到 390px，方便看移动端排版。' +
     '</div>';
   toast("正在加载；若十秒后仍空白，说明对方禁止嵌套");
+}
+
+/* ==================== 资料库：三个 WPS 源库 ==================== */
+const REPOS = [
+  {
+    key:"study", name:"专业学习资料", slug:"cc8KmiqlrcMV",
+    meta:"3 个文件夹 · 5 份文档",
+    note:"课程配套材料、专业软件与常用网络资源。",
+    items:[
+      { k:"文件夹", t:"按日期收集摆放的资源", d:"按日期归档的课程材料" },
+      { k:"文件夹", t:"专业软件", d:"课程要用的安装包与工具" },
+      { k:"文件夹", t:"练习 WPS", d:"云文档操作练习" },
+      { k:"文档", t:"各种网络资源.docx", d:"" },
+      { k:"文档", t:"几个好用的学习网站.txt", d:"" },
+      { k:"文档", t:"网盘学习资料.DOCX", d:"" },
+      { k:"文档", t:"【学校官方FTP仓库或者web VPN资源】.docx", d:"校内外取资料的两条路径" },
+      { k:"文档", t:"感谢一路同行，你的星标是我持续维护班级资源库的动力.docx", d:"资源库维护约定" }
+    ]
+  },
+  {
+    key:"school", name:"学校相关的事宜", slug:"cpQ7FYtCJpAE",
+    meta:"3 个文件夹 · 8 张图片",
+    note:"校内项目、作业收发与现场留痕。",
+    items:[
+      { k:"文件夹", t:"Explosive-level project", d:"" },
+      { k:"文件夹", t:"近期的作业", d:"当前周期的作业收发" },
+      { k:"文件夹", t:"以前的作业", d:"往期作业归档" },
+      { k:"图片", t:"IMG_20260916_180144.jpg、IMG_2763.jpg、IMG_2930.webp、IMG_2931.jpg、IMG_2979.png、image_1790775824172.jpg", d:"现场拍摄与截图" },
+      { k:"图片", t:"screenshot_20260921_171929_com.tencent.mqq.jpg、screenshot_20260922_091724_com.tencent.mqq.jpg", d:"手机 QQ 截图" }
+    ]
+  },
+  {
+    key:"share", name:"共享社区", slug:"ctjLDPYcTofa",
+    meta:"2 个专栏 · 11 份作业 · 1 个教学动图",
+    note:"同学提交的作业与上传操作演示，由学委维护。",
+    items:[
+      { k:"专栏", t:"艺术专栏", d:"11 个按学号归档的个人/小组作业文件夹，进入后按学号找自己那份" },
+      { k:"专栏", t:"私闹专栏", d:"留档区，内有艺术专栏入口与两条占位内容" },
+      { k:"动图", t:"WPS上传作业教学.gif", d:"上传作业的完整操作演示" }
+    ]
+  }
+];
+
+function renderRes(){
+  const host = document.getElementById("resWrap");
+  if (!host) return;
+  host.innerHTML = REPOS.map(r => (
+    '<div class="task">' +
+      '<div class="task-h"><span class="task-t">' + r.name + '</span><span class="task-meta">' + r.meta + '</span></div>' +
+      '<div class="task-b">' +
+        '<p style="font-size:13px;color:var(--ink3);margin:0 0 12px">' + r.note + '</p>' +
+        r.items.map((it, i) => (
+          '<div class="opt"><span class="opt-n">' + pad2(i + 1) + '</span><div>' +
+            '<span style="color:var(--ink3);font-size:12px">' + it.k + '　</span><b>' + it.t + '</b>' +
+            (it.d ? '<br><span style="color:var(--ink3);font-size:12.5px">' + it.d + '</span>' : '') +
+          '</div></div>'
+        )).join("") +
+        '<div class="link-acts" style="margin-top:14px">' +
+          '<button class="btn btn-sm" data-repo="' + r.key + '">在 WPS 中打开</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  )).join("");
 }
 
 /* ==================== 学校门户 ==================== */
@@ -1013,7 +1045,7 @@ function initGate(){
 }
 
 /* ==================== 路由 ==================== */
-const VIEWS = ["home", "library", "lessons", "portal", "access", "maint"];
+const VIEWS = ["home", "library", "res", "portal", "access", "maint"];
 
 function route(){
   let v = (location.hash || "#/home").replace(/^#\//, "").split("?")[0];
@@ -1028,7 +1060,7 @@ function route(){
   document.title =({
     home:"班级云库 · 网络工程技术（本）2502班",
     library:"班级云库 · 成员索引",
-    lessons:"课程 · 三科补到 60 分",
+    res:"资料库 · 三个 WPS 源库",
     portal:"学校入口 · 班级云库",
     access:"权限说明 · 班级云库",
     maint:"部署与维护 · 班级云库"
@@ -1082,6 +1114,15 @@ document.getElementById("chips").addEventListener("click", e => {
 
 /* 共享库 / 总目录按钮 */
 document.addEventListener("click", e => {
+  const rp = e.target.closest("[data-repo]");
+  if (rp) {
+    const r = REPOS.filter(x => x.key === rp.dataset.repo)[0];
+    if (r) {
+      if (rp.dataset.act === "copy") copyText(urlOf(r.slug));
+      else openUrl(urlOf(r.slug));
+    }
+    return;
+  }
   const b = e.target.closest("[data-open],[data-copy],[data-preview]");
   if (!b) return;
   const k = b.dataset.open || b.dataset.copy || b.dataset.preview;
@@ -1125,6 +1166,7 @@ window.addEventListener("hashchange", route);
 document.getElementById("footMeta").textContent =
   "GXAU · 网络工程技术（本）2502 · 名册核对 " + LAST_SYNC;
 renderPortal();
+renderRes();
 renderPatch();
 initGate();
 route();
