@@ -71,6 +71,14 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 /* ---------- 视图 ---------- */
 .view{display:none;padding:30px 0 64px}
 .view.on{display:block}
+/* 合并成两页后：同组的分区首尾相接，用一条细线和缩小的一级标题分开 */
+.view{scroll-margin-top:64px}
+.view.on + .view.on{border-top:1px solid var(--line);margin-top:12px}
+.view.on ~ .view.on .page-h1{font-size:25px}
+.subnav{display:flex;flex-wrap:wrap;gap:8px;padding:22px 0 0}
+.subnav a{font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 13px;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}
+.subnav a:hover{border-color:var(--green);color:var(--green)}
+.subnav a.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
 .page-head{margin-bottom:26px}
 .page-h1{font-size:clamp(24px,5.4vw,38px);font-weight:700;letter-spacing:-.025em;line-height:1.2}
 .page-lead{font-size:14.5px;color:var(--ink2);max-width:56ch;margin-top:9px}
@@ -301,6 +309,8 @@ html.is-embed button[data-act="preview"]{display:none}
 html.is-embed .m-tabbar{position:fixed;left:0;right:0;bottom:0;height:58px;display:flex;background:#fff;border-top:1px solid var(--line);z-index:20}
 html.is-embed .m-tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--ink3);text-decoration:none}
 html.is-embed .m-tabbar a.on{color:var(--green)}
+/* 嵌入模式已有底部 tab，分区条隐藏，省一块纵向空间 */
+html.is-embed .subnav{display:none}
 html.is-embed .m-tabbar i{font-style:normal;font-size:17px;line-height:1}
 html.is-embed #brw{display:none!important}
 html.is-embed .drawer{display:none!important}
@@ -474,14 +484,8 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="brand-txt"><b>班级云库</b>2502 · 网络工程技术</div>
     </div>
     <nav class="nav" id="nav">
-      <a href="#/home" data-v="home">概览</a>
-      <a href="#/desk" data-v="desk">工作台</a>
-      <a href="#/library" data-v="library">班级云库</a>
-      <a href="#/res" data-v="res">资料库</a>
-      <a href="#/portal" data-v="portal">学校入口</a>
-      <a href="#/plus" data-v="plus">高级</a>
-      <a href="#/access" data-v="access">权限</a>
-      <a href="#/maint" data-v="maint">维护</a>
+      <a href="#/main" data-v="main">班级云库</a>
+      <a href="#/admin" data-v="admin">高级与维护</a>
     </nav>
     <div class="bar-tools">
       <button class="icon-btn" id="lockBtn" title="退出并重新验证">
@@ -492,6 +496,8 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 </header>
 
 <main>
+<div class="wrap subnav" id="subnav"></div>
+
 <!-- ===== 视图：概览 ===== -->
 <section class="view" id="view-home">
   <div class="wrap">
@@ -1121,10 +1127,10 @@ if (EMBED) {
   document.documentElement.classList.add("is-embed");
   const bar = document.createElement("nav");
   bar.className = "m-tabbar";
-  bar.innerHTML = '<a href="#/home" data-v="home"><i>&#9783;</i>概览</a>' +
-                  '<a href="#/library" data-v="library"><i>&#9787;</i>云库</a>' +
-                  '<a href="#/res" data-v="res"><i>&#9776;</i>资料</a>' +
-                  '<a href="#/plus" data-v="plus"><i>&#9881;</i>高级</a>';
+  bar.innerHTML = '<a href="#/main" data-k="home"><i>&#9783;</i>概览</a>' +
+                  '<a href="#/library" data-k="library"><i>&#9787;</i>索引</a>' +
+                  '<a href="#/res" data-k="res"><i>&#9776;</i>资料</a>' +
+                  '<a href="#/plus" data-k="plus"><i>&#9881;</i>高级</a>';
   if (document.body) document.body.appendChild(bar);
   else document.addEventListener("DOMContentLoaded", function(){ document.body.appendChild(bar); });
 }
@@ -1633,7 +1639,19 @@ function initGate(){
 }
 
 /* ==================== 路由 ==================== */
-const VIEWS = ["home", "desk", "library", "res", "portal", "plus", "access", "maint"];
+/* 八个视图合并成两页：main = 概览 / 工作台 / 成员索引 / 学校入口 / 资料库；
+   admin = 权限说明 / 高级功能 / 部署维护。旧链接（#/desk 等）仍可用，落到所属页并对准那个分区。 */
+const GROUPS = {
+  main:  ["home", "desk", "library", "portal", "res"],
+  admin: ["access", "plus", "maint"]
+};
+const ALIAS = {};
+Object.keys(GROUPS).forEach(function(g){ GROUPS[g].forEach(function(k){ ALIAS[k] = g; }); });
+const GROUPS_NAMES = ["main", "admin"];
+const SUBS = {
+  main:  [["home", "概览"], ["desk", "工作台"], ["library", "成员索引"], ["portal", "学校入口"], ["res", "资料库"]],
+  admin: [["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
+};
 
 function paintDevNote(){
   const txt = IS_MOBILE
@@ -1642,31 +1660,41 @@ function paintDevNote(){
   Array.prototype.forEach.call(document.querySelectorAll(".dev-note"), function(el){ el.textContent = txt; });
 }
 
+function paintSubnav(group, focus){
+  const box = document.getElementById("subnav");
+  if (!box) return;
+  const cur = focus || GROUPS[group][0];
+  box.innerHTML = SUBS[group].map(function(p){
+    return '<a href="#/' + p[0] + '"' + (p[0] === cur ? ' class="on"' : '') + '>' + p[1] + '</a>';
+  }).join("");
+}
+
 function route(){
   // 兼容旧链接：#/lessons 已改名为 #/res
   if (location.hash.indexOf("#/lessons") === 0) { location.hash = "#/res"; return; }
-  let v = (location.hash || "#/home").replace(/^#\//, "").split("?")[0];
-  if (VIEWS.indexOf(v) < 0) v = "home";
-  VIEWS.forEach(k => {
-    const el = document.getElementById("view-" + k);
-    if (el) el.classList.toggle("on", k === v);
+  const raw = (location.hash || "#/main").replace(/^#\//, "").split("?")[0];
+  const group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
+  const focus = GROUPS[raw] ? null : (ALIAS[raw] ? raw : null);
+  GROUPS_NAMES.forEach(function(g){
+    GROUPS[g].forEach(function(k){
+      const el = document.getElementById("view-" + k);
+      if (el) el.classList.toggle("on", g === group);
+    });
   });
-  Array.prototype.forEach.call(document.querySelectorAll("#nav a"), a => {
-    a.classList.toggle("on", a.dataset.v === v);
+  Array.prototype.forEach.call(document.querySelectorAll("#nav a"), function(a){
+    a.classList.toggle("on", a.dataset.v === group);
   });
-  if (v === "plus") relayCheck();
+  Array.prototype.forEach.call(document.querySelectorAll(".m-tabbar a"), function(a){
+    a.classList.toggle("on", (a.dataset.k || "") === (focus || GROUPS[group][0]));
+  });
+  paintSubnav(group, focus);
+  const plusOn = document.getElementById("view-plus");
+  if (plusOn && plusOn.classList.contains("on") && typeof relayCheck === "function") relayCheck();
   paintDevNote();
-  document.title =({
-    home:"班级云库 · 网络工程技术（本）2502班",
-    desk:"工作台 · 班级云库",
-    library:"班级云库 · 成员索引",
-    res:"资料库 · 三个 WPS 源库",
-    plus:"高级功能 · 班级云库",
-    portal:"学校入口 · 班级云库",
-    access:"权限说明 · 班级云库",
-    maint:"部署与维护 · 班级云库"
-  })[v] || "班级云库";
-  window.scrollTo(0, 0);
+  document.title = group === "admin" ? "高级与维护 · 班级云库" : "班级云库 · 网络工程技术（本）2502班";
+  const target = focus ? document.getElementById("view-" + focus) : null;
+  if (target) target.scrollIntoView({ block:"start" });
+  else window.scrollTo(0, 0);
 }
 
 
