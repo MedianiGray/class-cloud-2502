@@ -186,10 +186,10 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 /* ---------- 预览视口切换 ---------- */
 .preview-bar{justify-content:flex-start;gap:10px}
 .dev{display:flex;border:1px solid var(--line);background:#fff;margin-left:auto;flex:none}
-.dev button{height:44px;padding:0 14px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em}
+.dev button{height:30px;padding:0 11px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em}
 .dev button.on{background:var(--green);color:#fff}
-.preview-slot.phone{background:#E9E9E3;padding:12px 10px}
-.preview-slot.phone iframe.preview{width:390px;max-width:100%;margin:0 auto;height:600px;border:1px solid var(--line2)}
+.preview-slot.phone{background:#E9E9E3;padding:18px 10px}
+.preview-slot.phone iframe.preview{width:390px;max-width:100%;margin:0 auto;height:600px;border:1px solid var(--line2);border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.13)}
 
 /* ---------- 课程作业 ---------- */
 .task{border:1px solid var(--line);background:var(--card);margin-bottom:16px}
@@ -593,13 +593,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     <div class="task">
       <div class="task-h"><span class="task-t">02 · 传输助手</span><span class="task-meta">先选你在哪一头</span></div>
       <div class="task-b">
-        <div class="p-tabs" id="tpMode">
-          <button class="chip on" data-tool="tp-pc">我在电脑上</button>
-          <button class="chip" data-tool="tp-ph">我在手机上</button>
-        </div>
-
-        <div class="p-pane on" id="tp-pc">
-          <p>电脑这一头是「把东西发出去」。按文件大小选一条，不用四条都试。</p>
+        <p>按文件大小选一条路：几百 MB 走微信或 PairDrop，几十 KB 压进链接；最后可以把地址变成二维码，让手机扫进来。</p>
 
           <div class="eyebrow" style="margin:18px 0 8px">① 先把要发的文件过一遍</div>
           <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把要发的文件拖进来，看有几个、多大、哪个超限、哪个格式不对。不合规的先转格式或压缩，再决定走下面哪条通道。</p>
@@ -644,22 +638,9 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
             <button class="btn btn-sm ghost" id="qrSelf">用当前页面地址</button>
           </div>
           <div id="qrBox" class="qr-box">扫码就能打开，尺寸随内容变长而变密。</div>
-        </div>
 
-        <div class="p-pane" id="tp-ph">
-          <p>手机这一头是「把东西收进来，或者传回电脑」。别在这上面找二维码扫自己。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:16px 0 0">你在手机上？让电脑那边打开微信文件传输助手网页版，把文件拖进去，你在手机微信里收；或者两边都开 PairDrop，手机输电脑屏幕上的 6 位码。</p>
 
-          <div class="eyebrow" style="margin:18px 0 8px">收电脑发来的文件</div>
-          <div class="p-list">
-            <div class="p-item"><div><b>走微信</b><span>让电脑打开下面这个网页登录一下，把文件拖进去；你在手机微信的「文件传输助手」里就收到了。</span></div>
-              <button class="btn btn-sm" data-open="https://szfilehelper.weixin.qq.com/">打开</button></div>
-            <div class="p-item"><div><b>走 PairDrop</b><span>电脑那边也开着 PairDrop，屏幕上出一个 6 位码，你在这边输进去就配对。</span></div>
-              <button class="btn btn-sm" data-open="https://pairdrop.net/">打开</button></div>
-          </div>
-
-          <div class="eyebrow" style="margin:24px 0 8px">手机要传回电脑</div>
-          <p style="font-size:13px;line-height:1.9">两条路反过来用就行：<b>手机微信 → 文件传输助手 → 发文件</b>，电脑那边打开网页版就能下载；或者电脑开 PairDrop 报出码，你在手机上输码直接把文件丢过去。</p>
-        </div>
       </div>
     </div>
 
@@ -1100,6 +1081,7 @@ function openShared(){
 }
 
 function loadPreview(url, mode){
+  mode = mode || store.get("cl_view_mode_v1") || "desktop";
   const host = (function(){ try { return new URL(url).host; } catch(e){ return ""; } })();
   const isPhone = mode === "phone";
   state.previewUrl = url;
@@ -1342,6 +1324,8 @@ slot.addEventListener("click", e => {
   Array.prototype.forEach.call(slot.querySelectorAll("[data-dev]"), b => {
     b.classList.toggle("on", b === d);
   });
+  store.set("cl_view_mode_v1", isPhone ? "phone" : "desktop");
+  toast(isPhone ? "已切到手机视图：390px 宽" : "已切回电脑视图");
 });
 drawer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeDetail(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDetail(); });
@@ -1922,11 +1906,6 @@ function initTools(){
   bind("fCopy", fileCopy);
   bind("fClear", function(){ fileState.list = []; fileCheck(); });
 
-  /* tpDefaultMode：手机打开默认停在「我在手机上」 */
-  if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
-    const phChip = document.querySelector('#tpMode [data-tool="tp-ph"]');
-    if (phChip) phChip.click();
-  }
   bind("spGo", splitGroups);
   bind("spCopy", function(){ copyText(document.getElementById("spOut").innerText); });
   bind("netGo", netCalc);
