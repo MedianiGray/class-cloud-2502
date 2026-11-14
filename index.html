@@ -162,6 +162,16 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .p-drop.on{border-color:var(--green);background:#f2f9f4}
 .p-pick{color:var(--green);text-decoration:underline;cursor:pointer}
 .p-pick input{display:none}
+/* ---------- AI 入口分组折叠 ---------- */
+.ai-g{border:1px solid var(--line);background:#fff;margin-bottom:9px}
+.ai-g summary{display:flex;align-items:baseline;gap:9px;padding:12px 14px;cursor:pointer;list-style:none;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.ai-g summary::-webkit-details-marker{display:none}
+.ai-g summary::after{content:"展开";margin-left:auto;font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink3);letter-spacing:.08em}
+.ai-g[open] summary::after{content:"收起"}
+.ai-g[open] summary{border-bottom:1px solid var(--line)}
+.ai-g .p-list{padding:2px 14px 8px}
+.ai-g .p-item{padding:10px 0}
+.ai-gn{font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink3);letter-spacing:.06em}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -565,7 +575,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     <div class="task">
       <div class="task-h"><span class="task-t">01 · AI 工具台</span><span class="task-meta">开箱即用 · 不用 Key</span></div>
       <div class="task-b">
-        <p>34 个入口按用途分了七类，全部点开就能用，不用申请密钥。标「免登录」的直接进；标「要登录」的注册个账号就有免费额度，不要钱。</p>
+        <p>34 个入口按用途分七类，默认只露组名，用到哪组点开哪组。都不用申请密钥：标「免登录」的直接进；标「要登录」的注册个账号就有免费额度。</p>
         <div id="aiSites"></div>
         <p style="font-size:12.5px;color:var(--ink3);margin:14px 0 0">多数 AI 网站禁止被别的网页嵌进来看，所以「内嵌试一下」常常是一片空白，这是对方的安全设置；点「打开」在新标签里用最稳。</p>
         <details style="margin-top:20px">
@@ -1402,17 +1412,20 @@ function renderAiSites(){
   if (!host) return;
   host.className = "";
   var html = "";
-  AI_GROUPS.forEach(function(g){
-    var rows = "";
+  AI_GROUPS.forEach(function(g, gi){
+    var rows = "", cnt = 0;
     AI_SITES.forEach(function(a, i){
       if (a.g !== g) return;
+      cnt++;
       rows += '<div class="p-item"><div><b>' + a.n + '</b><span>' + a.d + '</span></div>' +
         '<div style="display:flex;gap:8px;align-items:center;white-space:nowrap">' +
         '<span style="color:' + (a.t === "免登录" ? "var(--green)" : "var(--ink3)") + ';font-size:11.5px">' + a.t + '</span>' +
         '<button class="btn btn-sm" data-ai-site="' + i + '">打开</button>' +
         '</div></div>';
     });
-    if (rows) html += '<div class="eyebrow" style="margin:18px 0 8px">' + g + '</div><div class="p-list">' + rows + '</div>';
+    if (rows) html += '<details class="ai-g"' + (gi === 0 ? ' open' : '') + '>' +
+      '<summary><span class="ai-gt">' + g + '</span><span class="ai-gn">' + cnt + ' 个</span></summary>' +
+      '<div class="p-list">' + rows + '</div></details>';
   });
   host.innerHTML = html;
 }
