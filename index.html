@@ -223,6 +223,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-stage.phone{background:#E9E9E3;overflow:auto;align-items:center;padding:22px 0 30px}
 .brw-body{flex:1;min-height:0;width:100%}
 .brw-frame{display:block;width:100%;height:100%;border:0;background:#fff}
+.brw-statusbar{position:absolute;top:0;left:0;right:0;height:24px;display:none;align-items:center;justify-content:space-between;padding:0 16px;font-size:10.5px;font-weight:600;color:#1b1b1b;background:#fff;z-index:3;font-family:-apple-system,"Segoe UI",sans-serif}
+.brw-statusbar b{font-weight:600}
 .brw-stage.phone .brw-body{flex:none;width:390px;max-width:100%;height:780px;border-radius:26px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.16);position:relative;padding-top:24px;background:#fff}
 .brw-stage.phone .brw-frame{border-radius:0}
 .brw-hint{padding:9px 14px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line);background:#FBFBF7;flex:none}
@@ -1122,12 +1124,8 @@ function brwName(url){
 }
 
 function brwSrc(cur){
-  /* 手机设备框里放“本站被手机打开的样子”：390px 的真视口，由本站自己的响应式渲染；
-     电脑设备框里放真实目标地址（WPS 库）。WPS 按服务器端 UA 分流，网页改不了，所以不硬塞。 */
-  if (brw.mode === "phone") {
-    const h = brw.localHash || "#/library";
-    return location.pathname + "?embed=ph" + h;
-  }
+  /* 电脑端、手机端都载同一个真实地址，只是视口不同：内嵌是通的，WPS 的页面本身能显示。
+     唯一改不了的是“发给 WPS 的 UA”，那是浏览器层的事。 */
   return cur && cur.url ? cur.url : "about:blank";
 }
 
@@ -1145,12 +1143,27 @@ function brwRender(){
   if (f) f.src = brwSrc(cur);
   const stage = document.getElementById("brwStage");
   if (stage) stage.classList.toggle("phone", brw.mode === "phone");
+  const body = document.getElementById("brwBody");
+  if (body) {
+    let sb = body.querySelector(".brw-statusbar");
+    if (brw.mode === "phone") {
+      if (!sb) {
+        sb = document.createElement("div");
+        sb.className = "brw-statusbar";
+        sb.innerHTML = '<b>9:41</b><span>5G &nbsp;&#9646;&#9646;&#9646; &nbsp;86%</span>';
+        body.insertBefore(sb, body.firstChild);
+      }
+      sb.style.display = "flex";
+    } else if (sb) {
+      sb.style.display = "none";
+    }
+  }
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
     hint.innerHTML = brw.mode === "phone"
-      ? "手机端模拟：390×780 真视口，班级云库按手机布局重排。要看 WPS 的手机版，用 ▣ 扫码在手机上打开，或按 F12 → Ctrl+Shift+M 选 iPhone。"
-      : "电脑端：真实目标地址。这里是 WPS 的页面本身，若一片空白说明对方禁止被外部页面嵌套，点 ↗ 用系统浏览器打开。";
+      ? "手机端：390×780 的真视口，WPS 页面按这个宽度重排。要拿到 WPS 的移动版页面，得用真手机（▣ 扫码）或 F12 设备模拟——网页改不了发给服务器的 UA。"
+      : "电脑端：WPS 的页面本身，内嵌可直接浏览。要新窗口看就点 ↗。";
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
     b.classList.toggle("on", b.dataset.brwdev === brw.mode);
