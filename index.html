@@ -1113,8 +1113,8 @@ if (EMBED) {
   if (document.body) document.body.appendChild(bar);
   else document.addEventListener("DOMContentLoaded", function(){ document.body.appendChild(bar); });
 }
-const IS_MOBILE = /Android|iPhone|iPod|iPad|Mobile|HarmonyOS/i.test(navigator.userAgent) ||
-  (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+/* 只看 UA：窗口拉窄不是手机。WPS 那边认的也是请求头 UA，两边用同一套判据才不会自相矛盾。 */
+const IS_MOBILE = /Android|iPhone|iPod|iPad|Mobile|HarmonyOS/i.test(navigator.userAgent);
 const pad2 = n => String(n).padStart(2, "0");
 const fmtNo = no => "尾号 " + no;
 const urlOf = slug => KDOC + slug;
@@ -1316,12 +1316,10 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    if (brw.mode === "phone" && IS_MOBILE) {
-      hint.innerHTML = "手机端：这是 WPS 给手机的<b>真·移动版</b> —— 底部有「新建 / 下载全部 / 保存至WPS」，和电脑端是两套 UI。";
-    } else if (brw.mode === "phone") {
-      hint.innerHTML = "手机端预览：电脑上模拟的手机框按 390px 重排本页（列表行 + 底部 tab）。这台机器是电脑，发给 WPS 的 UA 还是电脑的，所以拿不到 WPS 移动版；要看真的请用「扫码」在手机上打开。";
+    if (IS_MOBILE) {
+      hint.innerHTML = "这是 WPS 给手机的<b>真·移动版</b>：底部有「新建 / 下载全部 / 保存至WPS」，和电脑端完全是两套 UI。";
     } else {
-      hint.innerHTML = "电脑端：WPS 的页面本身，内嵌可直接浏览。要新窗口看就点 ↗。";
+      hint.innerHTML = "这是 WPS 的<b>桌面版</b>。给你哪一套 UI 由浏览器的 UA 决定，页面里切不了 —— 要在电脑上看移动版，得改 UA（浏览器扩展或开发者工具里的设备模拟）；手机上打开本站则自动是移动版。";
     }
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
@@ -1463,7 +1461,7 @@ function brwQrPanel(url){
 
 function loadPreview(url, mode){
   /* 预览已升级为全屏浏览器窗口；保底转发，避免旧调用点报错 */
-  mode = mode || store.get("cl_view_mode_v1") || (IS_MOBILE ? "phone" : "desktop");
+  mode = mode || (IS_MOBILE ? "phone" : "desktop");
   brwInit();
   brwPush(url, mode);
   return;
@@ -2528,10 +2526,6 @@ route();
     <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
-    <span class="brw-dev" role="group" aria-label="设备">
-      <button data-brwdev="desktop" class="on">电脑</button>
-      <button data-brwdev="phone">手机</button>
-    </span>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
