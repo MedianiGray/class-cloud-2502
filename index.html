@@ -564,7 +564,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <details style="margin-top:20px">
           <summary style="cursor:pointer;font-size:12.5px;color:var(--ink3)">进阶：自己接 API（要 Key，会折腾才用）</summary>
           <div style="margin-top:14px">
-            <p>填接口地址、模型名和密钥，浏览器直接请求，密钥只存在你这台电脑的 localStorage。<b>报 CORS 是服务商禁止网页直连，报 401 是密钥无效</b>。公用电脑别填，key 会留在那台机器上。</p>
+            <p>填接口地址、模型名和密钥，浏览器直接请求，密钥只存在你这台电脑的 localStorage。<b>报 CORS 是服务商禁止网页直连，报 401 是密钥无效</b>；双击本地文件打开时 CORS 更严，用线上地址更稳。公用电脑别填，key 会留在那台机器上。</p>
             <div class="p-grid">
               <label>接口地址<input id="aiBase" class="p-in" placeholder="https://api.openai.com/v1"></label>
               <label>模型<input id="aiModel" class="p-in" placeholder="gpt-4o-mini / deepseek-chat"></label>
@@ -884,6 +884,13 @@ const VPN_ENTRY = "https://vpn.gxnzd.com.cn/login";
 /* ==================== 状态 ==================== */
 const state = { q:"", sort:"no", cur:null, previewUrl:null };
 const KEY = "cl_access_v1";
+
+/* 本地存储兜底：file:// 或隐私模式里 localStorage 可能被禁，读写失败也不能让整站打不开 */
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
 const grid = document.getElementById("memberGrid");
 const patchbar = document.getElementById("patchbar");
 const drawer = document.getElementById("drawer");
@@ -907,12 +914,12 @@ function toast(msg){
 async function copyText(t){
   try {
     await navigator.clipboard.writeText(t);
-    toast("链接已复制，可直接粘贴到班群");
+    toast("已复制，可直接粘贴");
   } catch(e){
     const ta = document.createElement("textarea");
     ta.value = t; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand("copy"); toast("链接已复制"); }
+    try { document.execCommand("copy"); toast("已复制"); }
     catch(_){ toast("复制失败，请手动长按链接复制"); }
     ta.remove();
   }
@@ -1137,14 +1144,14 @@ function renderPortal(){
 
 /* ==================== 口令门 ==================== */
 function enter(){
-  localStorage.setItem(KEY, "1");
+  store.set(KEY, "1");
   document.getElementById("gate").classList.add("off");
   renderGrid();
   toast("已进入班级云库");
 }
 
 function initGate(){
-  const saved = localStorage.getItem(KEY);
+  const saved = store.get(KEY);
   const gate = document.getElementById("gate");
   if (saved) {
     gate.classList.add("off");
@@ -1283,7 +1290,7 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.cla
 
 /* 顶栏工具 */
 document.getElementById("lockBtn").onclick = () => {
-  localStorage.removeItem(KEY);
+  store.del(KEY);
   location.reload();
 };
 
@@ -1360,13 +1367,13 @@ function aiCfgLoad(){
   const b = document.getElementById("aiBase"), m = document.getElementById("aiModel"), k = document.getElementById("aiKey");
   if (!b) return;
   try {
-    const c = JSON.parse(localStorage.getItem(AI_KEY) || "{}");
+    const c = JSON.parse(store.get(AI_KEY) || "{}");
     b.value = c.base || ""; m.value = c.model || ""; k.value = c.key || "";
   } catch(e) {}
 }
 function aiCfgSave(){
   const b = document.getElementById("aiBase"), m = document.getElementById("aiModel"), k = document.getElementById("aiKey");
-  try { localStorage.setItem(AI_KEY, JSON.stringify({ base:b.value.trim(), model:m.value.trim(), key:k.value.trim() })); } catch(e) {}
+  store.set(AI_KEY, JSON.stringify({ base:b.value.trim(), model:m.value.trim(), key:k.value.trim() }));
 }
 
 function aiSay(who, text){
@@ -1413,7 +1420,8 @@ function relayBuild(obj){
   if (json.length > 260000) { toast("内容太大，链接装不下，压到 200KB 以内"); return; }
   if (json.length > 24000) { toast("链接偏长，微信或 QQ 可能截断，建议复制文本直接发"); }
   const payload = encodeURIComponent(b64enc(json));
-  const link = location.origin + location.pathname + "#/plus?share=" + payload;
+  const base = location.href.split("#")[0].replace(/\?.*$/, "");
+  const link = base + "#/plus?share=" + payload;
   const out = document.getElementById("rlOut");
   out.dataset.ready = "";
   out.innerHTML = '<b style="color:var(--green)">链接已生成</b><br><span class="mono" style="font-size:11.5px;word-break:break-all">' + link + '</span>';
