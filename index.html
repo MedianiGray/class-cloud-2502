@@ -1048,6 +1048,8 @@ function initGate(){
 const VIEWS = ["home", "library", "res", "portal", "access", "maint"];
 
 function route(){
+  // 兼容旧链接：#/lessons 已改名为 #/res
+  if (location.hash.indexOf("#/lessons") === 0) { location.hash = "#/res"; return; }
   let v = (location.hash || "#/home").replace(/^#\//, "").split("?")[0];
   if (VIEWS.indexOf(v) < 0) v = "home";
   VIEWS.forEach(k => {
