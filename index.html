@@ -158,6 +158,10 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .p-pane.on{display:block}
 .p-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
 .p-item button{flex:0 0 auto;white-space:nowrap}
+.p-drop{border:1.5px dashed var(--line,#dfe3ea);border-radius:12px;padding:26px 14px;text-align:center;font-size:13px;color:var(--ink3);margin-bottom:14px}
+.p-drop.on{border-color:var(--green);background:#f2f9f4}
+.p-pick{color:var(--green);text-decoration:underline;cursor:pointer}
+.p-pick input{display:none}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -634,16 +638,31 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       </div>
     </div>
     <div class="task">
-      <div class="task-h"><span class="task-t">04 · 班级小工具</span><span class="task-meta">分组 / 子网 / 收交 / 通知</span></div>
+      <div class="task-h"><span class="task-t">04 · 文件助手</span><span class="task-meta">清单 / 分组 / 收交 / 通知</span></div>
       <div class="task-b">
         <div class="p-tabs">
-          <button class="chip on" data-tool="pane-split">随机分组</button>
-          <button class="chip" data-tool="pane-net">子网计算</button>
+          <button class="chip on" data-tool="pane-files">文件清单</button>
+          <button class="chip" data-tool="pane-split">随机分组</button>
           <button class="chip" data-tool="pane-collect">收交清单</button>
           <button class="chip" data-tool="pane-notice">通知文案</button>
         </div>
 
-        <div class="p-pane on" id="pane-split">
+        <div class="p-pane on" id="pane-files">
+          <p>把要交的文件拖进来，或者一次多选。这里帮你数清楚：有几个、多大、哪个超限、哪个格式不对，最后能复制一份清单发群里。</p>
+          <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple></span></div>
+          <div class="p-row">
+            <label>单文件上限（MB）<input id="fMax" class="p-in" type="number" value="200"></label>
+            <label>只允许这些扩展名<input id="fExt" class="p-in" placeholder="mp4,docx,pdf（留空不查）"></label>
+          </div>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="fGo">检查并汇总</button>
+            <button class="btn btn-sm ghost" id="fCopy">复制清单</button>
+            <button class="btn btn-sm ghost" id="fClear">清空</button>
+          </div>
+          <div class="p-out" id="fOut">拖文件进来就会列在这里。文件不上传，只在这台电脑的页面内存里过一遍。</div>
+        </div>
+
+        <div class="p-pane" id="pane-split">
           <p>把名单打散后均分成若干组，结果可整段复制。名单留空就用班里 45 个端口序号。</p>
           <label>名单（一行一个，留空用成员序号）<textarea id="spNames" class="p-in p-ta" placeholder="张…（一行一个）"></textarea></label>
           <div class="p-row">
@@ -654,16 +673,6 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
             <button class="btn btn-sm ghost" id="spCopy">复制结果</button>
           </div>
           <div class="p-out" id="spOut">点「分组」出结果。</div>
-        </div>
-
-        <div class="p-pane" id="pane-net">
-          <p>填一个 IPv4 地址和前缀长度（或掩码），算网络地址、广播地址、可用主机范围。</p>
-          <div class="p-row">
-            <label>IP 地址<input id="netIp" class="p-in" value="192.168.1.10" placeholder="192.168.1.10"></label>
-            <label>前缀 或 掩码<input id="netMask" class="p-in" value="24" placeholder="24 或 255.255.255.0"></label>
-          </div>
-          <div class="link-acts"><button class="btn btn-sm" id="netGo">计算</button></div>
-          <div class="p-out" id="netOut">结果会列在这里。</div>
         </div>
 
         <div class="p-pane" id="pane-collect">
@@ -1804,6 +1813,60 @@ function ddlRender(){
   out.innerHTML = html;
 }
 
+/* 文件清单：只在本机内存里过一遍，不上传 */
+const fileState = { list: [] };
+
+function fileFmt(n){
+  if (n < 1024) return n + " B";
+  if (n < 1048576) return (n / 1024).toFixed(1) + " KB";
+  return (n / 1048576).toFixed(1) + " MB";
+}
+
+function fileAdd(files){
+  Array.prototype.forEach.call(files, function(f){
+    const dup = fileState.list.some(function(x){ return x.name === f.name && x.size === f.size; });
+    if (!dup) fileState.list.push(f);
+  });
+  fileCheck();
+}
+
+function fileCheck(){
+  const out = document.getElementById("fOut");
+  if (!out) return;
+  out.dataset.ready = "";
+  const list = fileState.list;
+  if (!list.length) { out.textContent = "还没有文件。拖进来，或者点上面那块去选。"; return; }
+  const maxMB = parseFloat(document.getElementById("fMax").value) || 0;
+  const exts = document.getElementById("fExt").value.split(/[,，\s]+/)
+    .map(function(x){ return x.trim().toLowerCase().replace(/^\./, ""); })
+    .filter(Boolean);
+  const rows = list.slice().sort(function(a, b){ return a.name.localeCompare(b.name, "zh"); });
+  var bad = 0, total = 0, html = '<div class="mono" style="font-size:12px;line-height:2">';
+  rows.forEach(function(f){
+    total += f.size;
+    const ext = (f.name.split(".").pop() || "").toLowerCase();
+    const over = maxMB && f.size > maxMB * 1048576;
+    const wrong = exts.length && exts.indexOf(ext) < 0;
+    const flag = over ? "超限" : wrong ? "格式不符" : "";
+    if (flag) bad++;
+    html += '<div style="display:flex;gap:10px;align-items:baseline">' +
+      '<span style="flex:1;word-break:break-all">' + f.name.replace(/</g, "&lt;") + '</span>' +
+      '<span style="color:var(--ink3);white-space:nowrap">' + fileFmt(f.size) + '</span>' +
+      '<span style="white-space:nowrap;font-weight:600;color:' + (flag ? "#d9534f" : "var(--green)") + '">' +
+      (flag || "OK") + '</span></div>';
+  });
+  html += "</div>";
+  out.innerHTML = '<b>' + list.length + ' 个文件，共 ' + fileFmt(total) +
+    (bad ? '，' + bad + ' 个要处理' : '，全部合规') + '</b>' + html;
+}
+
+function fileCopy(){
+  const list = fileState.list.slice().sort(function(a, b){ return a.name.localeCompare(b.name, "zh"); });
+  if (!list.length) { toast("还没有文件"); return; }
+  const lines = list.map(function(f, i){ return (i + 1) + ". " + f.name + "（" + fileFmt(f.size) + "）"; });
+  copyText("共 " + list.length + " 个文件，合计 " + fileFmt(list.reduce(function(t, f){ return t + f.size; }, 0)) + "\n" + lines.join("\n"));
+}
+
 function initTools(){
   Array.prototype.forEach.call(document.querySelectorAll("#view-plus .p-tabs"), function(bar){
     const tabs = bar.querySelectorAll("[data-tool]");
@@ -1822,6 +1885,18 @@ function initTools(){
     const el = document.getElementById(id);
     if (el) el.onclick = fn;
   };
+  const drop = document.getElementById("fDrop");
+  const pick = document.getElementById("fPick");
+  if (pick) pick.onchange = function(){ fileAdd(pick.files); };
+  if (drop) {
+    drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("on"); });
+    drop.addEventListener("dragleave", function(){ drop.classList.remove("on"); });
+    drop.addEventListener("drop", function(e){ e.preventDefault(); drop.classList.remove("on"); fileAdd(e.dataTransfer.files); });
+  }
+  bind("fGo", fileCheck);
+  bind("fCopy", fileCopy);
+  bind("fClear", function(){ fileState.list = []; fileCheck(); });
+
   bind("spGo", splitGroups);
   bind("spCopy", function(){ copyText(document.getElementById("spOut").innerText); });
   bind("netGo", netCalc);
