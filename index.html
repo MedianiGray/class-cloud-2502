@@ -172,6 +172,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .ai-g .p-list{padding:2px 14px 8px}
 .ai-g .p-item{padding:10px 0}
 .ai-gn{font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink3);letter-spacing:.06em}
+.page-note{font-size:12.5px;color:var(--ink3);line-height:1.7;border-left:2px solid var(--amber);padding:2px 0 2px 12px;margin:0 0 18px}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -431,7 +432,8 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">班级云库</h1>
-      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接切「电脑上看 / 手机上看」，点成员卡可查看详情、复制链接。</p>
+      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接点「电脑版 / 窄屏」预览，点成员卡可查看详情、复制链接。</p>
+      <p class="page-note dev-note"></p>
     </div>
 
     <div class="shared-card">
@@ -441,8 +443,8 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="link-acts">
         <button class="btn btn-sm" data-open="shared">在 WPS 中打开</button>
         <button class="btn btn-sm ghost" data-copy="shared">复制链接</button>
-        <button class="btn btn-sm ghost" data-preview="shared" data-mode="desktop">电脑上看</button>
-        <button class="btn btn-sm ghost" data-preview="shared" data-mode="phone">手机上看</button>
+        <button class="btn btn-sm ghost" data-preview="shared" data-mode="desktop">电脑版</button>
+        <button class="btn btn-sm ghost" data-preview="shared" data-mode="phone">窄屏</button>
       </div>
     </div>
 
@@ -514,7 +516,9 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">资料库</h1>
-      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。每张卡都能直接点「电脑上看」或「手机上看」，在页面里换视口预览，不用来回改窗口大小。</p>
+      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。每张卡都能直接点「电脑版」或「窄屏」在页面里预览，也能「扫码看」让手机自己打开。</p>
+    <p class="page-note dev-note"></p>
+
     </div>
 
     <div class="portal-alert">
@@ -901,6 +905,8 @@ const patchbar = document.getElementById("patchbar");
 const drawer = document.getElementById("drawer");
 const slot = document.getElementById("dpSlot");
 
+const IS_MOBILE = /Android|iPhone|iPod|iPad|Mobile|HarmonyOS/i.test(navigator.userAgent) ||
+  (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
 const pad2 = n => String(n).padStart(2, "0");
 const fmtNo = no => "尾号 " + no;
 const urlOf = slug => KDOC + slug;
@@ -1047,7 +1053,7 @@ function openShared(){
 }
 
 function loadPreview(url, mode){
-  mode = mode || store.get("cl_view_mode_v1") || "desktop";
+  mode = mode || store.get("cl_view_mode_v1") || (IS_MOBILE ? "phone" : "desktop");
   const host = (function(){ try { return new URL(url).host; } catch(e){ return ""; } })();
   const isPhone = mode === "phone";
   state.previewUrl = url;
@@ -1065,9 +1071,10 @@ function loadPreview(url, mode){
     '</div>' +
     '<iframe class="preview" src="' + url + '" referrerpolicy="no-referrer" title="内嵌预览"></iframe>' +
     '<div class="preview-msg" style="border-top:1px solid var(--line);padding:11px 13px;text-align:left">' +
-      '<strong style="margin-bottom:3px;font-size:13px">' + (isPhone ? "这一块是手机视口模拟" : "空白或被拒绝是正常现象") + '</strong>' +
+      '<strong style="margin-bottom:3px;font-size:13px">' +
+        (isPhone ? "窄屏只是把宽度收到 390px，浏览器身份还是电脑" : "空白或被拒绝是正常现象") + '</strong>' +
       (isPhone
-        ? '把宽度收到 390px、按真机比例拉高，看的是同一页面的窄屏排版；想在自己的手机上真打开，点上面「扫码看」。'
+        ? 'WPS 是按浏览器身份（UA）决定给你电脑版还是移动版的，网页本身没有权限把自己伪装成手机——所以这里再窄，拿到的仍是电脑版。要真正的移动版只有两条路：手机相机扫上面「扫码看」出来的码；或在这台电脑按 F12、Ctrl+Shift+M 选一台 iPhone 再刷新。'
         : 'WPS 与校内系统大多禁止被外部网页嵌套，白屏是对方的安全设置。点「新标签打开」即可正常阅览。') +
     '</div>';
   toast("正在加载；若十秒后仍空白，说明对方禁止嵌套");
@@ -1092,8 +1099,8 @@ function renderRes(){
       '<div class="task-b">' +
         '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
         '<div class="link-acts">' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="desktop">电脑上看</button>' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="phone">手机上看</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="desktop">电脑版</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="phone">窄屏</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
         '</div>' +
@@ -1187,6 +1194,13 @@ function initGate(){
 /* ==================== 路由 ==================== */
 const VIEWS = ["home", "library", "res", "portal", "plus", "access", "maint"];
 
+function paintDevNote(){
+  const txt = IS_MOBILE
+    ? "当前是手机访问：预览拿到的就是 WPS 移动版，「窄屏」只是把宽度收回 390px。"
+    : "当前是电脑访问：浏览器身份改不了，这里再窄 WPS 也给电脑版。要看真正的移动版，扫码用手机打开，或在电脑上按 F12 → Ctrl+Shift+M 选 iPhone 再刷新。";
+  Array.prototype.forEach.call(document.querySelectorAll(".dev-note"), function(el){ el.textContent = txt; });
+}
+
 function route(){
   // 兼容旧链接：#/lessons 已改名为 #/res
   if (location.hash.indexOf("#/lessons") === 0) { location.hash = "#/res"; return; }
@@ -1200,6 +1214,7 @@ function route(){
     a.classList.toggle("on", a.dataset.v === v);
   });
   if (v === "plus") relayCheck();
+  paintDevNote();
   document.title =({
     home:"班级云库 · 网络工程技术（本）2502班",
     library:"班级云库 · 成员索引",
@@ -1316,7 +1331,7 @@ slot.addEventListener("click", e => {
     b.classList.toggle("on", b === d);
   });
   store.set("cl_view_mode_v1", isPhone ? "phone" : "desktop");
-  toast(isPhone ? "已切到手机视图：390px 宽" : "已切回电脑视图");
+  toast(isPhone ? "已切到 390px 窄屏；WPS 仍会按电脑版返回" : "已切回电脑版");
 });
 drawer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeDetail(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDetail(); });
