@@ -745,7 +745,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">四张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱，还有一台真跑的 x86 虚拟机。全部在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">五张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机，还有一份远程协助的正确姿势。全部在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -855,6 +855,24 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
           <button class="btn btn-sm ghost" id="vmSite">打开 v86 官网</button>
         </div>
         <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">首次启动要下载 WebAssembly 和系统镜像，约 30–60 秒，之后就这只窗口能一直用。手机上不划算：虚拟机要键盘，手机只有触屏。</p>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">05 · 远程协助</span><span class="task-meta">帮同学看电脑，三条路</span></div>
+      <div class="task-b">
+        <p>这里没有「远程控制」按钮，这是有意的：远程桌面的前提是<b>对方那台电脑正开着</b>，并且装了一个服务端。这个站是 GitHub Pages 上的静态页，既不能常开机器、也没有服务器可跑，塞一个按钮进来只会跳到别人的网站。</p>
+        <p style="font-size:13px;color:var(--ink2);margin:0 0 4px">真要连，按场景选：</p>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.9;margin:0 0 14px;padding-left:18px">
+          <li><b>临时帮一次</b>：Windows 自带「快速助手」，双方按 <span class="mono">Win + Ctrl + Q</span>，输一次性验证码即可，什么都不用装。</li>
+          <li><b>经常要连</b>：RustDesk 开源、有手机端，被控电脑装好常驻，手机输 ID + 密码就能看。</li>
+          <li><b>不想装东西</b>：CrossDesk 提供网页客户端，被控端装客户端后，浏览器直接连。</li>
+        </ul>
+        <div class="link-acts">
+          <a class="btn btn-sm ghost" href="https://rustdesk.com/zh-cn/" target="_blank" rel="noopener">RustDesk 官网</a>
+          <a class="btn btn-sm ghost" href="https://web.crossdesk.cn/" target="_blank" rel="noopener">CrossDesk 网页端</a>
+        </div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0"><b>别把 ID 和密码发给不认识的人。</b>连之前确认对方身份，连的时候自己盯着屏幕，结束后立刻改掉临时密码。</p>
       </div>
     </div>
   </div>
