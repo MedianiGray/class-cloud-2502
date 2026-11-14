@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>班级云库 · 网络工程技术（本）2502班</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2E5348">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="班级云库">
+<link rel="apple-touch-icon" href="./icon-180.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232E5348'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='13' y='5' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='21' y='5' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='5' y='13' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='13' y='13' width='6' height='6' fill='%23B4812A'/%3E%3Crect x='21' y='13' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='5' y='21' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='13' y='21' width='6' height='6' fill='%23F2F1EC'/%3E%3Crect x='21' y='21' width='6' height='6' fill='%23F2F1EC'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -92,6 +98,17 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .board-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:20px 0 10px}
 .board-tip{font-size:12px;color:var(--ink3)}
 .board-note{font-size:12.5px;color:var(--ink3);margin:14px 0 0}
+
+/* ---------- 环境提示条 ---------- */
+.envbar{background:var(--green);color:#F2F1EC}
+.envbar[hidden]{display:none}
+.envbar-in{max-width:1180px;margin:0 auto;padding:9px var(--pad);display:flex;align-items:center;gap:10px;font-size:12.5px;line-height:1.5}
+.envbar-in #envbarTxt{flex:1;min-width:0}
+.envbar-btn{flex:none;height:26px;padding:0 12px;border:1px solid rgba(242,241,236,.45);border-radius:13px;color:#F2F1EC;font-size:12px;white-space:nowrap}
+.envbar-btn:hover{background:rgba(242,241,236,.12)}
+.envbar-x{flex:none;width:24px;height:24px;font-size:12px;color:#F2F1EC;opacity:.72}
+.envbar-x:hover{opacity:1}
+html.is-embed .envbar{display:none}
 .page-head{margin-bottom:26px}
 .page-h1{font-size:clamp(24px,5.4vw,38px);font-weight:700;letter-spacing:-.025em;line-height:1.2}
 .page-lead{font-size:14.5px;color:var(--ink2);max-width:56ch;margin-top:9px}
@@ -210,6 +227,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-addr{flex:1;min-width:120px}
 .brw-addr input{width:100%;height:28px;border:1px solid var(--line);border-radius:14px;background:#fff;font-family:var(--mono);font-size:11px;color:var(--ink2);padding:0 12px}
 .brw-addr input:focus{outline:none;border-color:var(--green);color:var(--ink)}
+.brw-dev{display:flex;border:1px solid var(--line);background:#fff;border-radius:6px;overflow:hidden;flex:none}
+.brw-dev button{height:26px;padding:0 10px;font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.brw-dev button.on{background:var(--green);color:#fff}
 .brw-close{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;color:var(--ink2)}
 .brw-book{display:flex;gap:6px;padding:6px 10px;background:#fff;border-bottom:1px solid var(--line);flex:none;overflow-x:auto}
 .brw-book button{height:24px;padding:0 10px;border:1px solid var(--line);background:#FBFBF7;border-radius:12px;font-size:11.5px;color:var(--ink2);white-space:nowrap;flex:none}
@@ -246,6 +266,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   .brw-bar{padding:6px 8px;gap:5px}
   .brw-ico,.brw-close{width:34px;height:34px;font-size:13px}
   .brw-addr input{height:34px;font-size:12px;padding:0 10px;border-radius:17px}
+  .brw-dev button{height:34px;padding:0 12px;font-size:11px}
   .brw-book{padding:5px 8px;gap:5px}
   .brw-book button{height:30px;font-size:12px;padding:0 9px}
   .brw-hint{padding:7px 10px;font-size:11px;line-height:1.6}
@@ -449,6 +470,15 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <button class="btn" id="gateGo">进入</button>
     </div>
     <p class="gate-note">口令仅用于挡住陌生访客与搜索引擎，不是真正的安全边界。文档的实际权限由 WPS 账号与分享设置决定，网页不复制任何文档内容。</p>
+  </div>
+</div>
+
+<!-- ===== 环境提示条（微信 / 装到主屏） ===== -->
+<div class="envbar" id="envbar" hidden>
+  <div class="envbar-in">
+    <span id="envbarTxt"></span>
+    <button class="envbar-btn" id="envbarAct" hidden></button>
+    <button class="envbar-x" id="envbarX" aria-label="关掉这条提示">&#10005;</button>
   </div>
 </div>
 
@@ -1216,7 +1246,7 @@ function openShared(){
 }
 
 /* ==================== 浏览器窗口 ==================== */
-const brw = { tabs: [], i: 0, hist: [], hi: -1 };
+const brw = { tabs: [], i: 0, hist: [], hi: -1, mode: IS_MOBILE ? "phone" : "desktop" };
 
 function brwName(url){
   const book = [SHARED, ROOT].concat(REPOS).filter(Boolean);
@@ -1228,9 +1258,22 @@ function brwName(url){
   try { return new URL(url).host; } catch (e) { return "新标签页"; }
 }
 
+/* 端切换走代理：WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，
+   网页改不了 UA，就让 Worker 替你改（代码见 proxy/wps-proxy.js）。 */
+let PROXY = "";   /* 部署 proxy/wps-proxy.js 后填 Worker 地址，例如 "https://cl-wps.xxx.workers.dev" */
+
+function proxyFor(u, mode){
+  if (!PROXY) return u;
+  try { if (!/kdocs\.cn$/i.test(new URL(u).hostname)) return u; } catch (e) { return u; }
+  return PROXY + "?u=" + encodeURIComponent(u) + "&mode=" + mode;
+}
+
 function brwSrc(cur){
-  /* 一律载真地址。WPS 给哪套界面由它按浏览器身份自己分流，这里不干预。 */
-  return cur && cur.url ? cur.url : "about:blank";
+  if (!cur || !cur.url) return "about:blank";
+  /* 要的这套壳和本机身份一致就直接连；不一致才让代理换 UA 去取另外那一套 */
+  const wantPhone = brw.mode === "phone";
+  if (wantPhone === IS_MOBILE) return cur.url;
+  return proxyFor(cur.url, brw.mode);
 }
 
 function brwRender(){
@@ -1248,8 +1291,15 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    hint.innerHTML = "WPS 与校内系统大多禁止被外部网页嵌套，窗口里白屏是对方的安全策略，不是这里坏了。要看真页面，点右上角 ↗ 在新标签打开；手机上想看，点 ▣ 出二维码用手机扫。";
+    hint.innerHTML = PROXY
+      ? (brw.mode === "phone"
+        ? "这是服务器用手机身份取回的<b>移动版</b>（mShareFolder），跟你本机的浏览器身份无关。「电脑」切回桌面壳。"
+        : "这是<b>桌面版</b>（ShareFolder）。切「手机」时由服务器换移动 UA 去取那一套，跟本机身份无关。")
+      : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了。要让「电脑 / 手机」真生效，得先接一个代理（见 proxy/wps-proxy.js）；没接之前，用 ▣ 扫码在手机上打开最稳，↗ 可在新标签看真页面。";
   }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
+    b.classList.toggle("on", b.dataset.brwdev === brw.mode);
+  });
 }
 
 function brwPush(url){
@@ -1339,6 +1389,23 @@ function brwInit(){
     }
     const bw = e.target.closest("[data-bwurl]");
     if (bw) { brwGoto(bw.dataset.bwurl); return; }
+    const dev = e.target.closest("[data-brwdev]");
+    if (dev) {
+      const mode = dev.dataset.brwdev;
+      if (mode === brw.mode) return;
+      const cur = brw.tabs[brw.i];
+      if (!PROXY) {
+        if (cur && cur.url) brwQrPanel(cur.url);
+        toast(mode === "phone"
+          ? "手机上扫这个码，WPS 会给真移动版；在这里换端，要等代理接上（proxy/wps-proxy.js）"
+          : "电脑上直接看就是桌面版；手机上想看桌面版，用浏览器菜单勾「请求桌面版网站」");
+        return;
+      }
+      brw.mode = mode;
+      brwRender();
+      toast(mode === "phone" ? "已切到移动版界面" : "已切到电脑版界面");
+      return;
+    }
   });
 
   document.addEventListener("keydown", function(e){
@@ -2400,6 +2467,10 @@ route();
     <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
+    <span class="brw-dev" role="group" aria-label="以哪一端打开">
+      <button data-brwdev="desktop">电脑</button>
+      <button data-brwdev="phone">手机</button>
+    </span>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
@@ -2412,5 +2483,87 @@ route();
     <div class="brw-hint" id="brwHint">若这里一片空白，是对方禁止被外部页面嵌套；点右上角 ↗ 用系统浏览器打开。</div>
   </div>
 </div>
+<script>
+/* ==================== 环境提示 / 装到主屏 / 离线壳 ==================== */
+(function(){
+  const bar = document.getElementById("envbar");
+  const txt = document.getElementById("envbarTxt");
+  const act = document.getElementById("envbarAct");
+  const x = document.getElementById("envbarX");
+  if (!bar || !txt) return;
+
+  const KEY = "cl_envbar_v1";
+  const UA_STR = navigator.userAgent;
+  const IS_WX = /MicroMessenger/i.test(UA_STR);
+  const IS_QQ = /\bQQ\/|QQBrowser/i.test(UA_STR);
+  const IS_IOS = /iPhone|iPad|iPod/i.test(UA_STR);
+  const IS_ANY_MOBILE = /Android|iPhone|iPad|iPod|Mobile|HarmonyOS/i.test(UA_STR);
+  const FORCE_ENV = /[?&]env=(1|demo)/.test(location.search);   /* 电脑上想看效果：地址后加 ?env=1 */
+  let promptEvt = null;
+
+  function remember(v){ try { localStorage.setItem(KEY, v); } catch (e) {} }
+  function recalled(){ try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+
+  function show(t, btnText, fn){
+    txt.textContent = t;
+    if (btnText) { act.hidden = false; act.textContent = btnText; act.onclick = fn; }
+    else { act.hidden = true; act.onclick = null; }
+    bar.hidden = false;
+  }
+  function hide(){ bar.hidden = true; }
+
+  if (x) x.onclick = function(){ remember("off"); hide(); };
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    promptEvt = e;
+    paint();
+  });
+  window.addEventListener("appinstalled", function(){
+    promptEvt = null;
+    show("已经装到主屏了，以后从桌面图标直接进。", null, null);
+    setTimeout(hide, 2600);
+  });
+
+  function paint(){
+    if (!bar) return;
+    if (document.documentElement.classList.contains("is-embed")) { hide(); return; }
+    if (!IS_ANY_MOBILE && !FORCE_ENV) { hide(); return; }
+
+    if (IS_WX || IS_QQ) {
+      show("微信 / QQ 内置浏览器：点右上角 ⋯ 选「在浏览器打开」，才能装到主屏，也才能跳到 WPS App。", "知道了", hide);
+      return;
+    }
+    if (promptEvt) {
+      show("把这个页面装到主屏：全屏、免地址栏，下次一点就开。", "装到主屏", function(){
+        if (!promptEvt) return;
+        promptEvt.prompt();
+        promptEvt = null;
+        hide();
+      });
+      return;
+    }
+    if ((IS_IOS || FORCE_ENV) && recalled() !== "off") {
+      show("iPhone 装到主屏：点底部中间的分享 □↑ → 「添加到主屏幕」，之后像 App 一样打开。", null, null);
+      return;
+    }
+    hide();
+  }
+
+  window.__paintEnv = paint;   /* 自测入口，不影响正常流程 */
+  paint();
+  setTimeout(paint, 1200);
+
+  /* 离线壳：只在 https（或本机调试）下、且不是被嵌进 iframe 时注册 */
+  const host = location.hostname;
+  const secure = location.protocol === "https:" || host === "localhost" || host === "127.0.0.1";
+  if ("serviceWorker" in navigator && secure) {
+    window.addEventListener("load", function(){
+      if (document.documentElement.classList.contains("is-embed")) return;
+      navigator.serviceWorker.register("./sw.js").catch(function(){});
+    });
+  }
+})();
+</script>
 </body>
 </html>

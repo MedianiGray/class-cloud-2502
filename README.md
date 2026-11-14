@@ -19,15 +19,22 @@
 
 ```
 .
-├── index.html    # 全部页面、样式、数据、逻辑（单文件，约 134 KB）
-├── 404.html      # 路径不存在时回首页
-├── robots.txt    # 禁止搜索引擎收录
-├── .nojekyll     # 关闭 Jekyll，保证文件原样发布
-├── .gitignore    # 排除系统残留文件，对本项目没有实际作用，留着无害
+├── index.html        # 页面、样式、数据、逻辑（单文件，约 140 KB）
+├── manifest.json     # PWA 清单：装到主屏后的名字、图标、启动参数
+├── sw.js             # Service Worker：网络优先，断网回落到上一版
+├── icon-192.png      # PWA 图标 192
+├── icon-512.png      # PWA 图标 512
+├── icon-180.png      # iOS 添加到主屏幕用的图标
+├── proxy/
+│   └── wps-proxy.js  # Cloudflare Worker：让「电脑 / 手机」真切换（可选，不部署也不影响其它功能）
+├── 404.html          # 路径不存在时回首页
+├── robots.txt        # 禁止搜索引擎收录
+├── .nojekyll         # 关闭 Jekyll，保证文件原样发布
+├── .gitignore        # 排除系统残留文件，对本项目没有实际作用，留着无害
 └── README.md
 ```
 
-`index.html` 自包含，单独把这个文件发给别人也能双击打开用，不依赖 `assets/` 或任何外部 CDN。
+`index.html` 自包含，单独把这个文件发给别人也能双击打开用，不依赖 `assets/` 或任何外部 CDN。PWA 相关的那几个文件只在 `https` 下生效，`file://` 双击打开时会被浏览器忽略，不影响页面本身。
 
 ## 部署到 GitHub Pages
 
@@ -82,7 +89,7 @@ const MEMBERS = [
 
 文档本身不因网页公开而泄露，因为点开链接后 WPS 还会校验账号权限。
 
-**二、内嵌预览大概率是空白。** WPS 和校内系统普遍设置了禁止外部页面嵌套（`X-Frame-Options` / `frame-ancestors`），这是对方的安全策略，无法绕过。预览栏右侧可以在「电脑」与「手机」两个视口间切换，手机视口只是把宽度收到 390px 看移动端排版，不能改变「对方是否允许嵌套」这件事。真正的阅览与编辑始终在 WPS 里完成，权限也始终由 WPS 把关。
+**二、内嵌预览大概率是空白，且「电脑 / 手机」要接代理才真生效。** WPS 和校内系统普遍设置了禁止外部页面嵌套（`X-Frame-Options` / `frame-ancestors`），这是对方的安全策略，无法绕过。另外，实测确认 WPS 是**在服务端按 UA 分发两套完全不同的页面**（桌面 `ShareFolder`、移动 `mShareFolder`，同一链接按 Windows UA 返回 2130 B、按 iPhone UA 返回 5070 B），而在网页里改不了 UA（`User-Agent` 属于 forbidden header，脚本设置会被静默丢弃）。所以预览窗那两个按钮只有在部署了 `proxy/wps-proxy.js` 之后才真正换端——那时是让 Worker 用手机 UA 去取移动版。没部署时点「手机」会直接弹二维码：用手机扫，WPS 本来就给移动版。真正的阅览与编辑始终在 WPS 里完成，权限也始终由 WPS 把关。
 
 **三、FTP 不能用浏览器打开。** Chrome、Edge、Firefox 都已移除 `ftp://` 协议支持，点了没反应是正常的。点一下会复制地址，粘贴到 Windows 资源管理器地址栏或 FileZilla 里用，且必须在校内网。
 
@@ -96,11 +103,35 @@ const MEMBERS = [
 
 目录里有两组重复地址（`172.16.5.70`、`10.0.100.33`），是原页面本来就这样，不是抄错。
 
+## 装到主屏（PWA）
+
+GitHub Pages 本身就是 `https`，所以这一套自动生效，不需要额外配置。
+
+- **安卓（Chrome / Edge）**：进站后顶部会出一条「装到主屏」，点一下就装；浏览器没给这个入口时，用菜单里的「添加至主屏幕 / 安装应用」。
+- **iPhone（Safari）**：只能手动——点底部中间的分享 □↑ → 「添加到主屏幕」。页面顶部会提示这一步。
+- **微信 / QQ 内置浏览器**：装不了。先点右上角 ⋯ → 「在浏览器打开」，再按上面的步骤装。
+- 装好后是全屏、无地址栏、独立图标；清单里的 `start_url` 带 `?embed=1`，进去就是移动端紧凑版。
+- 电脑上想预览这条提示：地址后面加 `?env=1`。
+- `sw.js` 会缓存一份页面壳，断网能打开页面框架；具体内容仍要联网（WPS 在外网）。
+
+## 电脑 / 手机 切换（可选，需要一个 Cloudflare Worker）
+
+WPS 在服务端按 UA 给两套壳，网页里改不了 UA，所以真切换只能让服务器替你去请求。`proxy/wps-proxy.js` 就是写好的那一个：
+
+1. 打开 `dash.cloudflare.com` → Workers & Pages → Create → Worker；
+2. 把 `proxy/wps-proxy.js` 全文粘进编辑器，Deploy；
+3. 记下分配到的地址（形如 `https://xxx.yyy.workers.dev`）；
+4. 回到 `index.html`，把 `let PROXY = "";` 改成那个地址，提交推送。
+
+之后预览窗的「电脑 / 手机」才真换 HTML 壳：电脑上点「手机」，Worker 用 iPhone UA 去取 `mShareFolder`；手机上点「电脑」反过来。
+
+边界说清楚：只对**公开分享链接**有效（要登录才看得到的文档，Worker 没有你的账号态）；页面里的接口请求已被注入脚本改道到代理，但个别依赖个人空间的能力可能失效——能看、能翻目录、能预览，写操作别指望。不部署 Worker 的话，其它功能一切照常，那两个按钮会改为直接弹二维码。
+
 ## 技术说明
 
 - 原生 JavaScript，无框架、无构建、无 `type="module"`，`file://` 双击可用
 - 数据固化在脚本里而不是 `fetch` JSON，因为 `file://` 下不能读本地文件
 - 移动端优先设计，断点 640 / 1024
-- 页内 hash 路由：`#/home`、`#/library`、`#/lessons`、`#/portal`、`#/access`、`#/maint`
-- 状态存在 `localStorage`：只有 `cl_access_v1`（口令是否已通过）
-- 不用 emoji，图标为内联 SVG
+- 页内 hash 路由：两个组 `#/main`（概览·成员索引·学校入口·资料库）、`#/admin`（权限说明·高级功能·部署维护）；旧地址如 `#/home`、`#/library`、`#/desk` 仍然直达，会落到对应组
+- 状态存在 `localStorage`：`cl_access_v1`（口令是否已通过）、`cl_envbar_v1`（顶部提示条是否被关掉）
+- 不用 emoji，图标为内联 SVG；PWA 图标是 `System.Drawing` 画的 PNG，无第三方依赖
