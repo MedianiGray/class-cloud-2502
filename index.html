@@ -559,7 +559,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">四张卡：34 个开箱即用的 AI 入口、一个分「电脑 / 手机」两头的传输助手、一个直通学委的邮箱、一个收作业用的文件助手。全部跑在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">四张卡：34 个开箱即用的 AI 入口、一个分「电脑 / 手机」两头且能先帮你查文件的传输助手、一个收作业和分组用的班级事务、一个直通学委的邮箱。全部跑在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -600,6 +600,23 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 
         <div class="p-pane on" id="tp-pc">
           <p>电脑这一头是「把东西发出去」。按文件大小选一条，不用四条都试。</p>
+
+          <div class="eyebrow" style="margin:18px 0 8px">① 先把要发的文件过一遍</div>
+          <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把要发的文件拖进来，看有几个、多大、哪个超限、哪个格式不对。不合规的先转格式或压缩，再决定走下面哪条通道。</p>
+
+          <p>把要交的文件拖进来，或者一次多选。这里帮你数清楚：有几个、多大、哪个超限、哪个格式不对，最后能复制一份清单发群里。</p>
+          <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple></span></div>
+          <div class="p-row">
+            <label>单文件上限（MB）<input id="fMax" class="p-in" type="number" value="200"></label>
+            <label>只允许这些扩展名<input id="fExt" class="p-in" placeholder="mp4,docx,pdf（留空不查）"></label>
+          </div>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="fGo">检查并汇总</button>
+            <button class="btn btn-sm ghost" id="fCopy">复制清单</button>
+            <button class="btn btn-sm ghost" id="fClear">清空</button>
+          </div>
+          <div class="p-out" id="fOut">拖文件进来就会列在这里。文件不上传，只在这台电脑的页面内存里过一遍。</div>
+        </div>
 
           <div class="eyebrow" style="margin:18px 0 8px">几百 MB 的大文件 · 两条路</div>
           <div class="p-list">
@@ -647,45 +664,16 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
 
     <div class="task">
-      <div class="task-h"><span class="task-t">03 · 意见箱</span><span class="task-meta">直发学委邮箱</span></div>
-      <div class="task-b">
-        <p>收件人是 <b class="mono">himegikudirtsir@outlook.com</b>。点发送会调起你电脑上的邮件客户端，把主题和正文填好；网页本身不发请求、不存草稿。</p>
-        <label>主题<input id="fbSub" class="p-in" placeholder="例如：资料库想加一个课程分类"></label>
-        <label>内容<textarea id="fbBody" class="p-in p-ta" placeholder="写清楚建议、问题或要补的材料"></textarea></label>
-        <label>署名（可不填）<input id="fbName" class="p-in" placeholder="留个尾号也行，比如 312"></label>
-        <div class="link-acts">
-          <button class="btn btn-sm" id="fbSend">发送邮件</button>
-          <button class="btn btn-sm ghost" id="fbCopy">复制邮箱</button>
-          <button class="btn btn-sm ghost" id="fbWeb">没装邮箱？复制正文去网页版</button>
-        </div>
-      </div>
-    </div>
-    <div class="task">
-      <div class="task-h"><span class="task-t">04 · 文件助手</span><span class="task-meta">清单 / 分组 / 收交 / 通知</span></div>
+      <div class="task-h"><span class="task-t">03 · 班级事务</span><span class="task-meta">分组 / 收交 / 通知</span></div>
       <div class="task-b">
         <div class="p-tabs">
-          <button class="chip on" data-tool="pane-files">文件清单</button>
-          <button class="chip" data-tool="pane-split">随机分组</button>
+          <button class="chip on" data-tool="pane-split">随机分组</button>
           <button class="chip" data-tool="pane-collect">收交清单</button>
           <button class="chip" data-tool="pane-notice">通知文案</button>
         </div>
 
-        <div class="p-pane on" id="pane-files">
-          <p>把要交的文件拖进来，或者一次多选。这里帮你数清楚：有几个、多大、哪个超限、哪个格式不对，最后能复制一份清单发群里。</p>
-          <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple></span></div>
-          <div class="p-row">
-            <label>单文件上限（MB）<input id="fMax" class="p-in" type="number" value="200"></label>
-            <label>只允许这些扩展名<input id="fExt" class="p-in" placeholder="mp4,docx,pdf（留空不查）"></label>
-          </div>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="fGo">检查并汇总</button>
-            <button class="btn btn-sm ghost" id="fCopy">复制清单</button>
-            <button class="btn btn-sm ghost" id="fClear">清空</button>
-          </div>
-          <div class="p-out" id="fOut">拖文件进来就会列在这里。文件不上传，只在这台电脑的页面内存里过一遍。</div>
-        </div>
 
-        <div class="p-pane" id="pane-split">
+        <div class="p-pane on" id="pane-split">
           <p>把名单打散后均分成若干组，结果可整段复制。名单留空就用班里 45 个端口序号。</p>
           <label>名单（一行一个，留空用成员序号）<textarea id="spNames" class="p-in p-ta" placeholder="张…（一行一个）"></textarea></label>
           <div class="p-row">
@@ -726,6 +714,20 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       </div>
     </div>
 
+    <div class="task">
+      <div class="task-h"><span class="task-t">04 · 意见箱</span><span class="task-meta">直发学委邮箱</span></div>
+      <div class="task-b">
+        <p>收件人是 <b class="mono">himegikudirtsir@outlook.com</b>。点发送会调起你电脑上的邮件客户端，把主题和正文填好；网页本身不发请求、不存草稿。</p>
+        <label>主题<input id="fbSub" class="p-in" placeholder="例如：资料库想加一个课程分类"></label>
+        <label>内容<textarea id="fbBody" class="p-in p-ta" placeholder="写清楚建议、问题或要补的材料"></textarea></label>
+        <label>署名（可不填）<input id="fbName" class="p-in" placeholder="留个尾号也行，比如 312"></label>
+        <div class="link-acts">
+          <button class="btn btn-sm" id="fbSend">发送邮件</button>
+          <button class="btn btn-sm ghost" id="fbCopy">复制邮箱</button>
+          <button class="btn btn-sm ghost" id="fbWeb">没装邮箱？复制正文去网页版</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
