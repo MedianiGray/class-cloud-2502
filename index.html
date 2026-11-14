@@ -880,9 +880,9 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="task-h"><span class="task-t">06 · 电脑上看移动版</span><span class="task-meta">装一次，之后一直有效</span></div>
       <div class="task-b">
         <p>WPS 给你哪套界面，只看请求头里的 UA。网页自己没有这个权限，所以<b>浏览器不允许网页直接装扩展</b> —— 非商店来源的 .crx 会被拦下。能做的是把这个扩展下回去，手动装一次。</p>
-        <p style="font-size:13px;color:var(--ink2);margin:0 0 6px"><b>装一次就够了</b>：之后打开这个站的 WPS 预览，直接是移动版那套，不用每次再切。</p>
+        <p style="font-size:13px;color:var(--ink2);margin:0 0 6px"><b>装完之后，预览窗口右上角那两个「电脑 / 手机」按钮就真的能用了</b>：点一下，扩展把 kdocs.cn 的 UA 换过去，WPS 直接整套换界面 —— 两个方向都能切，来回切也行，不用再动浏览器设置。</p>
         <ol style="font-size:13px;color:var(--ink2);line-height:1.95;margin:0 0 12px;padding-left:20px">
-          <li>点下面的「下载扩展」，得到一个 zip，<b>解压成文件夹</b>（不要在压缩包里直接选）。</li>
+          <li>点下面的「下载扩展」，得到一个 zip，<b>解压成文件夹</b>（不要在压缩包里直接选）。版本 1.1，含网页联通脚本。</li>
           <li>Chrome 地址栏打开 <span class="mono">chrome://extensions</span>，右上角把「开发者模式」打开。</li>
           <li>点「加载已解压的扩展程序」，选中刚才解压出来的文件夹。列表里出现「班级云库 · 移动端预览」就好了。</li>
         </ol>
@@ -1292,13 +1292,8 @@ function brwName(url){
 }
 
 function brwSrc(cur){
-  /* 手机端：真手机访问时直接载 WPS —— 这时发出的 UA 就是手机的，WPS 会给真·移动版
-     （底部有「新建 / 下载全部 / 保存至WPS」那套）。在电脑上开手机框只是模拟，UA 仍是电脑，
-     WPS 只会给桌面版，所以退回本站自己的手机布局预览，并在提示条上说清。 */
-  if (brw.mode === "phone") {
-    if (IS_MOBILE && cur && cur.url) return cur.url;
-    return location.pathname + "?embed=ph" + (brw.localHash || "#/library");
-  }
+  /* 两端都载真地址。哪一套 UI 由 UA 决定，而 UA 只有扩展能改 ——
+     装了扩展，点「手机」时它把 kdocs.cn 的 UA 换成 iPhone，WPS 就真给移动版，这边只负责刷新。 */
   return cur && cur.url ? cur.url : "about:blank";
 }
 
@@ -1334,10 +1329,15 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    if (IS_MOBILE) {
-      hint.innerHTML = "这是 WPS 给手机的<b>真·移动版</b>：底部有「新建 / 下载全部 / 保存至WPS」，和电脑端完全是两套 UI。";
+    const hasExt = document.documentElement.getAttribute("data-ccl-ext") === "1";
+    if (brw.mode === "phone") {
+      hint.innerHTML = hasExt
+        ? "手机视角：kdocs.cn 的 UA 已被换成 iPhone，WPS 返回<b>移动版</b> —— 底部有「新建 / 下载全部 / 保存至WPS」。"
+        : "手机视角切不动：WPS 只认请求头里的 UA，而网页没有改 UA 的权限（UA 是浏览器禁止脚本设置的请求头）。装上「06 · 电脑上看移动版」那个扩展后，这个按钮才会真的生效。";
     } else {
-      hint.innerHTML = "这是 WPS 按你浏览器的 UA 给出的界面：普通电脑上是<b>桌面版</b>（有「新建 / 上传」），装了改 UA 的扩展会变成移动版。页面里切不了它 —— 想切只能改 UA，见高级功能里的「06 · 电脑上看移动版」。";
+      hint.innerHTML = hasExt
+        ? "电脑视角：UA 是电脑，WPS 返回<b>桌面版</b> —— 有「新建 / 上传」。点右边「手机」可以切过去。"
+        : "电脑视角：WPS 按电脑 UA 给的是<b>桌面版</b>（有「新建 / 上传」）。想在电脑上看移动版，得先装 06 卡那个扩展。";
     }
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
@@ -1437,8 +1437,13 @@ function brwInit(){
     if (dev) {
       brw.mode = dev.dataset.brwdev;
       store.set("cl_view_mode_v1", brw.mode);
+      if (document.documentElement.getAttribute("data-ccl-ext") === "1") {
+        window.postMessage({ ccl: "ua", on: brw.mode === "phone" }, "*");
+        toast(brw.mode === "phone" ? "已切到手机 UA，正在重载" : "已切回电脑 UA，正在重载");
+      } else {
+        toast("网页自己改不了 UA —— 装 06 卡那个扩展后，这个按钮才真生效");
+      }
       brwRender();
-      toast(brw.mode === "phone" ? "手机端模拟：390px 真视口，页面按手机布局重排" : "电脑端：真实目标地址");
       return;
     }
   });
@@ -1677,6 +1682,15 @@ function route(){
   window.scrollTo(0, 0);
 }
 
+
+/* 扩展把 UA 换好了，重新载一次，WPS 就会按新身份给页面 */
+window.addEventListener("message", function(ev){
+  const d = ev.data;
+  if (!d || d.ccl !== "ua-ack") return;
+  const f = document.getElementById("brwFrame");
+  const cur = brw.tabs[brw.i];
+  if (f && cur) f.src = brwSrc(cur);
+});
 
 /* ==================== 工作台 ==================== */
 (function(){
@@ -2544,6 +2558,10 @@ route();
     <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
+    <span class="brw-dev" role="group" aria-label="以哪一端打开">
+      <button data-brwdev="desktop" class="on">电脑</button>
+      <button data-brwdev="phone">手机</button>
+    </span>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
