@@ -195,11 +195,17 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 
 /* ---------- 预览视口切换 ---------- */
 .preview-bar{justify-content:flex-start;gap:10px}
+.preview-bar{flex-wrap:wrap;gap:8px}
+.pv-host{overflow:hidden;text-overflow:ellipsis;max-width:132px;white-space:nowrap}
+.pv-acts{display:flex;gap:0;border:1px solid var(--line);background:#fff;flex:none}
+.pv-acts button{height:30px;padding:0 10px;font-family:var(--mono);font-size:10.5px;color:var(--ink2);letter-spacing:.06em}
+.pv-qr{padding:16px;border-bottom:1px solid var(--line);text-align:center;background:var(--paper2)}
+.pv-qr .qr-box{margin:0 auto 10px}
 .dev{display:flex;border:1px solid var(--line);background:#fff;margin-left:auto;flex:none}
 .dev button{height:30px;padding:0 11px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em}
 .dev button.on{background:var(--green);color:#fff}
 .preview-slot.phone{background:#E9E9E3;padding:18px 10px}
-.preview-slot.phone iframe.preview{width:390px;max-width:100%;margin:0 auto;height:600px;border:1px solid var(--line2);border-radius:20px;box-shadow:0 10px 28px rgba(0,0,0,.13)}
+.preview-slot.phone iframe.preview{width:390px;max-width:100%;margin:0 auto;height:780px;border:1px solid var(--line2);border-radius:24px;box-shadow:0 12px 32px rgba(0,0,0,.14)}
 
 /* ---------- 课程作业 ---------- */
 .task{border:1px solid var(--line);background:var(--card);margin-bottom:16px}
@@ -425,7 +431,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">班级云库</h1>
-      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；点开可查看详情、复制链接或尝试内嵌预览。</p>
+      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接切「电脑上看 / 手机上看」，点成员卡可查看详情、复制链接。</p>
     </div>
 
     <div class="shared-card">
@@ -435,7 +441,8 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="link-acts">
         <button class="btn btn-sm" data-open="shared">在 WPS 中打开</button>
         <button class="btn btn-sm ghost" data-copy="shared">复制链接</button>
-        <button class="btn btn-sm ghost" data-preview="shared">尝试内嵌预览</button>
+        <button class="btn btn-sm ghost" data-preview="shared" data-mode="desktop">电脑上看</button>
+        <button class="btn btn-sm ghost" data-preview="shared" data-mode="phone">手机上看</button>
       </div>
     </div>
 
@@ -507,7 +514,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">资料库</h1>
-      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。点开任一张卡，可在页面内尝试内嵌预览，并切换电脑 / 手机两种视口。</p>
+      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。每张卡都能直接点「电脑上看」或「手机上看」，在页面里换视口预览，不用来回改窗口大小。</p>
     </div>
 
     <div class="portal-alert">
@@ -1046,16 +1053,22 @@ function loadPreview(url, mode){
   state.previewUrl = url;
   slot.classList.toggle("phone", isPhone);
   slot.innerHTML =
-    '<div class="preview-bar"><span>EMBED / 内嵌尝试</span><span>' + host + '</span>' +
+    '<div class="preview-bar"><span>EMBED / 内嵌尝试</span><span class="pv-host">' + host + '</span>' +
       '<span class="dev" role="group" aria-label="预览视口">' +
         '<button data-dev="desktop"' + (isPhone ? '' : ' class="on"') + '>电脑</button>' +
         '<button data-dev="phone"' + (isPhone ? ' class="on"' : '') + '>手机</button>' +
       '</span>' +
+      '<span class="pv-acts">' +
+        '<button data-pv="open">新标签打开</button>' +
+        '<button data-pv="qr">扫码看</button>' +
+      '</span>' +
     '</div>' +
     '<iframe class="preview" src="' + url + '" referrerpolicy="no-referrer" title="内嵌预览"></iframe>' +
     '<div class="preview-msg" style="border-top:1px solid var(--line);padding:11px 13px;text-align:left">' +
-      '<strong style="margin-bottom:3px;font-size:13px">空白或被拒绝是正常现象</strong>' +
-      'WPS 与校内系统大多禁止被外部网页嵌套。改用「在 WPS 中打开」即可正常阅览；手机视图只是把宽度收到 390px，方便看移动端排版。' +
+      '<strong style="margin-bottom:3px;font-size:13px">' + (isPhone ? "这一块是手机视口模拟" : "空白或被拒绝是正常现象") + '</strong>' +
+      (isPhone
+        ? '把宽度收到 390px、按真机比例拉高，看的是同一页面的窄屏排版；想在自己的手机上真打开，点上面「扫码看」。'
+        : 'WPS 与校内系统大多禁止被外部网页嵌套，白屏是对方的安全设置。点「新标签打开」即可正常阅览。') +
     '</div>';
   toast("正在加载；若十秒后仍空白，说明对方禁止嵌套");
 }
@@ -1079,7 +1092,8 @@ function renderRes(){
       '<div class="task-b">' +
         '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
         '<div class="link-acts">' +
-          '<button class="btn btn-sm" data-repo="' + r.key + '" data-act="preview">打开预览</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="desktop">电脑上看</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="phone">手机上看</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
         '</div>' +
@@ -1088,7 +1102,7 @@ function renderRes(){
   )).join("");
 }
 
-function openRepo(r){
+function openRepo(r, mode){
   openDetail({
     kind:"repo",
     kicker:"REPO / WPS 源库",
@@ -1101,7 +1115,7 @@ function openRepo(r){
     ],
     url:urlOf(r.slug)
   });
-  setTimeout(function(){ loadPreview(urlOf(r.slug)); }, 120);
+  setTimeout(function(){ loadPreview(urlOf(r.slug), mode); }, 120);
 }
 
 /* ==================== 学校门户 ==================== */
@@ -1251,7 +1265,7 @@ document.addEventListener("click", e => {
       const act = rp.dataset.act || "preview";
       if (act === "copy") copyText(urlOf(r.slug));
       else if (act === "open") openUrl(urlOf(r.slug));
-      else openRepo(r);
+      else openRepo(r, rp.dataset.mode);
     }
     return;
   }
@@ -1260,7 +1274,7 @@ document.addEventListener("click", e => {
   const k = b.dataset.open || b.dataset.copy || b.dataset.preview;
   if (k === "shared") {
     if (b.dataset.copy) copyText(urlOf(SHARED.slug));
-    else if (b.dataset.preview) { openShared(); setTimeout(() => loadPreview(urlOf(SHARED.slug)), 120); }
+    else if (b.dataset.preview) { openShared(); const m = b.dataset.mode; setTimeout(() => loadPreview(urlOf(SHARED.slug), m), 120); }
     else openUrl(urlOf(SHARED.slug));
   }
   if (k === "root") {
@@ -1276,6 +1290,24 @@ document.getElementById("dpPreview").onclick = () => { if (state.cur) loadPrevie
 
 /* 预览视口切换：只改 iframe 宽度，不重载，避免来回等加载 */
 slot.addEventListener("click", e => {
+  const pv = e.target.closest("[data-pv]");
+  if (pv) {
+    const act = pv.dataset.pv;
+    if (act === "open") { window.open(state.previewUrl, "_blank", "noopener"); return; }
+    if (act === "qr") {
+      const old = slot.querySelector(".pv-qr");
+      if (old) { old.remove(); return; }
+      if (typeof QRCode === "undefined") { toast("二维码库没加载上，刷新页面再试"); return; }
+      const box = document.createElement("div");
+      box.className = "pv-qr";
+      box.innerHTML = '<div class="qr-box"></div><span style="font-size:11.5px;color:var(--ink3)">手机相机扫这个码，直接在这台手机上打开</span>';
+      slot.insertBefore(box, slot.firstChild);
+      try {
+        new QRCode(box.querySelector(".qr-box"), { text: state.previewUrl, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
+      } catch (err) { toast("链接太长，二维码画不出来"); }
+      return;
+    }
+  }
   const d = e.target.closest("[data-dev]");
   if (!d) return;
   const isPhone = d.dataset.dev === "phone";
