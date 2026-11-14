@@ -558,7 +558,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     <div class="task">
       <div class="task-h"><span class="task-t">01 · AI 工具台</span><span class="task-meta">开箱即用 · 不用 Key</span></div>
       <div class="task-b">
-        <p>点开就能用，不用申请密钥。标「免登录」的直接进；标「要登录」的注册个账号就有免费额度，不要钱。</p>
+        <p>34 个入口按用途分了七类，全部点开就能用，不用申请密钥。标「免登录」的直接进；标「要登录」的注册个账号就有免费额度，不要钱。</p>
         <div id="aiSites"></div>
         <p style="font-size:12.5px;color:var(--ink3);margin:14px 0 0">多数 AI 网站禁止被别的网页嵌进来看，所以「内嵌试一下」常常是一片空白，这是对方的安全设置；点「打开」在新标签里用最稳。</p>
         <details style="margin-top:20px">
@@ -1306,20 +1306,51 @@ const AI_SERVICES = [
   { n:"Cloudflare Workers AI", d:"每天免费额度，需开通 Workers", u:"https://dash.cloudflare.com/", b:"" }
 ];
 
+const AI_GROUPS = ["对话", "图像生成", "视频 / 数字人", "音频 / 音乐", "编程开发", "办公 / 智能体", "对比 / 开源"];
+
 const AI_SITES = [
-  { n:"豆包",        t:"免登录", u:"https://www.doubao.com/chat/",              d:"对话、写作、看图；不登录也有基础额度" },
-  { n:"DeepSeek",    t:"要登录", u:"https://chat.deepseek.com/",                d:"对话、代码、推理；免费" },
-  { n:"Kimi",        t:"要登录", u:"https://kimi.moonshot.cn/",                 d:"长文档、PDF 直接丢进去问" },
-  { n:"通义千问",    t:"要登录", u:"https://tongyi.aliyun.com/qianwen/",        d:"对话、翻译、写作" },
-  { n:"腾讯元宝",    t:"要登录", u:"https://yuanbao.tencent.com/chat/",         d:"对话；可接微信文件" },
-  { n:"智谱清言",    t:"要登录", u:"https://chatglm.cn/main/alltoolsdetail",    d:"对话、翻译、画图" },
-  { n:"即梦 AI",     t:"要登录", u:"https://jimeng.jianying.com/ai-tool/home",  d:"生图、生视频；每天送免费积分" },
-  { n:"可灵 AI",     t:"要登录", u:"https://app.klingai.com/cn/",               d:"生视频，图生视频效果好；每日免费额度" },
-  { n:"通义万相",    t:"要登录", u:"https://tongyi.aliyun.com/wanxiang/",       d:"生图、生视频" },
-  { n:"LiblibAI",    t:"要登录", u:"https://www.liblib.art/",                   d:"生图，模型多；免费额度" },
-  { n:"海螺 AI",     t:"要登录", u:"https://hailuoai.video/",                   d:"生视频；免费额度" },
-  { n:"Hugging Face",t:"免登录", u:"https://huggingface.co/spaces",             d:"各家开源模型的在线试用，不用自己部署" }
+  { g:"对话", n:"豆包",        t:"免登录", u:"https://www.doubao.com/chat/",             d:"对话、写作、看图；不登录也有基础额度" },
+  { g:"对话", n:"DeepSeek",    t:"要登录", u:"https://chat.deepseek.com/",               d:"对话、代码、推理；免费" },
+  { g:"对话", n:"Kimi",        t:"要登录", u:"https://kimi.moonshot.cn/",                d:"长文档、PDF 直接丢进去问" },
+  { g:"对话", n:"通义千问",    t:"要登录", u:"https://tongyi.aliyun.com/qianwen/",       d:"对话、翻译；更多里藏着免费视频生成" },
+  { g:"对话", n:"腾讯元宝",    t:"要登录", u:"https://yuanbao.tencent.com/chat/",        d:"对话；可接微信文件" },
+  { g:"对话", n:"智谱清言",    t:"要登录", u:"https://chatglm.cn/main/alltoolsdetail",   d:"对话、翻译、画图" },
+
+  { g:"图像生成", n:"即梦 AI",   t:"要登录", u:"https://jimeng.jianying.com/ai-tool/home", d:"生图、生视频；每天送 66 积分" },
+  { g:"图像生成", n:"通义万相",  t:"要登录", u:"https://tongyi.aliyun.com/wanxiang/",     d:"生图、生视频；免费" },
+  { g:"图像生成", n:"LiblibAI",  t:"要登录", u:"https://www.liblib.art/",                 d:"生图，模型多；有免费额度" },
+  { g:"图像生成", n:"ZSky AI",   t:"免登录", u:"https://zsky.ai/",                        d:"图 + 视频带配音；免费版有水印" },
+  { g:"图像生成", n:"Perchance", t:"免登录", u:"https://perchance.org/",                  d:"免注册即用；分辨率约 1024" },
+  { g:"图像生成", n:"Free.ai",   t:"免登录", u:"https://free.ai/",                        d:"400+ 工具合集：对话、图、视频、TTS" },
+
+  { g:"视频 / 数字人", n:"可灵 AI",     t:"要登录", u:"https://app.klingai.com/cn/",       d:"生视频，可到 2 分钟；每日免费积分" },
+  { g:"视频 / 数字人", n:"海螺 AI",     t:"要登录", u:"https://hailuoai.video/",            d:"生视频；免费额度" },
+  { g:"视频 / 数字人", n:"Pavo（Agnes）", t:"免登录", u:"https://app.pavo-ai.work/",        d:"一句话成片；Flash 模型不耗积分，免登录可试" },
+  { g:"视频 / 数字人", n:"MakeFun AI",  t:"免登录", u:"https://makefun.ai/app/zh",          d:"图生视频、数字人、换脸、语音克隆；免费版 720p 带水印" },
+  { g:"视频 / 数字人", n:"腾讯混元",    t:"要登录", u:"https://hunyuan.tencent.com/",       d:"文生图、图生视频、数字人、3D；全部免费" },
+  { g:"视频 / 数字人", n:"飞影数字人",  t:"要登录", u:"https://hifly.cc/home",              d:"数字人口播，照片一句话生成；可免费用" },
+  { g:"视频 / 数字人", n:"剪映",        t:"要登录", u:"https://www.jianying.com/",          d:"内置数字人、字幕、剪辑；个人用免费" },
+
+  { g:"音频 / 音乐", n:"Fish Audio",  t:"要登录", u:"https://fish.audio/",                  d:"TTS、声音克隆；有免费额度" },
+  { g:"音频 / 音乐", n:"CosyVoice",   t:"免登录", u:"https://github.com/FunAudioLLM/CosyVoice", d:"阿里开源语音合成，可本地跑，永久免费" },
+
+  { g:"编程开发", n:"Trae",        t:"要登录", u:"https://www.trae.ai/",                     d:"免费 AI IDE，内置模型不用自己配" },
+  { g:"编程开发", n:"Gemini CLI",  t:"免登录", u:"https://github.com/google-gemini/gemini-cli", d:"终端里的 AI 编程 Agent，免费额度" },
+  { g:"编程开发", n:"Codex CLI",   t:"免登录", u:"https://github.com/openai/codex",          d:"OpenAI 的终端 Agent，免费计划有限量" },
+  { g:"编程开发", n:"Cline",       t:"免登录", u:"https://cline.bot/",                       d:"VS Code 插件，可接免费模型" },
+  { g:"编程开发", n:"Kilo Code",   t:"免登录", u:"https://kilocode.ai/",                      d:"IDE 里的 Agent，提供多种免费模型" },
+  { g:"编程开发", n:"Replit",      t:"要登录", u:"https://replit.com/",                      d:"浏览器里直接写和跑，免费模式够用" },
+  { g:"编程开发", n:"Crush",       t:"免登录", u:"https://github.com/charmbracelet/crush",    d:"终端体验好的开源 Coding Agent" },
+
+  { g:"办公 / 智能体", n:"QwenWork",  t:"要登录", u:"https://qwenwork.cn/",                   d:"千问办公：文档、表格、PPT；注册送 2000 积分" },
+  { g:"办公 / 智能体", n:"Genspark",  t:"要登录", u:"https://www.genspark.ai/",               d:"智能体式办公，能直接出报告和页面" },
+  { g:"办公 / 智能体", n:"阶跃 AI",   t:"要登录", u:"https://stepfun.com/",                  d:"桌面伙伴，可调 Excel、飞书等工具" },
+
+  { g:"对比 / 开源", n:"LMArena",       t:"免登录", u:"https://lmarena.ai/",                  d:"40+ 模型同题对比，每天有限次" },
+  { g:"对比 / 开源", n:"Hugging Face",  t:"免登录", u:"https://huggingface.co/spaces",        d:"各家开源模型的在线试用，不用部署" },
+  { g:"对比 / 开源", n:"Wan2GP",        t:"免登录", u:"https://github.com/deepbeepmeep/Wan2GP", d:"开源本地跑视频/图/音频，免费但吃显卡" }
 ];
+
 
 const AI_KEY = "cl_ai_cfg_v1";
 const aiMsgs = [];
@@ -1327,16 +1358,21 @@ const aiMsgs = [];
 function renderAiSites(){
   const host = document.getElementById("aiSites");
   if (!host) return;
-  host.className = "p-list";
-  host.innerHTML = AI_SITES.map((a, i) => (
-    '<div class="p-item"><div><b>' + a.n + '</b>' +
-      '<span>' + a.d + '</span></div>' +
-    '<div style="display:flex;gap:8px;align-items:center;white-space:nowrap">' +
-      '<span style="color:' + (a.t === "免登录" ? "var(--green)" : "var(--ink3)") + ';font-size:11.5px">' + a.t + '</span>' +
-      '<button class="btn btn-sm" data-ai-site="' + i + '">打开</button>' +
-      '<button class="btn btn-sm ghost" data-ai-embed="' + i + '">内嵌试一下</button>' +
-    '</div></div>'
-  )).join("");
+  host.className = "";
+  var html = "";
+  AI_GROUPS.forEach(function(g){
+    var rows = "";
+    AI_SITES.forEach(function(a, i){
+      if (a.g !== g) return;
+      rows += '<div class="p-item"><div><b>' + a.n + '</b><span>' + a.d + '</span></div>' +
+        '<div style="display:flex;gap:8px;align-items:center;white-space:nowrap">' +
+        '<span style="color:' + (a.t === "免登录" ? "var(--green)" : "var(--ink3)") + ';font-size:11.5px">' + a.t + '</span>' +
+        '<button class="btn btn-sm" data-ai-site="' + i + '">打开</button>' +
+        '</div></div>';
+    });
+    if (rows) html += '<div class="eyebrow" style="margin:18px 0 8px">' + g + '</div><div class="p-list">' + rows + '</div>';
+  });
+  host.innerHTML = html;
 }
 
 function openAiSite(i, embed){
