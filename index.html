@@ -173,6 +173,29 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .ai-g .p-item{padding:10px 0}
 .ai-gn{font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink3);letter-spacing:.06em}
 .page-note{font-size:12.5px;color:var(--ink3);line-height:1.7;border-left:2px solid var(--amber);padding:2px 0 2px 12px;margin:0 0 18px}
+/* ---------- 模拟浏览器窗口 ---------- */
+.sim{border:1px solid var(--line2);background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+.sim-bar{display:flex;align-items:center;gap:7px;padding:7px 9px;border-bottom:1px solid var(--line);background:var(--paper2)}
+.sim-dots{display:flex;gap:5px;flex:none}
+.sim-dots i{width:8px;height:8px;border-radius:50%;background:#d5d6cf;display:block}
+.sim-url{flex:1;min-width:0}
+.sim-url input{width:100%;height:26px;border:1px solid var(--line);background:#fff;font-family:var(--mono);font-size:10.5px;color:var(--ink2);padding:0 8px;border-radius:5px}
+.sim-url input:focus{outline:none;border-color:var(--green);color:var(--ink)}
+.sim-dev{display:flex;border:1px solid var(--line);background:#fff;flex:none;border-radius:5px;overflow:hidden}
+.sim-dev button{height:26px;padding:0 9px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.sim-dev button.on{background:var(--green);color:#fff}
+.sim-ico{width:26px;height:26px;border:1px solid var(--line);background:#fff;border-radius:5px;font-size:12px;line-height:1;color:var(--ink2);flex:none}
+.sim-ico:hover{border-color:var(--ink3);color:var(--ink)}
+.sim-stage{background:#fff}
+.sim-stage.phone{background:#E9E9E3;padding:18px 10px;display:flex;justify-content:center}
+.sim-phone{position:relative;width:100%;background:#fff}
+.sim .sim-phone iframe.preview{display:block;width:100%;height:480px;border:0;background:#fff}
+.sim-stage.phone .sim-phone{width:390px;max-width:100%;border-radius:26px;overflow:hidden;padding-top:24px;box-shadow:0 14px 32px rgba(0,0,0,.15)}
+.sim-notch{display:none}
+.sim-stage.phone .sim-notch{display:block;position:absolute;top:0;left:50%;transform:translateX(-50%);width:112px;height:21px;background:#E9E9E3;border-radius:0 0 13px 13px}
+.sim .sim-stage.phone .sim-phone iframe.preview{height:720px}
+.sim-note{border-top:1px solid var(--line);padding:10px 12px;font-size:11.5px;line-height:1.75;color:var(--ink3)}
+.sim-note strong{display:block;color:var(--ink2);font-size:12px;margin-bottom:2px;font-weight:600}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -205,8 +228,6 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 .dev{display:flex;border:1px solid var(--line);background:#fff;margin-left:auto;flex:none}
 .dev button{height:30px;padding:0 11px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em}
 .dev button.on{background:var(--green);color:#fff}
-.preview-slot.phone{background:#E9E9E3;padding:18px 10px}
-.preview-slot.phone iframe.preview{width:390px;max-width:100%;margin:0 auto;height:780px;border:1px solid var(--line2);border-radius:24px;box-shadow:0 12px 32px rgba(0,0,0,.14)}
 
 /* ---------- 课程作业 ---------- */
 .task{border:1px solid var(--line);background:var(--card);margin-bottom:16px}
@@ -1054,30 +1075,49 @@ function openShared(){
 
 function loadPreview(url, mode){
   mode = mode || store.get("cl_view_mode_v1") || (IS_MOBILE ? "phone" : "desktop");
-  const host = (function(){ try { return new URL(url).host; } catch(e){ return ""; } })();
   const isPhone = mode === "phone";
   state.previewUrl = url;
+  const safe = String(url).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
   slot.classList.toggle("phone", isPhone);
+
   slot.innerHTML =
-    '<div class="preview-bar"><span>EMBED / 内嵌尝试</span><span class="pv-host">' + host + '</span>' +
-      '<span class="dev" role="group" aria-label="预览视口">' +
-        '<button data-dev="desktop"' + (isPhone ? '' : ' class="on"') + '>电脑</button>' +
-        '<button data-dev="phone"' + (isPhone ? ' class="on"' : '') + '>手机</button>' +
-      '</span>' +
-      '<span class="pv-acts">' +
-        '<button data-pv="open">新标签打开</button>' +
-        '<button data-pv="qr">扫码看</button>' +
-      '</span>' +
-    '</div>' +
-    '<iframe class="preview" src="' + url + '" referrerpolicy="no-referrer" title="内嵌预览"></iframe>' +
-    '<div class="preview-msg" style="border-top:1px solid var(--line);padding:11px 13px;text-align:left">' +
-      '<strong style="margin-bottom:3px;font-size:13px">' +
-        (isPhone ? "窄屏只是把宽度收到 390px，浏览器身份还是电脑" : "空白或被拒绝是正常现象") + '</strong>' +
-      (isPhone
-        ? 'WPS 是按浏览器身份（UA）决定给你电脑版还是移动版的，网页本身没有权限把自己伪装成手机——所以这里再窄，拿到的仍是电脑版。要真正的移动版只有两条路：手机相机扫上面「扫码看」出来的码；或在这台电脑按 F12、Ctrl+Shift+M 选一台 iPhone 再刷新。'
-        : 'WPS 与校内系统大多禁止被外部网页嵌套，白屏是对方的安全设置。点「新标签打开」即可正常阅览。') +
+    '<div class="sim">' +
+      '<div class="sim-bar">' +
+        '<span class="sim-dots"><i></i><i></i><i></i></span>' +
+        '<span class="sim-url"><input id="simUrl" spellcheck="false" value="' + safe + '" aria-label="预览地址"></span>' +
+        '<span class="sim-dev" role="group" aria-label="设备">' +
+          '<button data-dev="desktop"' + (isPhone ? '' : ' class="on"') + '>电脑</button>' +
+          '<button data-dev="phone"' + (isPhone ? ' class="on"' : '') + '>手机</button>' +
+        '</span>' +
+        '<button class="sim-ico" data-pv="reload" title="重新加载">&#8635;</button>' +
+        '<button class="sim-ico" data-pv="qr" title="扫码在手机上打开">&#9635;</button>' +
+        '<button class="sim-ico" data-pv="open" title="新标签打开">&#8599;</button>' +
+      '</div>' +
+      '<div class="sim-stage' + (isPhone ? ' phone' : '') + '">' +
+        '<div class="sim-phone">' +
+          '<span class="sim-notch"></span>' +
+          '<iframe class="preview" src="' + safe + '" referrerpolicy="no-referrer" title="模拟浏览器预览"></iframe>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sim-note">' +
+        '<strong>' + (isPhone ? "手机设备框" : "电脑窗口") + '</strong>' +
+        (isPhone
+          ? '这是把一个窗口缩成 390px 的手机样子，浏览器身份仍然是电脑；WPS 按身份分流，所以里面仍是电脑版内容。要真移动版：点右上角 ▣ 出二维码用手机打开，或装「班级云库移动端预览」扩展。'
+          : 'WPS 与校内系统大多禁止被外部网页嵌套，白屏是对方的安全策略，不是这里坏了。点右上角 ↗ 在新标签打开即可正常阅览。') +
+      '</div>' +
     '</div>';
-  toast("正在加载；若十秒后仍空白，说明对方禁止嵌套");
+
+  const ifr = slot.querySelector("iframe");
+  if (ifr) {
+    ifr.addEventListener("load", function(){
+      /* 能读到 contentDocument 说明同源加载成功；跨域或拒绝时会抛错，只作为状态提示 */
+      try {
+        const d = ifr.contentDocument;
+        if (d && d.location && d.location.href === "about:blank") toast("对方拒绝被嵌入，用右上角 ↗ 打开");
+      } catch (e) { /* 跨域正常，不提示 */ }
+    });
+  }
+  toast(isPhone ? "已切到手机设备框（390px）" : "已切到电脑窗口");
 }
 
 /* ==================== 资料库：三个 WPS 源库 ==================== */
@@ -1309,6 +1349,11 @@ slot.addEventListener("click", e => {
   if (pv) {
     const act = pv.dataset.pv;
     if (act === "open") { window.open(state.previewUrl, "_blank", "noopener"); return; }
+    if (act === "reload") {
+      const f = slot.querySelector("iframe");
+      if (f) { f.src = state.previewUrl; toast("重新加载中"); }
+      return;
+    }
     if (act === "qr") {
       const old = slot.querySelector(".pv-qr");
       if (old) { old.remove(); return; }
@@ -1327,11 +1372,22 @@ slot.addEventListener("click", e => {
   if (!d) return;
   const isPhone = d.dataset.dev === "phone";
   slot.classList.toggle("phone", isPhone);
+  const st = slot.querySelector(".sim-stage");
+  if (st) st.classList.toggle("phone", isPhone);
   Array.prototype.forEach.call(slot.querySelectorAll("[data-dev]"), b => {
     b.classList.toggle("on", b === d);
   });
   store.set("cl_view_mode_v1", isPhone ? "phone" : "desktop");
   toast(isPhone ? "已切到 390px 窄屏；WPS 仍会按电脑版返回" : "已切回电脑版");
+});
+slot.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const inp = e.target;
+  if (!inp || inp.id !== "simUrl") return;
+  let u = inp.value.trim();
+  if (!u) return;
+  if (!/^https?:\/\//i.test(u) && !/^file:\/\//i.test(u)) u = "https://" + u;
+  loadPreview(u, slot.classList.contains("phone") ? "phone" : "desktop");
 });
 drawer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeDetail(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDetail(); });
