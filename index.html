@@ -196,6 +196,36 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .sim .sim-stage.phone .sim-phone iframe.preview{height:720px}
 .sim-note{border-top:1px solid var(--line);padding:10px 12px;font-size:11.5px;line-height:1.75;color:var(--ink3)}
 .sim-note strong{display:block;color:var(--ink2);font-size:12px;margin-bottom:2px;font-weight:600}
+/* ---------- 浏览器窗口 ---------- */
+.brw{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;background:#EDEDE6}
+.brw.on{display:flex}
+.brw-top{display:flex;align-items:flex-end;gap:2px;padding:8px 10px 0;background:#DEDED6;border-bottom:1px solid var(--line2);flex:none}
+.brw-tabs{display:flex;gap:3px;overflow-x:auto;flex:1;min-width:0}
+.brw-tab{display:flex;align-items:center;gap:7px;height:30px;padding:0 10px;background:#F4F4EE;border:1px solid var(--line);border-bottom:0;border-radius:7px 7px 0 0;font-size:12px;color:var(--ink2);white-space:nowrap;max-width:220px;cursor:pointer}
+.brw-tab.on{background:#fff;color:var(--ink);font-weight:600}
+.brw-tab i{font-style:normal;font-size:11px;color:var(--ink3);padding:0 2px}
+.brw-tab.on i{color:var(--ink2)}
+.brw-new{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#F4F4EE;border-radius:6px;font-size:13px;color:var(--ink3);margin-bottom:4px}
+.brw-bar{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#F4F4EE;border-bottom:1px solid var(--line2);flex:none;flex-wrap:wrap}
+.brw-ico{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;color:var(--ink2)}
+.brw-ico:hover{border-color:var(--ink3);color:var(--ink)}
+.brw-addr{flex:1;min-width:120px}
+.brw-addr input{width:100%;height:28px;border:1px solid var(--line);border-radius:14px;background:#fff;font-family:var(--mono);font-size:11px;color:var(--ink2);padding:0 12px}
+.brw-addr input:focus{outline:none;border-color:var(--green);color:var(--ink)}
+.brw-dev{display:flex;border:1px solid var(--line);background:#fff;border-radius:6px;overflow:hidden;flex:none}
+.brw-dev button{height:26px;padding:0 10px;font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.brw-dev button.on{background:var(--green);color:#fff}
+.brw-close{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;color:var(--ink2)}
+.brw-book{display:flex;gap:6px;padding:6px 10px;background:#fff;border-bottom:1px solid var(--line);flex:none;overflow-x:auto}
+.brw-book button{height:24px;padding:0 10px;border:1px solid var(--line);background:#FBFBF7;border-radius:12px;font-size:11.5px;color:var(--ink2);white-space:nowrap;flex:none}
+.brw-book button:hover{border-color:var(--green);color:var(--green)}
+.brw-stage{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff}
+.brw-stage.phone{background:#E9E9E3;overflow:auto;align-items:center;padding:22px 0 30px}
+.brw-body{flex:1;min-height:0;width:100%}
+.brw-frame{display:block;width:100%;height:100%;border:0;background:#fff}
+.brw-stage.phone .brw-body{flex:none;width:390px;max-width:100%;height:780px;border-radius:26px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.16);position:relative;padding-top:24px;background:#fff}
+.brw-stage.phone .brw-frame{border-radius:0}
+.brw-hint{padding:9px 14px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line);background:#FBFBF7;flex:none}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -789,7 +819,7 @@ const MEMBERS = [
       <div class="link-acts">
         <button class="btn btn-sm" id="dpOpen">在 WPS 中打开</button>
         <button class="btn btn-sm ghost" id="dpCopy">复制链接</button>
-        <button class="btn btn-sm ghost" id="dpPreview">尝试内嵌预览</button>
+        <button class="btn btn-sm ghost" id="dpPreview">在浏览器窗口里打开</button>
       </div>
       <div class="preview-slot" id="dpSlot">
         <div class="preview-msg"><strong>尚未加载预览</strong>点上方「尝试内嵌预览」在此处加载。WPS 可能拒绝被嵌入，属正常安全策略。</div>
@@ -1073,8 +1103,180 @@ function openShared(){
   });
 }
 
+/* ==================== 浏览器窗口 ==================== */
+const brw = { tabs: [], i: 0, hist: [], hi: -1, mode: "desktop" };
+
+function brwName(url){
+  const book = [SHARED, ROOT].concat(REPOS).filter(Boolean);
+  for (let k = 0; k < book.length; k++) {
+    if (book[k] && url.indexOf(book[k].slug) >= 0) {
+      return (book[k].name || "").replace(/【|】/g, "").slice(0, 14) || "预览";
+    }
+  }
+  try { return new URL(url).host; } catch (e) { return "新标签页"; }
+}
+
+function brwRender(){
+  const box = document.getElementById("brwTabs");
+  if (!box) return;
+  box.innerHTML = brw.tabs.map(function(t, k){
+    return '<div class="brw-tab' + (k === brw.i ? ' on' : '') + '" data-tab="' + k + '">' +
+      '<span>' + (t.name || "新标签页") + '</span><i data-closetab="' + k + '">&#10005;</i></div>';
+  }).join("");
+  const cur = brw.tabs[brw.i];
+  const f = document.getElementById("brwFrame");
+  const inp = document.getElementById("brwUrl");
+  if (inp) inp.value = cur ? cur.url : "";
+  if (f) f.src = cur && cur.url ? cur.url : "about:blank";
+  const stage = document.getElementById("brwStage");
+  if (stage) stage.classList.toggle("phone", brw.mode === "phone");
+  const hint = document.getElementById("brwHint");
+  if (hint) hint.style.display = cur && cur.url ? "block" : "none";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
+    b.classList.toggle("on", b.dataset.brwdev === brw.mode);
+  });
+}
+
+function brwPush(url, mode){
+  if (!url) return;
+  if (mode) brw.mode = mode;
+  brw.tabs = [{ url: url, name: brwName(url) }];
+  brw.i = 0;
+  brw.hist = [url];
+  brw.hi = 0;
+  document.getElementById("brw").classList.add("on");
+  document.getElementById("brw").setAttribute("aria-hidden", "false");
+  brwRender();
+}
+
+function brwAddTab(url){
+  brw.tabs.push({ url: url || "", name: url ? brwName(url) : "新标签页" });
+  brw.i = brw.tabs.length - 1;
+  brwRender();
+}
+
+function brwClose(){
+  document.getElementById("brw").classList.remove("on");
+  document.getElementById("brw").setAttribute("aria-hidden", "true");
+  const f = document.getElementById("brwFrame");
+  if (f) f.src = "about:blank";
+  document.body.style.overflow = "";
+}
+
+function brwInit(){
+  if (brw.inited) return;
+  brw.inited = true;
+
+  const book = document.getElementById("brwBook");
+  if (book) {
+    book.innerHTML = [{ n: "班级云库", u: urlOf(SHARED.slug) }, { n: "成员总目录", u: urlOf(ROOT.slug) }]
+      .concat(REPOS.map(function(r){ return { n: r.name, u: urlOf(r.slug) }; }))
+      .map(function(b){ return '<button data-bwurl="' + b.u + '">' + b.n + '</button>'; }).join("");
+  }
+
+  document.getElementById("brwClose").onclick = brwClose;
+  document.getElementById("brwNew").onclick = function(){ brwAddTab(""); };
+  document.getElementById("brwReload").onclick = function(){
+    const f = document.getElementById("brwFrame");
+    if (f) { f.src = f.src; toast("重新加载中"); }
+  };
+  document.getElementById("brwExt").onclick = function(){
+    const t = brw.tabs[brw.i];
+    if (t && t.url) window.open(t.url, "_blank", "noopener");
+    else toast("先在地址栏里打开一个页面");
+  };
+  document.getElementById("brwQr").onclick = function(){
+    const t = brw.tabs[brw.i];
+    if (!t || !t.url) { toast("先在地址栏里打开一个页面"); return; }
+    brwQrPanel(t.url);
+  };
+  document.getElementById("brwBack").onclick = function(){
+    if (brw.hi > 0) { brw.hi--; brwGoto(brw.hist[brw.hi], true); }
+  };
+  document.getElementById("brwFwd").onclick = function(){
+    if (brw.hi < brw.hist.length - 1) { brw.hi++; brwGoto(brw.hist[brw.hi], true); }
+  };
+
+  document.getElementById("brwUrl").addEventListener("keydown", function(e){
+    if (e.key !== "Enter") return;
+    let u = e.target.value.trim();
+    if (!u) return;
+    if (!/^https?:\/\//i.test(u) && !/^file:\/\//i.test(u)) u = "https://" + u;
+    brwGoto(u);
+  });
+
+  document.getElementById("brw").addEventListener("click", function(e){
+    const tab = e.target.closest("[data-tab]");
+    if (tab) {
+      const close = e.target.closest("[data-closetab]");
+      if (close) {
+        const k = +close.dataset.closetab;
+        brw.tabs.splice(k, 1);
+        if (!brw.tabs.length) { brwClose(); return; }
+        if (brw.i >= brw.tabs.length) brw.i = brw.tabs.length - 1;
+        brwRender();
+        return;
+      }
+      brw.i = +tab.dataset.tab;
+      brwRender();
+      return;
+    }
+    const bw = e.target.closest("[data-bwurl]");
+    if (bw) { brwGoto(bw.dataset.bwurl); return; }
+    const dev = e.target.closest("[data-brwdev]");
+    if (dev) {
+      brw.mode = dev.dataset.brwdev;
+      const stage = document.getElementById("brwStage");
+      if (stage) stage.classList.toggle("phone", brw.mode === "phone");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
+        b.classList.toggle("on", b.dataset.brwdev === brw.mode);
+      });
+      store.set("cl_view_mode_v1", brw.mode);
+      toast(brw.mode === "phone" ? "已切到手机设备框（390px）；WPS 仍按电脑版返回" : "已切回电脑窗口");
+      return;
+    }
+  });
+
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && document.getElementById("brw").classList.contains("on")) brwClose();
+  });
+}
+
+function brwGoto(url, keepHist){
+  const t = brw.tabs[brw.i];
+  if (!t) { brwAddTab(url); return; }
+  t.url = url;
+  t.name = brwName(url);
+  if (!keepHist) {
+    brw.hist = brw.hist.slice(0, brw.hi + 1);
+    brw.hist.push(url);
+    brw.hi = brw.hist.length - 1;
+  }
+  brwRender();
+}
+
+function brwQrPanel(url){
+  const body = document.getElementById("brwBody");
+  if (typeof QRCode === "undefined") { toast("二维码库没加载上，刷新页面再试"); return; }
+  let p = document.querySelector(".brw-qr");
+  if (p) { p.remove(); return; }
+  p = document.createElement("div");
+  p.className = "brw-qr";
+  p.style.cssText = "padding:26px;background:#FBFBF7;border-bottom:1px solid var(--line);text-align:center";
+  p.innerHTML = '<div class="qr-box" style="margin:0 auto 12px"></div>' +
+    '<div style="font-size:12px;color:var(--ink3)">手机相机扫这个码，就是真手机身份，WPS 会给移动版</div>';
+  const stage = document.getElementById("brwStage");
+  stage.insertBefore(p, stage.firstChild);
+  try { new QRCode(p.querySelector(".qr-box"), { text: url, width: 160, height: 160, correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { toast("链接太长，二维码画不出来"); }
+}
+
 function loadPreview(url, mode){
+  /* 预览已升级为全屏浏览器窗口；保底转发，避免旧调用点报错 */
   mode = mode || store.get("cl_view_mode_v1") || (IS_MOBILE ? "phone" : "desktop");
+  brwInit();
+  brwPush(url, mode);
+  return;
   const isPhone = mode === "phone";
   state.previewUrl = url;
   const safe = String(url).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
@@ -1150,6 +1352,7 @@ function renderRes(){
 }
 
 function openRepo(r, mode){
+  if (mode) { brwInit(); brwPush(urlOf(r.slug), mode); return; }
   openDetail({
     kind:"repo",
     kicker:"REPO / WPS 源库",
@@ -1329,7 +1532,7 @@ document.addEventListener("click", e => {
   const k = b.dataset.open || b.dataset.copy || b.dataset.preview;
   if (k === "shared") {
     if (b.dataset.copy) copyText(urlOf(SHARED.slug));
-    else if (b.dataset.preview) { openShared(); const m = b.dataset.mode; setTimeout(() => loadPreview(urlOf(SHARED.slug), m), 120); }
+    else if (b.dataset.preview) { brwInit(); brwPush(urlOf(SHARED.slug), b.dataset.mode); }
     else openUrl(urlOf(SHARED.slug));
   }
   if (k === "root") {
@@ -1341,7 +1544,13 @@ document.addEventListener("click", e => {
 /* 抽屉按钮 */
 document.getElementById("dpOpen").onclick = () => { if (state.cur) openUrl(state.cur.url); };
 document.getElementById("dpCopy").onclick = () => { if (state.cur) copyText(state.cur.url); };
-document.getElementById("dpPreview").onclick = () => { if (state.cur) loadPreview(state.cur.url); };
+document.getElementById("dpPreview").onclick = () => {
+  if (!state.cur) return;
+  const u = state.cur.url;
+  closeDetail();
+  brwInit();
+  brwPush(u, brw.mode);
+};
 
 /* 预览视口切换：只改 iframe 宽度，不重载，避免来回等加载 */
 slot.addEventListener("click", e => {
@@ -2081,5 +2290,33 @@ initPlus();
 initGate();
 route();
 </script>
+
+<!-- ===== 浏览器窗口（模拟）：资料库 / 班级云库的预览都用它 ===== -->
+<div class="brw" id="brw" aria-hidden="true">
+  <div class="brw-top">
+    <div class="brw-tabs" id="brwTabs"></div>
+    <button class="brw-new" id="brwNew" title="新建标签页">+</button>
+  </div>
+  <div class="brw-bar">
+    <button class="brw-ico" id="brwBack" title="后退">&#8592;</button>
+    <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
+    <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
+    <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
+    <span class="brw-dev" role="group" aria-label="设备">
+      <button data-brwdev="desktop" class="on">电脑</button>
+      <button data-brwdev="phone">手机</button>
+    </span>
+    <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
+    <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
+    <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
+  </div>
+  <div class="brw-book" id="brwBook"></div>
+  <div class="brw-stage" id="brwStage">
+    <div class="brw-body" id="brwBody">
+      <iframe class="brw-frame" id="brwFrame" title="浏览器预览" referrerpolicy="no-referrer"></iframe>
+    </div>
+    <div class="brw-hint" id="brwHint">若这里一片空白，是对方禁止被外部页面嵌套；点右上角 ↗ 用系统浏览器打开。</div>
+  </div>
+</div>
 </body>
 </html>
