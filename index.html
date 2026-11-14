@@ -745,7 +745,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">五张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机，还有一份远程协助的正确姿势。全部在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">六张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一个能把 WPS 切成移动版的扩展。全部在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -873,6 +873,24 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
           <a class="btn btn-sm ghost" href="https://web.crossdesk.cn/" target="_blank" rel="noopener">CrossDesk 网页端</a>
         </div>
         <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0"><b>别把 ID 和密码发给不认识的人。</b>连之前确认对方身份，连的时候自己盯着屏幕，结束后立刻改掉临时密码。</p>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">06 · 电脑上看移动版</span><span class="task-meta">装一次，之后一直有效</span></div>
+      <div class="task-b">
+        <p>WPS 给你哪套界面，只看请求头里的 UA。网页自己没有这个权限，所以<b>浏览器不允许网页直接装扩展</b> —— 非商店来源的 .crx 会被拦下。能做的是把这个扩展下回去，手动装一次。</p>
+        <p style="font-size:13px;color:var(--ink2);margin:0 0 6px"><b>装一次就够了</b>：之后打开这个站的 WPS 预览，直接是移动版那套，不用每次再切。</p>
+        <ol style="font-size:13px;color:var(--ink2);line-height:1.95;margin:0 0 12px;padding-left:20px">
+          <li>点下面的「下载扩展」，得到一个 zip，<b>解压成文件夹</b>（不要在压缩包里直接选）。</li>
+          <li>Chrome 地址栏打开 <span class="mono">chrome://extensions</span>，右上角把「开发者模式」打开。</li>
+          <li>点「加载已解压的扩展程序」，选中刚才解压出来的文件夹。列表里出现「班级云库 · 移动端预览」就好了。</li>
+        </ol>
+        <div class="link-acts">
+          <a class="btn btn-sm ghost" href="ext/mobile-preview.zip" download>下载扩展（zip）</a>
+          <a class="btn btn-sm ghost" href="https://github.com/MedianiGray/class-cloud-2502/tree/main/ext" target="_blank" rel="noopener">在仓库看源码</a>
+        </div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">它只对 <span class="mono">kdocs.cn</span> 改 UA，浏览器里别的网站照常；登录状态不变。不想用了在扩展页关掉或删掉即可，站内没有任何东西依赖它。</p>
       </div>
     </div>
   </div>
@@ -1319,7 +1337,7 @@ function brwRender(){
     if (IS_MOBILE) {
       hint.innerHTML = "这是 WPS 给手机的<b>真·移动版</b>：底部有「新建 / 下载全部 / 保存至WPS」，和电脑端完全是两套 UI。";
     } else {
-      hint.innerHTML = "这是 WPS 的<b>桌面版</b>。给你哪一套 UI 由浏览器的 UA 决定，页面里切不了 —— 要在电脑上看移动版，得改 UA（浏览器扩展或开发者工具里的设备模拟）；手机上打开本站则自动是移动版。";
+      hint.innerHTML = "这是 WPS 按你浏览器的 UA 给出的界面：普通电脑上是<b>桌面版</b>（有「新建 / 上传」），装了改 UA 的扩展会变成移动版。页面里切不了它 —— 想切只能改 UA，见高级功能里的「06 · 电脑上看移动版」。";
     }
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
