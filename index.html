@@ -79,6 +79,19 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .subnav a{font-size:12.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 13px;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}
 .subnav a:hover{border-color:var(--green);color:var(--green)}
 .subnav a.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+/* 分区折叠：收起时只留一行标题条，展开时标题条瘦成一条提示 */
+.fold-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 18px;margin:0 0 4px;cursor:pointer;text-align:left;font:inherit}
+.fold-head:hover{border-color:var(--green)}
+.fold-head .fh-t{font-size:17px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.fold-head .fh-i{font-size:12px;color:var(--ink3);white-space:nowrap}
+.view.folded{padding:10px 0}
+.view.folded > .wrap > *:not(.fold-head){display:none}
+.view:not(.folded) > .wrap > .fold-head{background:#f6f7f3;border-color:transparent;padding:8px 14px}
+.view:not(.folded) > .wrap > .fold-head .fh-t{font-size:12.5px;font-weight:500;color:var(--ink3)}
+.view:not(.folded) > .wrap > .fold-head .fh-i{font-size:11.5px}
+.board-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:20px 0 10px}
+.board-tip{font-size:12px;color:var(--ink3)}
+.board-note{font-size:12.5px;color:var(--ink3);margin:14px 0 0}
 .page-head{margin-bottom:26px}
 .page-h1{font-size:clamp(24px,5.4vw,38px);font-weight:700;letter-spacing:-.025em;line-height:1.2}
 .page-lead{font-size:14.5px;color:var(--ink2);max-width:56ch;margin-top:9px}
@@ -181,29 +194,6 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .ai-g .p-item{padding:10px 0}
 .ai-gn{font-family:var(--mono);font-size:10.5px;font-weight:400;color:var(--ink3);letter-spacing:.06em}
 .page-note{font-size:12.5px;color:var(--ink3);line-height:1.7;border-left:2px solid var(--amber);padding:2px 0 2px 12px;margin:0 0 18px}
-/* ---------- 模拟浏览器窗口 ---------- */
-.sim{border:1px solid var(--line2);background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.06)}
-.sim-bar{display:flex;align-items:center;gap:7px;padding:7px 9px;border-bottom:1px solid var(--line);background:var(--paper2)}
-.sim-dots{display:flex;gap:5px;flex:none}
-.sim-dots i{width:8px;height:8px;border-radius:50%;background:#d5d6cf;display:block}
-.sim-url{flex:1;min-width:0}
-.sim-url input{width:100%;height:26px;border:1px solid var(--line);background:#fff;font-family:var(--mono);font-size:10.5px;color:var(--ink2);padding:0 8px;border-radius:5px}
-.sim-url input:focus{outline:none;border-color:var(--green);color:var(--ink)}
-.sim-dev{display:flex;border:1px solid var(--line);background:#fff;flex:none;border-radius:5px;overflow:hidden}
-.sim-dev button{height:26px;padding:0 9px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
-.sim-dev button.on{background:var(--green);color:#fff}
-.sim-ico{width:26px;height:26px;border:1px solid var(--line);background:#fff;border-radius:5px;font-size:12px;line-height:1;color:var(--ink2);flex:none}
-.sim-ico:hover{border-color:var(--ink3);color:var(--ink)}
-.sim-stage{background:#fff}
-.sim-stage.phone{background:#E9E9E3;padding:18px 10px;display:flex;justify-content:center}
-.sim-phone{position:relative;width:100%;background:#fff}
-.sim .sim-phone iframe.preview{display:block;width:100%;height:480px;border:0;background:#fff}
-.sim-stage.phone .sim-phone{width:390px;max-width:100%;border-radius:26px;overflow:hidden;padding-top:24px;box-shadow:0 14px 32px rgba(0,0,0,.15)}
-.sim-notch{display:none}
-.sim-stage.phone .sim-notch{display:block;position:absolute;top:0;left:50%;transform:translateX(-50%);width:112px;height:21px;background:#E9E9E3;border-radius:0 0 13px 13px}
-.sim .sim-stage.phone .sim-phone iframe.preview{height:720px}
-.sim-note{border-top:1px solid var(--line);padding:10px 12px;font-size:11.5px;line-height:1.75;color:var(--ink3)}
-.sim-note strong{display:block;color:var(--ink2);font-size:12px;margin-bottom:2px;font-weight:600}
 /* ---------- 浏览器窗口 ---------- */
 .brw{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;background:#EDEDE6}
 .brw.on{display:flex}
@@ -220,21 +210,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-addr{flex:1;min-width:120px}
 .brw-addr input{width:100%;height:28px;border:1px solid var(--line);border-radius:14px;background:#fff;font-family:var(--mono);font-size:11px;color:var(--ink2);padding:0 12px}
 .brw-addr input:focus{outline:none;border-color:var(--green);color:var(--ink)}
-.brw-dev{display:flex;border:1px solid var(--line);background:#fff;border-radius:6px;overflow:hidden;flex:none}
-.brw-dev button{height:26px;padding:0 10px;font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
-.brw-dev button.on{background:var(--green);color:#fff}
 .brw-close{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;color:var(--ink2)}
 .brw-book{display:flex;gap:6px;padding:6px 10px;background:#fff;border-bottom:1px solid var(--line);flex:none;overflow-x:auto}
 .brw-book button{height:24px;padding:0 10px;border:1px solid var(--line);background:#FBFBF7;border-radius:12px;font-size:11.5px;color:var(--ink2);white-space:nowrap;flex:none}
 .brw-book button:hover{border-color:var(--green);color:var(--green)}
 .brw-stage{flex:1;min-height:0;display:flex;flex-direction:column;background:#fff}
-.brw-stage.phone{background:#E9E9E3;overflow:auto;align-items:center;padding:22px 0 30px}
 .brw-body{flex:1;min-height:0;width:100%}
 .brw-frame{display:block;width:100%;height:100%;border:0;background:#fff}
-.brw-statusbar{position:absolute;top:0;left:0;right:0;height:24px;display:none;align-items:center;justify-content:space-between;padding:0 16px;font-size:10.5px;font-weight:600;color:#1b1b1b;background:#fff;z-index:3;font-family:-apple-system,"Segoe UI",sans-serif}
-.brw-statusbar b{font-weight:600}
-.brw-stage.phone .brw-body{flex:none;width:390px;max-width:100%;height:780px;border-radius:26px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.16);position:relative;padding-top:24px;background:#fff}
-.brw-stage.phone .brw-frame{border-radius:0}
 /* ---------- 工作台 ---------- */
 .desk{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:18px;background-color:#F9F9F3;background-image:repeating-linear-gradient(0deg,rgba(46,83,72,.04) 0 1px,transparent 1px 24px),repeating-linear-gradient(90deg,rgba(46,83,72,.04) 0 1px,transparent 1px 24px)}
 .desk-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:18px 8px;padding:26px 18px 30px;max-width:760px;margin:0 auto}
@@ -264,14 +246,8 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
   .brw-bar{padding:6px 8px;gap:5px}
   .brw-ico,.brw-close{width:34px;height:34px;font-size:13px}
   .brw-addr input{height:34px;font-size:12px;padding:0 10px;border-radius:17px}
-  .brw-dev button{height:34px;padding:0 12px;font-size:11px}
   .brw-book{padding:5px 8px;gap:5px}
   .brw-book button{height:30px;font-size:12px;padding:0 9px}
-  /* 手机上直接把手机框铺满：屏幕本身就是手机，不必再套一层 */
-  .brw-stage.phone{padding:0;overflow:hidden;align-items:stretch}
-  .brw-stage.phone .brw-body{width:100%;height:auto;flex:1;border-radius:0;box-shadow:none;padding-top:0}
-  .brw-stage.phone .brw-statusbar{display:none}
-  .brw-stage.phone .brw-frame{height:100%}
   .brw-hint{padding:7px 10px;font-size:11px;line-height:1.6}
 }
 /* embed=ph：被浏览器窗口当作“手机端”载入时，自身不再开浏览器层，避免套娃 */
@@ -520,39 +496,32 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="patchbar" id="patchbar"></div>
     </div>
 
-    <div class="entries">
-      <a class="entry" href="#/library">
-        <span class="entry-k">01 / LIBRARY</span>
-        <span class="entry-t">班级云库
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
-        <span class="entry-d">共享空间与 45 个独立文件夹，按尾号或序号检索，可复制链接、尝试内嵌预览。</span>
-        <span class="entry-go">进入索引</span>
-      </a>
-      <a class="entry" href="#/portal">
-        <span class="entry-k">02 / CAMPUS</span>
-        <span class="entry-t">学校入口
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
-        <span class="entry-d">智慧学工、资源访问控制、SSL VPN、官网与 FTP 仓库，校外访问先看说明。</span>
-        <span class="entry-go">打开门户</span>
-      </a>
-      <a class="entry" href="#/res">
-        <span class="entry-k">03 / RESOURCES</span>
-        <span class="entry-t">资料库
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
-        <span class="entry-d">专业学习资料、学校相关的事宜、共享社区三个 WPS 源库，逐条列出里面有什么，点开直达。</span>
-        <span class="entry-go">打开清单</span>
-      </a>
-      <a class="entry" href="#/access">
-        <span class="entry-k">04 / ACCESS</span>
-        <span class="entry-t">权限模型
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </span>
-        <span class="entry-d">谁看得到什么、谁能写、评优材料放在哪一层，一页说清。</span>
-        <span class="entry-go">查看规则</span>
-      </a>
+    <div class="divider"></div>
+    <div class="board">
+      <div class="board-head"><span class="eyebrow">桌面</span><span class="board-tip">站内四块 + WPS 三个源库，点一下直达</span></div>
+
+      <div class="desk" id="deskBoard">
+        <div class="desk-grid" id="deskGrid">
+          <button class="desk-ico" data-go="#/library"><span>库</span>班级云库</button>
+          <button class="desk-ico" data-go="#/res"><span>资</span>资料库</button>
+          <button class="desk-ico" data-go="#/portal"><span>校</span>学校入口</button>
+          <button class="desk-ico" data-go="#/access"><span>权</span>权限</button>
+          <button class="desk-ico" data-go="#/plus"><span>高</span>高级功能</button>
+          <button class="desk-ico" data-go="#/maint"><span>维</span>维护</button>
+          <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/cc8KmiqlrcMV"><span>学</span>专业资料</button>
+          <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/cpQ7FYtCJpAE"><span>事</span>学校事宜</button>
+          <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/ctjLDPYcTofa"><span>社</span>共享社区</button>
+          <button class="desk-ico" data-ext="https://copy.sh/v86/"><span>机</span>模拟电脑</button>
+        </div>
+        <div class="desk-task">
+          <button class="dt-start" data-go="#/library">开始</button>
+          <div class="dt-mid">
+            <a href="#/library">云库</a><a href="#/portal">入口</a><a href="#/res">资料</a><a href="#/plus">高级</a>
+          </div>
+          <div class="dt-clock" id="deskClock">--:--</div>
+        </div>
+      </div>
+      <p class="board-note">这张桌面不带文件 ——「专业资料」「学校事宜」「共享社区」是跳去 WPS 本体，网页不复制内容、不存副本。</p>
     </div>
 
     <div class="divider"></div>
@@ -564,46 +533,12 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 </section>
 
 
-<!-- ===== 视图：工作台 ===== -->
-<section class="view" id="view-desk">
-  <div class="wrap">
-    <div class="page-head">
-      <h1 class="page-h1">工作台</h1>
-      <p class="page-lead">把站内的几页和 WPS 的三个源库摆成一张桌面。点图标进去，下面那条栏常驻，回到这里再来一次。</p>
-    </div>
-
-    <div class="desk">
-      <div class="desk-grid" id="deskGrid">
-        <button class="desk-ico" data-go="#/home"><span>概</span>概览</button>
-        <button class="desk-ico" data-go="#/library"><span>库</span>班级云库</button>
-        <button class="desk-ico" data-go="#/res"><span>资</span>资料库</button>
-        <button class="desk-ico" data-go="#/portal"><span>校</span>学校入口</button>
-        <button class="desk-ico" data-go="#/plus"><span>高</span>高级功能</button>
-        <button class="desk-ico" data-go="#/access"><span>权</span>权限</button>
-        <button class="desk-ico" data-go="#/maint"><span>维</span>维护</button>
-        <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/cc8KmiqlrcMV"><span>学</span>专业资料</button>
-        <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/cpQ7FYtCJpAE"><span>事</span>学校事宜</button>
-        <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/ctjLDPYcTofa"><span>社</span>共享社区</button>
-        <button class="desk-ico" data-ext="https://copy.sh/v86/"><span>机</span>模拟电脑</button>
-      </div>
-      <div class="desk-task">
-        <button class="dt-start" data-go="#/home">开始</button>
-        <div class="dt-mid">
-          <a href="#/library">云库</a><a href="#/res">资料</a><a href="#/plus">高级</a><a href="#/maint">维护</a>
-        </div>
-        <div class="dt-clock" id="deskClock">--:--</div>
-      </div>
-    </div>
-
-    <p style="font-size:12.5px;color:var(--ink3);margin:14px 0 0">这张桌面不带文件——点开「专业资料」「学校事宜」「共享社区」是跳去 WPS 本体，网页不复制内容、不存副本。</p>
-  </div>
-</section>
 <!-- ===== 视图：班级云库 ===== -->
 <section class="view" id="view-library">
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">班级云库</h1>
-      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接点「电脑端 / 手机端」在浏览器窗口里看，点成员卡可查看详情、复制链接。</p>
+      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接点「预览」在浏览器窗口里看，点成员卡可查看详情、复制链接。</p>
       <p class="page-note dev-note"></p>
     </div>
 
@@ -614,8 +549,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <div class="link-acts">
         <button class="btn btn-sm" data-open="shared">在 WPS 中打开</button>
         <button class="btn btn-sm ghost" data-copy="shared">复制链接</button>
-        <button class="btn btn-sm ghost" data-preview="shared" data-mode="desktop">电脑版</button>
-        <button class="btn btn-sm ghost" data-preview="shared" data-mode="phone">手机端</button>
+        <button class="btn btn-sm ghost" data-preview="shared">预览</button>
       </div>
     </div>
 
@@ -687,7 +621,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">资料库</h1>
-      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。每张卡点「电脑端」开一个全屏浏览器窗口看 WPS 本身；点「手机端」把它按 390×780 的真视口重排，看手机上实际的样子。</p>
+      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。点「预览」开一个浏览器窗口看 WPS 本身；想看手机版式，就点「扫码」用手机打开。</p>
     <p class="page-note dev-note"></p>
 
     </div>
@@ -1282,7 +1216,7 @@ function openShared(){
 }
 
 /* ==================== 浏览器窗口 ==================== */
-const brw = { tabs: [], i: 0, hist: [], hi: -1, mode: "desktop" };
+const brw = { tabs: [], i: 0, hist: [], hi: -1 };
 
 function brwName(url){
   const book = [SHARED, ROOT].concat(REPOS).filter(Boolean);
@@ -1295,8 +1229,7 @@ function brwName(url){
 }
 
 function brwSrc(cur){
-  /* 两端都载真地址。哪一套 UI 由 UA 决定，而 UA 只能由浏览器自己切 ——
-     这里只负责把窗口缩成手机宽度，界面交给浏览器的「桌面版网站」开关或 F12 设备模拟。 */
+  /* 一律载真地址。WPS 给哪套界面由它按浏览器身份自己分流，这里不干预。 */
   return cur && cur.url ? cur.url : "about:blank";
 }
 
@@ -1312,40 +1245,15 @@ function brwRender(){
   const inp = document.getElementById("brwUrl");
   if (inp) inp.value = cur ? cur.url : "";
   if (f) f.src = brwSrc(cur);
-  const stage = document.getElementById("brwStage");
-  if (stage) stage.classList.toggle("phone", brw.mode === "phone");
-  const body = document.getElementById("brwBody");
-  if (body) {
-    let sb = body.querySelector(".brw-statusbar");
-    if (brw.mode === "phone") {
-      if (!sb) {
-        sb = document.createElement("div");
-        sb.className = "brw-statusbar";
-        sb.innerHTML = '<b>9:41</b><span>5G &nbsp;&#9646;&#9646;&#9646; &nbsp;86%</span>';
-        body.insertBefore(sb, body.firstChild);
-      }
-      sb.style.display = "flex";
-    } else if (sb) {
-      sb.style.display = "none";
-    }
-  }
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    if (brw.mode === "phone") {
-      hint.innerHTML = "手机框只是把窗口缩到 390px —— 浏览器身份没变，WPS 仍按你现在这台机器给界面。想在电脑上看真移动版：<b>F12 然后 Ctrl + Shift + M 选 iPhone，刷新</b>；完整做法见 06 卡。";
-    } else {
-      hint.innerHTML = "电脑窗口按你浏览器的真实身份取页面，一般是<b>桌面版</b>（有「新建 / 上传」）。要换手机界面：<b>F12 然后 Ctrl + Shift + M 选机型</b>；手机上想看电脑版，勾浏览器菜单里的「桌面版网站」，见 06 卡。";
-    }
+    hint.innerHTML = "WPS 与校内系统大多禁止被外部网页嵌套，窗口里白屏是对方的安全策略，不是这里坏了。要看真页面，点右上角 ↗ 在新标签打开；手机上想看，点 ▣ 出二维码用手机扫。";
   }
-  Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
-    b.classList.toggle("on", b.dataset.brwdev === brw.mode);
-  });
 }
 
-function brwPush(url, mode){
+function brwPush(url){
   if (!url) return;
-  if (mode) brw.mode = mode;
   brw.tabs = [{ url: url, name: brwName(url) }];
   brw.i = 0;
   brw.hist = [url];
@@ -1431,14 +1339,6 @@ function brwInit(){
     }
     const bw = e.target.closest("[data-bwurl]");
     if (bw) { brwGoto(bw.dataset.bwurl); return; }
-    const dev = e.target.closest("[data-brwdev]");
-    if (dev) {
-      brw.mode = dev.dataset.brwdev;
-      store.set("cl_view_mode_v1", brw.mode);
-      toast(brw.mode === "phone" ? "已缩成手机宽度（390px）；WPS 给哪套界面由浏览器身份决定" : "已切回电脑窗口");
-      brwRender();
-      return;
-    }
   });
 
   document.addEventListener("keydown", function(e){
@@ -1475,55 +1375,10 @@ function brwQrPanel(url){
   catch (e) { toast("链接太长，二维码画不出来"); }
 }
 
-function loadPreview(url, mode){
-  /* 预览已升级为全屏浏览器窗口；保底转发，避免旧调用点报错 */
-  mode = mode || (IS_MOBILE ? "phone" : "desktop");
+function loadPreview(url){
+  /* 预览统一交给全屏浏览器窗口；保留这个入口，避免旧调用点报错 */
   brwInit();
-  brwPush(url, mode);
-  return;
-  const isPhone = mode === "phone";
-  state.previewUrl = url;
-  const safe = String(url).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
-  slot.classList.toggle("phone", isPhone);
-
-  slot.innerHTML =
-    '<div class="sim">' +
-      '<div class="sim-bar">' +
-        '<span class="sim-dots"><i></i><i></i><i></i></span>' +
-        '<span class="sim-url"><input id="simUrl" spellcheck="false" value="' + safe + '" aria-label="预览地址"></span>' +
-        '<span class="sim-dev" role="group" aria-label="设备">' +
-          '<button data-dev="desktop"' + (isPhone ? '' : ' class="on"') + '>电脑</button>' +
-          '<button data-dev="phone"' + (isPhone ? ' class="on"' : '') + '>手机</button>' +
-        '</span>' +
-        '<button class="sim-ico" data-pv="reload" title="重新加载">&#8635;</button>' +
-        '<button class="sim-ico" data-pv="qr" title="扫码在手机上打开">&#9635;</button>' +
-        '<button class="sim-ico" data-pv="open" title="新标签打开">&#8599;</button>' +
-      '</div>' +
-      '<div class="sim-stage' + (isPhone ? ' phone' : '') + '">' +
-        '<div class="sim-phone">' +
-          '<span class="sim-notch"></span>' +
-          '<iframe class="preview" src="' + safe + '" referrerpolicy="no-referrer" title="模拟浏览器预览"></iframe>' +
-        '</div>' +
-      '</div>' +
-      '<div class="sim-note">' +
-        '<strong>' + (isPhone ? "手机设备框" : "电脑窗口") + '</strong>' +
-        (isPhone
-          ? '这是把一个窗口缩成 390px 的手机样子，浏览器身份仍然是电脑；WPS 按身份分流，所以里面仍是电脑版内容。要真看到移动版：点 ▣ 出二维码用真手机打开；或在电脑上按 F12 再按 Ctrl + Shift + M 选机型。'
-          : 'WPS 与校内系统大多禁止被外部网页嵌套，白屏是对方的安全策略，不是这里坏了。点右上角 ↗ 在新标签打开即可正常阅览。') +
-      '</div>' +
-    '</div>';
-
-  const ifr = slot.querySelector("iframe");
-  if (ifr) {
-    ifr.addEventListener("load", function(){
-      /* 能读到 contentDocument 说明同源加载成功；跨域或拒绝时会抛错，只作为状态提示 */
-      try {
-        const d = ifr.contentDocument;
-        if (d && d.location && d.location.href === "about:blank") toast("对方拒绝被嵌入，用右上角 ↗ 打开");
-      } catch (e) { /* 跨域正常，不提示 */ }
-    });
-  }
-  toast(isPhone ? "已切到手机设备框（390px）" : "已切到电脑窗口");
+  brwPush(url);
 }
 
 /* ==================== 资料库：三个 WPS 源库 ==================== */
@@ -1545,8 +1400,7 @@ function renderRes(){
       '<div class="task-b">' +
         '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
         '<div class="link-acts">' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="desktop">电脑版</button>' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="phone">手机端</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview">预览</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
         '</div>' +
@@ -1555,8 +1409,7 @@ function renderRes(){
   )).join("");
 }
 
-function openRepo(r, mode){
-  if (mode) { brwInit(); brwPush(urlOf(r.slug), mode); return; }
+function openRepo(r){
   openDetail({
     kind:"repo",
     kicker:"REPO / WPS 源库",
@@ -1569,7 +1422,6 @@ function openRepo(r, mode){
     ],
     url:urlOf(r.slug)
   });
-  setTimeout(function(){ loadPreview(urlOf(r.slug), mode); }, 120);
 }
 
 /* ==================== 学校门户 ==================== */
@@ -1639,25 +1491,55 @@ function initGate(){
 }
 
 /* ==================== 路由 ==================== */
-/* 八个视图合并成两页：main = 概览 / 工作台 / 成员索引 / 学校入口 / 资料库；
+/* 八个视图合并成两页：main = 概览（原工作台并入）/ 成员索引 / 学校入口 / 资料库；
    admin = 权限说明 / 高级功能 / 部署维护。旧链接（#/desk 等）仍可用，落到所属页并对准那个分区。 */
 const GROUPS = {
-  main:  ["home", "desk", "library", "portal", "res"],
+  main:  ["home", "library", "portal", "res"],
   admin: ["access", "plus", "maint"]
 };
 const ALIAS = {};
 Object.keys(GROUPS).forEach(function(g){ GROUPS[g].forEach(function(k){ ALIAS[k] = g; }); });
+ALIAS.desk = "main";   /* 旧的「工作台」已经并进概览，老链接仍然进得来 */
 const GROUPS_NAMES = ["main", "admin"];
 const SUBS = {
-  main:  [["home", "概览"], ["desk", "工作台"], ["library", "成员索引"], ["portal", "学校入口"], ["res", "资料库"]],
+  main:  [["home", "概览"], ["library", "成员索引"], ["portal", "学校入口"], ["res", "资料库"]],
   admin: [["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
 };
 
 function paintDevNote(){
   const txt = IS_MOBILE
     ? "当前是手机访问：浏览器窗口里就是 WPS 给的移动版页面。"
-    : "电脑端开 WPS 本体；手机端把本页按 390px 真视口重排，看的是手机上的实际版式。WPS 按服务器端 UA 分流，网页改不了它，要看 WPS 移动版请用「扫码」在手机上打开。";
+    : "WPS 按访问设备的身份自己分流：电脑上打开是桌面版，手机上打开是移动版。网页这边不接管，想看移动版就用「扫码」把链接送到手机上。";
   Array.prototype.forEach.call(document.querySelectorAll(".dev-note"), function(el){ el.textContent = txt; });
+}
+
+/* 分区折叠：每组第一个分区常开，其余收在一条标题下面，点开才铺内容 */
+function ensureFolds(group){
+  SUBS[group].forEach(function(p, i){
+    const sec = document.getElementById("view-" + p[0]);
+    if (!sec || sec.dataset.foldReady) return;
+    sec.dataset.foldReady = "1";
+    const wrap = sec.querySelector(".wrap");
+    if (i === 0 || !wrap) { sec.dataset.noFold = "1"; return; }
+    const head = document.createElement("button");
+    head.type = "button";
+    head.className = "fold-head";
+    head.innerHTML = '<span class="fh-t">' + p[1] + '</span><span class="fh-i">展开</span>';
+    wrap.insertBefore(head, wrap.firstChild);
+    head.addEventListener("click", function(){
+      const willOpen = sec.classList.contains("folded");
+      applyFold(p[0], !willOpen);
+      if (willOpen) sec.scrollIntoView({ block:"start" });
+    });
+  });
+}
+
+function applyFold(k, folded){
+  const sec = document.getElementById("view-" + k);
+  if (!sec || sec.dataset.noFold) return;
+  sec.classList.toggle("folded", !!folded);
+  const tip = sec.querySelector(".fold-head .fh-i");
+  if (tip) tip.textContent = folded ? "展开" : "收起";
 }
 
 function paintSubnav(group, focus){
@@ -1674,7 +1556,8 @@ function route(){
   if (location.hash.indexOf("#/lessons") === 0) { location.hash = "#/res"; return; }
   const raw = (location.hash || "#/main").replace(/^#\//, "").split("?")[0];
   const group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
-  const focus = GROUPS[raw] ? null : (ALIAS[raw] ? raw : null);
+  let focus = GROUPS[raw] ? null : (ALIAS[raw] ? raw : null);
+  if (focus === "desk") focus = "home";   /* 工作台已并入概览 */
   GROUPS_NAMES.forEach(function(g){
     GROUPS[g].forEach(function(k){
       const el = document.getElementById("view-" + k);
@@ -1688,6 +1571,10 @@ function route(){
     a.classList.toggle("on", (a.dataset.k || "") === (focus || GROUPS[group][0]));
   });
   paintSubnav(group, focus);
+  ensureFolds(group);
+  GROUPS[group].forEach(function(k, i){
+    applyFold(k, focus ? k !== focus : i !== 0);
+  });
   const plusOn = document.getElementById("view-plus");
   if (plusOn && plusOn.classList.contains("on") && typeof relayCheck === "function") relayCheck();
   paintDevNote();
@@ -1700,9 +1587,9 @@ function route(){
 
 /* ==================== 工作台 ==================== */
 (function(){
-  const dg = document.getElementById("deskGrid");
+  const dg = document.getElementById("deskBoard");
   if (dg) dg.addEventListener("click", function(e){
-    const b = e.target.closest(".desk-ico");
+    const b = e.target.closest("[data-go],[data-ext]");
     if (!b) return;
     if (b.dataset.go) { location.hash = b.dataset.go; return; }
     if (b.dataset.ext) { window.open(b.dataset.ext, "_blank", "noopener"); return; }
@@ -1770,7 +1657,8 @@ document.addEventListener("click", e => {
       const act = rp.dataset.act || "preview";
       if (act === "copy") copyText(urlOf(r.slug));
       else if (act === "open") openUrl(urlOf(r.slug));
-      else openRepo(r, rp.dataset.mode);
+      else if (act === "preview") { brwInit(); brwPush(urlOf(r.slug)); }
+      else openRepo(r);
     }
     return;
   }
@@ -1779,7 +1667,7 @@ document.addEventListener("click", e => {
   const k = b.dataset.open || b.dataset.copy || b.dataset.preview;
   if (k === "shared") {
     if (b.dataset.copy) copyText(urlOf(SHARED.slug));
-    else if (b.dataset.preview) { brwInit(); brwPush(urlOf(SHARED.slug), b.dataset.mode); }
+    else if (b.dataset.preview) { brwInit(); brwPush(urlOf(SHARED.slug)); }
     else openUrl(urlOf(SHARED.slug));
   }
   if (k === "root") {
@@ -1796,55 +1684,8 @@ document.getElementById("dpPreview").onclick = () => {
   const u = state.cur.url;
   closeDetail();
   brwInit();
-  brwPush(u, brw.mode);
+  brwPush(u);
 };
-
-/* 预览视口切换：只改 iframe 宽度，不重载，避免来回等加载 */
-slot.addEventListener("click", e => {
-  const pv = e.target.closest("[data-pv]");
-  if (pv) {
-    const act = pv.dataset.pv;
-    if (act === "open") { window.open(state.previewUrl, "_blank", "noopener"); return; }
-    if (act === "reload") {
-      const f = slot.querySelector("iframe");
-      if (f) { f.src = state.previewUrl; toast("重新加载中"); }
-      return;
-    }
-    if (act === "qr") {
-      const old = slot.querySelector(".pv-qr");
-      if (old) { old.remove(); return; }
-      if (typeof QRCode === "undefined") { toast("二维码库没加载上，刷新页面再试"); return; }
-      const box = document.createElement("div");
-      box.className = "pv-qr";
-      box.innerHTML = '<div class="qr-box"></div><span style="font-size:11.5px;color:var(--ink3)">手机相机扫这个码，直接在这台手机上打开</span>';
-      slot.insertBefore(box, slot.firstChild);
-      try {
-        new QRCode(box.querySelector(".qr-box"), { text: state.previewUrl, width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M });
-      } catch (err) { toast("链接太长，二维码画不出来"); }
-      return;
-    }
-  }
-  const d = e.target.closest("[data-dev]");
-  if (!d) return;
-  const isPhone = d.dataset.dev === "phone";
-  slot.classList.toggle("phone", isPhone);
-  const st = slot.querySelector(".sim-stage");
-  if (st) st.classList.toggle("phone", isPhone);
-  Array.prototype.forEach.call(slot.querySelectorAll("[data-dev]"), b => {
-    b.classList.toggle("on", b === d);
-  });
-  store.set("cl_view_mode_v1", isPhone ? "phone" : "desktop");
-  toast(isPhone ? "已切到手机端（390px 真视口）" : "已切回电脑端");
-});
-slot.addEventListener("keydown", e => {
-  if (e.key !== "Enter") return;
-  const inp = e.target;
-  if (!inp || inp.id !== "simUrl") return;
-  let u = inp.value.trim();
-  if (!u) return;
-  if (!/^https?:\/\//i.test(u) && !/^file:\/\//i.test(u)) u = "https://" + u;
-  loadPreview(u, slot.classList.contains("phone") ? "phone" : "desktop");
-});
 drawer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeDetail(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDetail(); });
 
@@ -1942,13 +1783,8 @@ function openAiSite(i, embed){
   const a = AI_SITES[i];
   if (!a) return;
   if (!embed) { openUrl(a.u); return; }
-  openDetail({
-    kicker:"AI / 外部站点",
-    name:a.n,
-    fields:[["是否需要账号", a.t],["能做什么", a.d],["地址", a.u]],
-    url:a.u
-  });
-  setTimeout(function(){ loadPreview(a.u); }, 120);
+  brwInit();
+  brwPush(a.u);
 }
 
 function renderAiList(){
@@ -2526,13 +2362,13 @@ function initPlus(){
   const vmGo = document.getElementById("vmGo");
   if (vmGo) vmGo.onclick = function(){
     brwInit();
-    brwPush("https://copy.sh/v86/?profile=linux26", "desktop");
+    brwPush("https://copy.sh/v86/?profile=linux26");
     toast("虚拟机正在下载并引导，等 30–60 秒");
   };
   const vmWin = document.getElementById("vmWin");
   if (vmWin) vmWin.onclick = function(){
     brwInit();
-    brwPush("https://copy.sh/v86/?profile=windows98", "desktop");
+    brwPush("https://copy.sh/v86/?profile=windows98");
     toast("Windows 98 启动较慢，耐心等一会儿");
   };
   const vmSite = document.getElementById("vmSite");
@@ -2564,10 +2400,6 @@ route();
     <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
-    <span class="brw-dev" role="group" aria-label="以哪一端打开">
-      <button data-brwdev="desktop" class="on">电脑</button>
-      <button data-brwdev="phone">手机</button>
-    </span>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
