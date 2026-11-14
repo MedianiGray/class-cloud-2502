@@ -227,6 +227,25 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-statusbar b{font-weight:600}
 .brw-stage.phone .brw-body{flex:none;width:390px;max-width:100%;height:780px;border-radius:26px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.16);position:relative;padding-top:24px;background:#fff}
 .brw-stage.phone .brw-frame{border-radius:0}
+/* ---------- 工作台 ---------- */
+.desk{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:18px;background-color:#F9F9F3;background-image:repeating-linear-gradient(0deg,rgba(46,83,72,.04) 0 1px,transparent 1px 24px),repeating-linear-gradient(90deg,rgba(46,83,72,.04) 0 1px,transparent 1px 24px)}
+.desk-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:18px 8px;padding:26px 18px 30px;max-width:760px;margin:0 auto}
+.desk-ico{border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11.5px;color:var(--ink2);cursor:pointer;font-family:inherit}
+.desk-ico span{width:48px;height:48px;border-radius:11px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--green);box-shadow:0 1px 2px rgba(0,0,0,.04);transition:all .16s}
+.desk-ico:hover span{background:var(--green);border-color:var(--green);color:#fff;transform:translateY(-1px)}
+.desk-task{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px 0 10px;background:#fff;border-top:1px solid var(--line)}
+.dt-start{height:26px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:#F4F4EE;font-family:var(--mono);font-size:11px;color:var(--ink2);cursor:pointer}
+.dt-start:hover{border-color:var(--green);color:var(--green)}
+.dt-mid{flex:1;display:flex;gap:14px;padding-left:6px}
+.dt-mid a{font-size:11.5px;color:var(--ink3);text-decoration:none}
+.dt-mid a:hover{color:var(--green)}
+.dt-clock{font-family:var(--mono);font-size:11.5px;color:var(--ink3);letter-spacing:.4px}
+@media (max-width:640px){
+  .desk-grid{grid-template-columns:repeat(4,1fr);gap:16px 4px;padding:20px 12px 24px}
+  .desk-ico span{width:44px;height:44px}
+  .dt-mid{gap:10px}
+  .dt-mid a:nth-child(4){display:none}
+}
 .brw-hint{padding:9px 14px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line);background:#FBFBF7;flex:none}
 /* ---------- 浏览器窗口：手机上通用（触屏尺寸 + 不套娃） ---------- */
 @media (max-width:640px){
@@ -456,6 +475,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
     <nav class="nav" id="nav">
       <a href="#/home" data-v="home">概览</a>
+      <a href="#/desk" data-v="desk">工作台</a>
       <a href="#/library" data-v="library">班级云库</a>
       <a href="#/res" data-v="res">资料库</a>
       <a href="#/portal" data-v="portal">学校入口</a>
@@ -537,6 +557,41 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   </div>
 </section>
 
+
+<!-- ===== 视图：工作台 ===== -->
+<section class="view" id="view-desk">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">工作台</h1>
+      <p class="page-lead">把站内的几页和 WPS 的三个源库摆成一张桌面。点图标进去，下面那条栏常驻，回到这里再来一次。</p>
+    </div>
+
+    <div class="desk">
+      <div class="desk-grid" id="deskGrid">
+        <button class="desk-ico" data-go="#/home"><span>概</span>概览</button>
+        <button class="desk-ico" data-go="#/library"><span>库</span>班级云库</button>
+        <button class="desk-ico" data-go="#/res"><span>资</span>资料库</button>
+        <button class="desk-ico" data-go="#/portal"><span>校</span>学校入口</button>
+        <button class="desk-ico" data-go="#/plus"><span>高</span>高级功能</button>
+        <button class="desk-ico" data-go="#/access"><span>权</span>权限</button>
+        <button class="desk-ico" data-go="#/maint"><span>维</span>维护</button>
+        <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/cc8KmiqlrcMV"><span>学</span>专业资料</button>
+        <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/cpQ7FYtCJpAE"><span>事</span>学校事宜</button>
+        <button class="desk-ico" data-ext="https://www.kdocs.cn/folder/ctjLDPYcTofa"><span>社</span>共享社区</button>
+        <button class="desk-ico" data-ext="https://copy.sh/v86/"><span>机</span>模拟电脑</button>
+      </div>
+      <div class="desk-task">
+        <button class="dt-start" data-go="#/home">开始</button>
+        <div class="dt-mid">
+          <a href="#/library">云库</a><a href="#/res">资料</a><a href="#/plus">高级</a><a href="#/maint">维护</a>
+        </div>
+        <div class="dt-clock" id="deskClock">--:--</div>
+      </div>
+    </div>
+
+    <p style="font-size:12.5px;color:var(--ink3);margin:14px 0 0">这张桌面不带文件——点开「专业资料」「学校事宜」「共享社区」是跳去 WPS 本体，网页不复制内容、不存副本。</p>
+  </div>
+</section>
 <!-- ===== 视图：班级云库 ===== -->
 <section class="view" id="view-library">
   <div class="wrap">
@@ -1546,7 +1601,7 @@ function initGate(){
 }
 
 /* ==================== 路由 ==================== */
-const VIEWS = ["home", "library", "res", "portal", "plus", "access", "maint"];
+const VIEWS = ["home", "desk", "library", "res", "portal", "plus", "access", "maint"];
 
 function paintDevNote(){
   const txt = IS_MOBILE
@@ -1571,6 +1626,7 @@ function route(){
   paintDevNote();
   document.title =({
     home:"班级云库 · 网络工程技术（本）2502班",
+    desk:"工作台 · 班级云库",
     library:"班级云库 · 成员索引",
     res:"资料库 · 三个 WPS 源库",
     plus:"高级功能 · 班级云库",
@@ -1580,6 +1636,26 @@ function route(){
   })[v] || "班级云库";
   window.scrollTo(0, 0);
 }
+
+
+/* ==================== 工作台 ==================== */
+(function(){
+  const dg = document.getElementById("deskGrid");
+  if (dg) dg.addEventListener("click", function(e){
+    const b = e.target.closest(".desk-ico");
+    if (!b) return;
+    if (b.dataset.go) { location.hash = b.dataset.go; return; }
+    if (b.dataset.ext) { window.open(b.dataset.ext, "_blank", "noopener"); return; }
+  });
+  const clock = document.getElementById("deskClock");
+  if (clock) {
+    const tick = function(){
+      const d = new Date();
+      clock.textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    };
+    tick(); setInterval(tick, 30000);
+  }
+})();
 
 /* ==================== 事件绑定 ==================== */
 grid.addEventListener("click", e => {
