@@ -159,6 +159,35 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 .preview-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.08em}
 .dp-note{font-size:12.5px;color:var(--ink3);line-height:1.65;border-left:2px solid var(--amber);padding-left:11px}
 
+/* ---------- 预览视口切换 ---------- */
+.preview-bar{justify-content:flex-start;gap:10px}
+.dev{display:flex;border:1px solid var(--line);background:#fff;margin-left:auto;flex:none}
+.dev button{height:44px;padding:0 14px;font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em}
+.dev button.on{background:var(--green);color:#fff}
+.preview-slot.phone{background:#E9E9E3;padding:12px 10px}
+.preview-slot.phone iframe.preview{width:390px;max-width:100%;margin:0 auto;height:600px;border:1px solid var(--line2)}
+
+/* ---------- 课程作业 ---------- */
+.task{border:1px solid var(--line);background:var(--card);margin-bottom:16px}
+.task-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;padding:15px 17px 12px;border-bottom:1px solid var(--line)}
+.task-t{font-size:17.5px;font-weight:700;letter-spacing:-.015em}
+.task-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.06em;margin-left:auto}
+.task-b{padding:15px 17px 17px;display:grid;gap:15px}
+.opt{display:flex;gap:11px;font-size:13.5px;line-height:1.72}
+.opt-n{font-family:var(--mono);font-size:11px;color:var(--green);flex:none;padding-top:3px;width:18px}
+.reqs{display:grid;gap:7px;font-size:13px;color:var(--ink2);padding-top:13px;border-top:1px dashed var(--line)}
+.req{display:flex;gap:9px}
+.req > span:first-child{color:var(--ink3);flex:none;width:34px}
+.score{display:grid;gap:10px;padding-top:13px;border-top:1px dashed var(--line)}
+.score-row{display:grid;grid-template-columns:1fr auto;gap:5px 10px;align-items:baseline;font-size:12.5px;color:var(--ink2)}
+.score-row .mono{font-size:11.5px;color:var(--green)}
+.score-bar{grid-column:1/-1;height:3px;background:var(--paper2);position:relative}
+.score-bar i{position:absolute;left:0;top:0;bottom:0;background:var(--green2)}
+.doc-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border:1px solid var(--line);background:#fff;padding:12px 13px}
+.doc-t{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.doc-u{font-family:var(--mono);font-size:11.5px;color:var(--ink3);margin-top:2px;word-break:break-all}
+.link-acts a.btn{display:inline-flex}
+
 /* ---------- 学校门户 ---------- */
 .portal-group{margin-bottom:34px}
 .group-h{display:flex;align-items:baseline;gap:10px;margin-bottom:2px;padding-bottom:10px;border-bottom:1px solid var(--line2)}
@@ -234,7 +263,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   .hero{grid-template-columns:1.7fr 1fr;gap:64px;margin-bottom:44px}
   .member-grid{grid-template-columns:repeat(5,1fr)}
   .cell{min-height:86px}
-  .entries{grid-template-columns:1.2fr 1fr 1fr}
+  .entries{grid-template-columns:repeat(4,1fr)}
   .portal-list{grid-template-columns:1fr 1fr;column-gap:0}
   .p-item{border-right:1px solid var(--line)}
   .p-item:nth-child(2n){border-right:0;padding-right:0;padding-left:13px}
@@ -257,12 +286,11 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <span>GXAU · NET-ENG 2502</span>
     </div>
     <div class="gate-h1">班级云库</div>
-    <p class="gate-sub">网络工程技术（本）2502班 内部资源索引。输入<b>班级口令</b>后进入完整名册；也可选择脱敏浏览。</p>
+    <p class="gate-sub">网络工程技术（本）2502班 内部资源索引。输入<b>班级口令</b>进入。名册里学号只显示后三位，完整学号不落库、不上网。</p>
     <input id="gateInput" type="text" inputmode="numeric" autocomplete="off" placeholder="班级口令" aria-label="班级口令">
     <div class="gate-err" id="gateErr"></div>
     <div class="gate-actions">
       <button class="btn" id="gateGo">进入</button>
-      <button class="btn ghost" id="gateGuest">脱敏浏览</button>
     </div>
     <p class="gate-note">口令仅用于挡住陌生访客与搜索引擎，不是真正的安全边界。文档的实际权限由 WPS 账号与分享设置决定，网页不复制任何文档内容。</p>
   </div>
@@ -278,12 +306,12 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     <nav class="nav" id="nav">
       <a href="#/home" data-v="home">概览</a>
       <a href="#/library" data-v="library">班级云库</a>
+      <a href="#/lessons" data-v="lessons">课程</a>
       <a href="#/portal" data-v="portal">学校入口</a>
       <a href="#/access" data-v="access">权限</a>
       <a href="#/maint" data-v="maint">维护</a>
     </nav>
     <div class="bar-tools">
-      <button class="icon-btn" id="maskBtn" title="切换学号脱敏">••</button>
       <button class="icon-btn" id="lockBtn" title="退出并重新验证">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
       </button>
@@ -331,8 +359,16 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <span class="entry-d">智慧学工、资源访问控制、SSL VPN、官网与 FTP 仓库，校外访问先看说明。</span>
         <span class="entry-go">打开门户</span>
       </a>
+      <a class="entry" href="#/lessons">
+        <span class="entry-k">03 / LESSONS</span>
+        <span class="entry-t">课程
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+        <span class="entry-d">Python、网络、Linux 三科从 0 到 60 分的必得分块，写明哪些可以暂时放弃。</span>
+        <span class="entry-go">查看清单</span>
+      </a>
       <a class="entry" href="#/access">
-        <span class="entry-k">03 / ACCESS</span>
+        <span class="entry-k">04 / ACCESS</span>
         <span class="entry-t">权限模型
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#2E5348" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </span>
@@ -431,6 +467,60 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   </div>
 </section>
 
+<!-- ===== 视图：课程 ===== -->
+<section class="view" id="view-lessons">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">课程</h1>
+      <p class="page-lead">三科从 0 到 60 分的补丁包：只列必得分块，并明确哪些可以暂时放弃。按多数课程通用范围整理，题型与权重以老师给的考纲为准。</p>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">Linux 基础</span><span class="task-meta">必得 60 / 满分 100</span></div>
+      <div class="task-b">
+        <div class="opt"><span class="opt-n">01</span><div>文件与目录：<b>ls cd pwd cp mv rm mkdir touch</b>，绝对路径与相对路径、通配符。目标是看着题目能直接敲，不查笔记。</div></div>
+        <div class="opt"><span class="opt-n">02</span><div>权限与用户：<b>chmod 数字法</b>（644 / 755）、<b>chown</b>、whoami、sudo。rwx 三组换算必须会算，这部分几乎是送分。</div></div>
+        <div class="opt"><span class="opt-n">03</span><div>Vim 三种模式：普通、插入、命令。<b>i a o、dd yy p、/搜索、:wq</b>。会进、会改、会存、会退，就够及格。</div></div>
+        <div class="opt"><span class="opt-n">04</span><div>进程与文本：<b>ps aux、top、kill</b>，<b>grep</b>，管道 <b>|</b> 与重定向 <b>&gt;</b>。能查出谁占着某个端口。</div></div>
+        <div class="reqs">
+          <div class="req"><span>放弃</span><div>内核参数调优、iptables 深水区、复杂 shell 脚本、sed 与 awk 的高级用法。</div></div>
+          <div class="req"><span>练习</span><div>每天 20 条命令在虚拟机上敲一遍，连续 7 天；第 7 天用一张纸默写全部命令。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">计算机网络</span><span class="task-meta">必得 60 / 满分 100</span></div>
+      <div class="task-b">
+        <div class="opt"><span class="opt-n">01</span><div>分层模型：OSI 七层与 TCP/IP 四层的对应关系、每层的典型协议与设备。选择和填空的高频区。</div></div>
+        <div class="opt"><span class="opt-n">02</span><div>IP 与子网划分：A/B/C 类地址范围、私有地址段、子网掩码、CIDR、可用主机数与网络地址计算。<b>这一块分值最重，必须动笔算</b>。</div></div>
+        <div class="opt"><span class="opt-n">03</span><div>常用端口：20/21、25、53、67/68、80、110、143、443、3389，对应 FTP、SMTP、DNS、DHCP、HTTP、POP3、IMAP、HTTPS、RDP。</div></div>
+        <div class="opt"><span class="opt-n">04</span><div>排障命令与流程：ping、ipconfig、tracert、nslookup、netstat。给一个「上不了网」的场景，能按顺序说清先查什么。</div></div>
+        <div class="reqs">
+          <div class="req"><span>放弃</span><div>路由协议收敛计算、BGP、复杂 VLAN 设计、无线与网络安全深水题。</div></div>
+          <div class="req"><span>练习</span><div>子网划分每天 5 题连续 10 天，每题写下网络地址、广播地址、可用主机数三个答案。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">Python 程序设计</span><span class="task-meta">必得 60 / 满分 100</span></div>
+      <div class="task-b">
+        <div class="opt"><span class="opt-n">01</span><div>变量与类型：int / float / str / bool / list / dict，类型转换，f-string 格式化输出。</div></div>
+        <div class="opt"><span class="opt-n">02</span><div>流程控制：<b>if-elif-else、for、while、range、break、continue</b>。上机题的第一道通常就考这个。</div></div>
+        <div class="opt"><span class="opt-n">03</span><div>容器操作：列表增删改查与切片、字典的 get 与遍历、嵌套结构取值。会这两样，多数上机题就能写完。</div></div>
+        <div class="opt"><span class="opt-n">04</span><div>函数与文件：<b>def</b>、参数与返回值、<b>with open</b> 读写文本、<b>try/except</b> 兜住异常。</div></div>
+        <div class="reqs">
+          <div class="req"><span>放弃</span><div>装饰器、生成器、类与继承、多线程、第三方库生态，及格用不到。</div></div>
+          <div class="req"><span>练习</span><div>每道题先在纸上写一遍，再上机跑通；写不出来就回看对应那一条，不要翻整章。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:12.5px;color:var(--ink3);line-height:1.7;margin-top:6px">三科的共同原则：先把「能拿的分一分不丢」做实，再谈难题。补到 60 分之后，每多 10 分要付出的时间会翻倍，先把 60 稳住。</p>
+  </div>
+</section>
+
 <!-- ===== 视图：权限 ===== -->
 <section class="view" id="view-access">
   <div class="wrap">
@@ -503,7 +593,7 @@ const GATE_CODE = "2502";
 
 // 2) 成员名册：改姓名、换文件夹链接、加人减人
 const MEMBERS = [
-  { no:"2531020210201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
+  { no:"201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
   ...
 ];</div>
       <p>成员链接只取 WPS 文件夹地址末尾那段（如 <span class="mono">kdocs.cn/folder/<b>ctWvsvDFbsPW</b></span> 里的 <span class="mono">ctWvsvDFbsPW</span>）。新增同学照抄一行、改姓名学号链接即可，其余排序、检索、统计会自动重算。</p>
@@ -518,8 +608,8 @@ const MEMBERS = [
     <div class="maint-block">
       <h3>四、公开仓库的隐私问题</h3>
       <div class="warn-box">
-        GitHub Pages 免费版只能挂公开仓库，意味着任何人都能访问这个网址、也能在仓库里看到源码里的完整名册。本页已做了三层降低暴露：<b>noindex 阻止搜索引擎收录</b>、<b>口令门挡住随手点开的人</b>、<b>学号脱敏开关</b>。但这三样都不是真正的安全措施。<br><br>
-        如果班级在意学号与姓名不外泄，有两个更稳的做法：① 用学校提供的服务器或教育网空间托管（可做真实鉴权）；② 名册只保留「序号 + 姓名」，学号不入库，仅靠姓名定位。文档权限仍然安全，因为文件本身在 WPS 里。
+        GitHub Pages 免费版只能挂公开仓库，任何人都能打开这个网址、也能在仓库里看到源码。所以名册里<b>不存完整学号</b>：45 人的学号一律只保留后三位，完整学号只存在于班级 WPS 云库。除此之外还有两层降低暴露的手段：<b>noindex 阻止搜索引擎收录</b>、<b>口令门挡住随手点开的人</b>——这两层都不是真正的安全措施，只是降低被随手翻到的概率。<br><br>
+        如果还想更稳：① 用学校服务器或教育网空间托管（可做真实鉴权）；② 名册只保留「序号 + 姓名」，连后三位也不要。文档本身的权限是安全的，因为文件都在 WPS 里。
       </div>
     </div>
 
@@ -582,51 +672,51 @@ const KDOC = "https://www.kdocs.cn/folder/";
 
 /* 成员名册：no 学号 / name 姓名 / slug = WPS 文件夹链接末段 */
 const MEMBERS = [
-  { no:"2521010210312", name:"莫晞瑶",   slug:"coPIh8Gpsej1" },
-  { no:"2531020210201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
-  { no:"2531020210202", name:"唐丽春",   slug:"cnz1JZHoHLro" },
-  { no:"2531020210203", name:"黄邵华",   slug:"caPs8g8EntZf" },
-  { no:"2531020210204", name:"张雪豪",   slug:"ckngLXqMCDWT" },
-  { no:"2531020210205", name:"罗锦贤",   slug:"csS511YwbGwB" },
-  { no:"2531020210206", name:"黄雅婷",   slug:"clDRxERyyNSp" },
-  { no:"2531020210207", name:"韦嘉伟",   slug:"ci5Bc9RuR3ju" },
-  { no:"2531020210208", name:"黄子华",   slug:"caRisTWLrJUs" },
-  { no:"2531020210209", name:"李天就",   slug:"cuoQIVlYn1ML" },
-  { no:"2531020210210", name:"黄俊铭",   slug:"cqlaWryabkWl" },
-  { no:"2531020210211", name:"梁炳新",   slug:"cimfiV3s6ujY" },
-  { no:"2531020210212", name:"陆前翔",   slug:"csb3w0NPH4tE" },
-  { no:"2531020210213", name:"邓继贵",   slug:"chLoXcHp8CRt" },
-  { no:"2531020210214", name:"江雨欣",   slug:"ceeqTnq6PCYI" },
-  { no:"2531020210215", name:"王雅婷",   slug:"cuzgdcQfUXfJ" },
-  { no:"2531020210216", name:"谭志锋",   slug:"cdtfWXAEaT42" },
-  { no:"2531020210217", name:"韦荣甫",   slug:"csphjmHCUD0y" },
-  { no:"2531020210218", name:"梁紫念",   slug:"cf6pbKoI8gc2" },
-  { no:"2531020210219", name:"韦国定",   slug:"cezEo2BPznco" },
-  { no:"2531020210220", name:"梁萱姿",   slug:"ckmzQdQnLYiW" },
-  { no:"2531020210221", name:"覃敬凯",   slug:"celyolXSHzxN" },
-  { no:"2531020210223", name:"梁菲菲",   slug:"ct4edqOHe6WU" },
-  { no:"2531020210224", name:"贾佳福",   slug:"caR9ZMnn0bIe" },
-  { no:"2531020210225", name:"桂自力",   slug:"cgssOMlobSZu" },
-  { no:"2531020210226", name:"黄国栋",   slug:"cqriafeaFoa4" },
-  { no:"2531020210227", name:"农镇宝",   slug:"crDSdWfN3h4u" },
-  { no:"2531020210228", name:"刘传良",   slug:"cutSzuWv28Yh" },
-  { no:"2531020210229", name:"李永嘉",   slug:"cklDmbods1qn" },
-  { no:"2531020210230", name:"罗荣毅",   slug:"ccwldHqBQJxt" },
-  { no:"2531020210231", name:"李茂均",   slug:"cuqwnGBNSRal" },
-  { no:"2531020210232", name:"江石南",   slug:"cixUZF8G4Bfq" },
-  { no:"2531020210233", name:"莫丽英",   slug:"chvv6EbZgWEu" },
-  { no:"2531020210234", name:"陈建宇",   slug:"caTSZAAV1BCP" },
-  { no:"2531020210235", name:"赵子强",   slug:"cepwUGQkHqVQ" },
-  { no:"2531020210236", name:"王宇",     slug:"clwi4hb6kd5W" },
-  { no:"2531020210237", name:"温先创",   slug:"ckzKCB7EHMIL" },
-  { no:"2531020210238", name:"覃祖悦",   slug:"cqsFDJATdIeT" },
-  { no:"2531020210239", name:"凌良美子", slug:"ctkSEyS6oty5" },
-  { no:"2531020210240", name:"张瀚",     slug:"cbMLm40ktQqy" },
-  { no:"2531020210241", name:"何俊霖",   slug:"chNCXDw52DZ2" },
-  { no:"2531020210242", name:"何蕊",     slug:"cpaBJlArFcrc" },
-  { no:"2531020210243", name:"王玺",     slug:"cg3ObUBOo2mJ" },
-  { no:"2531020210244", name:"温耀祖",   slug:"crWiHIzHNRXx" },
-  { no:"2531020210245", name:"刘冠涵",   slug:"cuy6qjnhLmJ0" }
+  { no:"312", name:"莫晞瑶",   slug:"coPIh8Gpsej1" },
+  { no:"201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
+  { no:"202", name:"唐丽春",   slug:"cnz1JZHoHLro" },
+  { no:"203", name:"黄邵华",   slug:"caPs8g8EntZf" },
+  { no:"204", name:"张雪豪",   slug:"ckngLXqMCDWT" },
+  { no:"205", name:"罗锦贤",   slug:"csS511YwbGwB" },
+  { no:"206", name:"黄雅婷",   slug:"clDRxERyyNSp" },
+  { no:"207", name:"韦嘉伟",   slug:"ci5Bc9RuR3ju" },
+  { no:"208", name:"黄子华",   slug:"caRisTWLrJUs" },
+  { no:"209", name:"李天就",   slug:"cuoQIVlYn1ML" },
+  { no:"210", name:"黄俊铭",   slug:"cqlaWryabkWl" },
+  { no:"211", name:"梁炳新",   slug:"cimfiV3s6ujY" },
+  { no:"212", name:"陆前翔",   slug:"csb3w0NPH4tE" },
+  { no:"213", name:"邓继贵",   slug:"chLoXcHp8CRt" },
+  { no:"214", name:"江雨欣",   slug:"ceeqTnq6PCYI" },
+  { no:"215", name:"王雅婷",   slug:"cuzgdcQfUXfJ" },
+  { no:"216", name:"谭志锋",   slug:"cdtfWXAEaT42" },
+  { no:"217", name:"韦荣甫",   slug:"csphjmHCUD0y" },
+  { no:"218", name:"梁紫念",   slug:"cf6pbKoI8gc2" },
+  { no:"219", name:"韦国定",   slug:"cezEo2BPznco" },
+  { no:"220", name:"梁萱姿",   slug:"ckmzQdQnLYiW" },
+  { no:"221", name:"覃敬凯",   slug:"celyolXSHzxN" },
+  { no:"223", name:"梁菲菲",   slug:"ct4edqOHe6WU" },
+  { no:"224", name:"贾佳福",   slug:"caR9ZMnn0bIe" },
+  { no:"225", name:"桂自力",   slug:"cgssOMlobSZu" },
+  { no:"226", name:"黄国栋",   slug:"cqriafeaFoa4" },
+  { no:"227", name:"农镇宝",   slug:"crDSdWfN3h4u" },
+  { no:"228", name:"刘传良",   slug:"cutSzuWv28Yh" },
+  { no:"229", name:"李永嘉",   slug:"cklDmbods1qn" },
+  { no:"230", name:"罗荣毅",   slug:"ccwldHqBQJxt" },
+  { no:"231", name:"李茂均",   slug:"cuqwnGBNSRal" },
+  { no:"232", name:"江石南",   slug:"cixUZF8G4Bfq" },
+  { no:"233", name:"莫丽英",   slug:"chvv6EbZgWEu" },
+  { no:"234", name:"陈建宇",   slug:"caTSZAAV1BCP" },
+  { no:"235", name:"赵子强",   slug:"cepwUGQkHqVQ" },
+  { no:"236", name:"王宇",     slug:"clwi4hb6kd5W" },
+  { no:"237", name:"温先创",   slug:"ckzKCB7EHMIL" },
+  { no:"238", name:"覃祖悦",   slug:"cqsFDJATdIeT" },
+  { no:"239", name:"凌良美子", slug:"ctkSEyS6oty5" },
+  { no:"240", name:"张瀚",     slug:"cbMLm40ktQqy" },
+  { no:"241", name:"何俊霖",   slug:"chNCXDw52DZ2" },
+  { no:"242", name:"何蕊",     slug:"cpaBJlArFcrc" },
+  { no:"243", name:"王玺",     slug:"cg3ObUBOo2mJ" },
+  { no:"244", name:"温耀祖",   slug:"crWiHIzHNRXx" },
+  { no:"245", name:"刘冠涵",   slug:"cuy6qjnhLmJ0" }
 ];
 
 const SHARED = { name:"【班级云库】广西农职大网络工程技术（本）2502班", slug:"ceMSyJ9Ww4NJ" };
@@ -684,7 +774,7 @@ const RESOURCES = [
 const VPN_ENTRY = "https://vpn.gxnzd.com.cn/login";
 
 /* ==================== 状态 ==================== */
-const state = { q:"", sort:"no", masked:false, cur:null };
+const state = { q:"", sort:"no", cur:null, previewUrl:null };
 const KEY = "cl_access_v1";
 const grid = document.getElementById("memberGrid");
 const patchbar = document.getElementById("patchbar");
@@ -692,7 +782,7 @@ const drawer = document.getElementById("drawer");
 const slot = document.getElementById("dpSlot");
 
 const pad2 = n => String(n).padStart(2, "0");
-const fmtNo = no => state.masked ? no.slice(0,4) + "•••" + no.slice(-4) : no;
+const fmtNo = no => "尾号 " + no;
 const urlOf = slug => KDOC + slug;
 
 const collator = new Intl.Collator("zh-Hans-CN", { sensitivity:"base" });
@@ -733,7 +823,7 @@ function openUrl(u){
 
 /* ==================== 名册渲染 ==================== */
 function currentList(){
-  const q = state.q.trim().toLowerCase();
+  const q = state.q.trim().toLowerCase().replace(/尾号|学号|后三位/g, "").trim();
   let list = MEMBERS.map((m, i) => Object.assign({}, m, { _i:i, _p:pad2(i + 1) }));
   if (q) {
     list = list.filter(m =>
@@ -813,7 +903,7 @@ function openMember(i){
     name:m.name,
     fields:[
       ["序号", pad2(i + 1) + " / " + MEMBERS.length],
-      ["学号", fmtNo(m.no)],
+      ["学号后三位", m.no],
       ["文件夹 ID", m.slug],
       ["可见范围", "本人可写 · 班委可读"]
     ],
@@ -836,14 +926,22 @@ function openShared(){
   });
 }
 
-function loadPreview(url){
+function loadPreview(url, mode){
   const host = (function(){ try { return new URL(url).host; } catch(e){ return ""; } })();
+  const isPhone = mode === "phone";
+  state.previewUrl = url;
+  slot.classList.toggle("phone", isPhone);
   slot.innerHTML =
-    '<div class="preview-bar"><span>EMBED / 内嵌尝试</span><span>' + host + '</span></div>' +
+    '<div class="preview-bar"><span>EMBED / 内嵌尝试</span><span>' + host + '</span>' +
+      '<span class="dev" role="group" aria-label="预览视口">' +
+        '<button data-dev="desktop"' + (isPhone ? '' : ' class="on"') + '>电脑</button>' +
+        '<button data-dev="phone"' + (isPhone ? ' class="on"' : '') + '>手机</button>' +
+      '</span>' +
+    '</div>' +
     '<iframe class="preview" src="' + url + '" referrerpolicy="no-referrer" title="内嵌预览"></iframe>' +
     '<div class="preview-msg" style="border-top:1px solid var(--line);padding:11px 13px;text-align:left">' +
       '<strong style="margin-bottom:3px;font-size:13px">空白或被拒绝是正常现象</strong>' +
-      'WPS 与校内系统大多禁止被外部网页嵌套。改用「在 WPS 中打开」即可正常阅览。' +
+      'WPS 与校内系统大多禁止被外部网页嵌套。改用「在 WPS 中打开」即可正常阅览；手机视图只是把宽度收到 390px，方便看移动端排版。' +
     '</div>';
   toast("正在加载；若十秒后仍空白，说明对方禁止嵌套");
 }
@@ -886,30 +984,17 @@ function renderPortal(){
 }
 
 /* ==================== 口令门 ==================== */
-function applyMaskUI(){
-  const btn = document.getElementById("maskBtn");
-  btn.textContent = state.masked ? "掩" : "••";
-  btn.style.borderColor = state.masked ? "var(--green2)" : "var(--line2)";
-  btn.style.color = state.masked ? "var(--green)" : "var(--ink2)";
-  btn.title = state.masked ? "当前为脱敏模式，点击显示完整学号" : "点击隐藏学号中间位";
-}
-
-function enter(asGuest){
-  const gate = document.getElementById("gate");
-  localStorage.setItem(KEY, asGuest ? "guest" : "full");
-  state.masked = asGuest || localStorage.getItem(KEY + "_mask") === "1";
-  applyMaskUI();
-  gate.classList.add("off");
+function enter(){
+  localStorage.setItem(KEY, "1");
+  document.getElementById("gate").classList.add("off");
   renderGrid();
-  toast(asGuest ? "已进入脱敏模式：学号不完整显示" : "已进入完整名册");
+  toast("已进入班级云库");
 }
 
 function initGate(){
   const saved = localStorage.getItem(KEY);
   const gate = document.getElementById("gate");
   if (saved) {
-    state.masked = saved === "guest" || localStorage.getItem(KEY + "_mask") === "1";
-    applyMaskUI();
     gate.classList.add("off");
     renderGrid();
     return;
@@ -918,18 +1003,17 @@ function initGate(){
   const err = document.getElementById("gateErr");
   const submit = () => {
     const v = input.value.trim();
-    if (v === GATE_CODE) { err.textContent = ""; enter(false); return; }
-    err.textContent = v ? "口令不正确。可向班委索取，或选择脱敏浏览。" : "请先输入口令。";
+    if (v === GATE_CODE) { err.textContent = ""; enter(); return; }
+    err.textContent = v ? "口令不正确，请向班委索取。" : "请先输入口令。";
     input.focus();
   };
   document.getElementById("gateGo").onclick = submit;
-  document.getElementById("gateGuest").onclick = () => enter(true);
   input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
   setTimeout(() => input.focus(), 400);
 }
 
 /* ==================== 路由 ==================== */
-const VIEWS = ["home", "library", "portal", "access", "maint"];
+const VIEWS = ["home", "library", "lessons", "portal", "access", "maint"];
 
 function route(){
   let v = (location.hash || "#/home").replace(/^#\//, "").split("?")[0];
@@ -944,6 +1028,7 @@ function route(){
   document.title =({
     home:"班级云库 · 网络工程技术（本）2502班",
     library:"班级云库 · 成员索引",
+    lessons:"课程 · 三科补到 60 分",
     portal:"学校入口 · 班级云库",
     access:"权限说明 · 班级云库",
     maint:"部署与维护 · 班级云库"
@@ -1015,21 +1100,23 @@ document.addEventListener("click", e => {
 document.getElementById("dpOpen").onclick = () => { if (state.cur) openUrl(state.cur.url); };
 document.getElementById("dpCopy").onclick = () => { if (state.cur) copyText(state.cur.url); };
 document.getElementById("dpPreview").onclick = () => { if (state.cur) loadPreview(state.cur.url); };
+
+/* 预览视口切换：只改 iframe 宽度，不重载，避免来回等加载 */
+slot.addEventListener("click", e => {
+  const d = e.target.closest("[data-dev]");
+  if (!d) return;
+  const isPhone = d.dataset.dev === "phone";
+  slot.classList.toggle("phone", isPhone);
+  Array.prototype.forEach.call(slot.querySelectorAll("[data-dev]"), b => {
+    b.classList.toggle("on", b === d);
+  });
+});
 drawer.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeDetail(); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && drawer.classList.contains("on")) closeDetail(); });
 
 /* 顶栏工具 */
-document.getElementById("maskBtn").onclick = () => {
-  state.masked = !state.masked;
-  localStorage.setItem(KEY + "_mask", state.masked ? "1" : "0");
-  if (localStorage.getItem(KEY) === "guest" && !state.masked) localStorage.setItem(KEY, "full");
-  applyMaskUI();
-  renderGrid();
-  toast(state.masked ? "已隐藏学号中间位" : "已显示完整学号");
-};
 document.getElementById("lockBtn").onclick = () => {
   localStorage.removeItem(KEY);
-  localStorage.removeItem(KEY + "_mask");
   location.reload();
 };
 
