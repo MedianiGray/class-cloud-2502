@@ -151,6 +151,10 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .p-item span{color:var(--ink3);display:block;margin-top:2px}
 #view-plus .task-b label{display:block;font-size:12px;color:var(--ink3);margin-bottom:12px}
 #view-plus .task-b label b{color:var(--ink);font-weight:600}
+.p-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.p-pane{display:none}
+.p-pane.on{display:block}
+.p-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -552,22 +556,30 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
 
     <div class="task">
-      <div class="task-h"><span class="task-t">01 · AI 对话台</span><span class="task-meta">自带 Key · 只存本机</span></div>
+      <div class="task-h"><span class="task-t">01 · AI 工具台</span><span class="task-meta">开箱即用 · 不用 Key</span></div>
       <div class="task-b">
-        <p>填一次接口地址、模型名和密钥，浏览器直接向服务商发起请求。密钥只写在你这台电脑的 localStorage 里，不进代码、不经第三方中转。<b>报 CORS 是服务商禁止网页直连，报 401 是密钥无效</b>，换一家再试。</p>
-        <div class="p-grid">
-          <label>接口地址<input id="aiBase" class="p-in" placeholder="https://api.openai.com/v1"></label>
-          <label>模型<input id="aiModel" class="p-in" placeholder="gpt-4o-mini / deepseek-chat"></label>
-          <label>API Key<input id="aiKey" class="p-in" type="password" placeholder="sk-..."></label>
-        </div>
-        <label>你的问题<textarea id="aiQ" class="p-in p-ta" placeholder="例如：把我这段自我介绍改得口语一点"></textarea></label>
-        <div class="link-acts">
-          <button class="btn btn-sm" id="aiSend">发送</button>
-          <button class="btn btn-sm ghost" id="aiClear">清空对话</button>
-        </div>
-        <div class="p-out" id="aiOut">对话会显示在这里。第一次用先填上面三项。</div>
-        <div class="eyebrow" style="margin:20px 0 8px">免费额度 / 更容易申请到的服务</div>
-        <div id="aiList"></div>
+        <p>点开就能用，不用申请密钥。标「免登录」的直接进；标「要登录」的注册个账号就有免费额度，不要钱。</p>
+        <div id="aiSites"></div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:14px 0 0">多数 AI 网站禁止被别的网页嵌进来看，所以「内嵌试一下」常常是一片空白，这是对方的安全设置；点「打开」在新标签里用最稳。</p>
+        <details style="margin-top:20px">
+          <summary style="cursor:pointer;font-size:12.5px;color:var(--ink3)">进阶：自己接 API（要 Key，会折腾才用）</summary>
+          <div style="margin-top:14px">
+            <p>填接口地址、模型名和密钥，浏览器直接请求，密钥只存在你这台电脑的 localStorage。<b>报 CORS 是服务商禁止网页直连，报 401 是密钥无效</b>。公用电脑别填，key 会留在那台机器上。</p>
+            <div class="p-grid">
+              <label>接口地址<input id="aiBase" class="p-in" placeholder="https://api.openai.com/v1"></label>
+              <label>模型<input id="aiModel" class="p-in" placeholder="gpt-4o-mini / deepseek-chat"></label>
+              <label>API Key<input id="aiKey" class="p-in" type="password" placeholder="sk-..."></label>
+            </div>
+            <label>你的问题<textarea id="aiQ" class="p-in p-ta" placeholder="例如：把我这段自我介绍改得口语一点"></textarea></label>
+            <div class="link-acts">
+              <button class="btn btn-sm" id="aiSend">发送</button>
+              <button class="btn btn-sm ghost" id="aiClear">清空对话</button>
+            </div>
+            <div class="p-out" id="aiOut">对话会显示在这里。</div>
+            <div class="eyebrow" style="margin:20px 0 8px">可申请免费额度的服务</div>
+            <div id="aiList"></div>
+          </div>
+        </details>
       </div>
     </div>
 
@@ -598,6 +610,67 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         </div>
       </div>
     </div>
+    <div class="task">
+      <div class="task-h"><span class="task-t">04 · 班级小工具</span><span class="task-meta">分组 / 子网 / 收交 / 通知</span></div>
+      <div class="task-b">
+        <div class="p-tabs">
+          <button class="chip on" data-tool="pane-split">随机分组</button>
+          <button class="chip" data-tool="pane-net">子网计算</button>
+          <button class="chip" data-tool="pane-collect">收交清单</button>
+          <button class="chip" data-tool="pane-notice">通知文案</button>
+        </div>
+
+        <div class="p-pane on" id="pane-split">
+          <p>把名单打散后均分成若干组，结果可整段复制。名单留空就用班里 45 个端口序号。</p>
+          <label>名单（一行一个，留空用成员序号）<textarea id="spNames" class="p-in p-ta" placeholder="张…（一行一个）"></textarea></label>
+          <div class="p-row">
+            <label>分成几组<input id="spGroups" class="p-in" type="number" value="8" min="1" max="45"></label>
+          </div>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="spGo">分组</button>
+            <button class="btn btn-sm ghost" id="spCopy">复制结果</button>
+          </div>
+          <div class="p-out" id="spOut">点「分组」出结果。</div>
+        </div>
+
+        <div class="p-pane" id="pane-net">
+          <p>填一个 IPv4 地址和前缀长度（或掩码），算网络地址、广播地址、可用主机范围。</p>
+          <div class="p-row">
+            <label>IP 地址<input id="netIp" class="p-in" value="192.168.1.10" placeholder="192.168.1.10"></label>
+            <label>前缀 或 掩码<input id="netMask" class="p-in" value="24" placeholder="24 或 255.255.255.0"></label>
+          </div>
+          <div class="link-acts"><button class="btn btn-sm" id="netGo">计算</button></div>
+          <div class="p-out" id="netOut">结果会列在这里。</div>
+        </div>
+
+        <div class="p-pane" id="pane-collect">
+          <p>贴一份名单，交了的点一下打勾，剩下的就是未交名单，可以整段复制发群里。</p>
+          <label>名单（一行一个）<textarea id="colNames" class="p-in p-ta" placeholder="一行一个"></textarea></label>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="colLoad">载入名单</button>
+            <button class="btn btn-sm ghost" id="colCopy">复制未交</button>
+          </div>
+          <div id="colList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
+          <div class="p-out" id="colOut">载入后点名字打勾。</div>
+        </div>
+
+        <div class="p-pane" id="pane-notice">
+          <p>把事项、时间、要求填进去，生成一条能直接发群里的通知，格式统一。</p>
+          <div class="p-row">
+            <label>事项<input id="ntSub" class="p-in" placeholder="口语实践视频提交"></label>
+            <label>时间<input id="ntTime" class="p-in" placeholder="11 月 20 日 20:00 前"></label>
+            <label>地点 / 提交方式<input id="ntPlace" class="p-in" placeholder="发到班级群或共享社区"></label>
+          </div>
+          <label>要求（一行一条）<textarea id="ntReq" class="p-in p-ta" placeholder="MP4 格式，命名：组号+主题&#10;每个组员都要出镜"></textarea></label>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="ntGo">生成</button>
+            <button class="btn btn-sm ghost" id="ntCopy">复制文案</button>
+          </div>
+          <div class="p-out" id="ntOut">生成的文案会出现在这里。</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1226,8 +1299,51 @@ const AI_SERVICES = [
   { n:"Cloudflare Workers AI", d:"每天免费额度，需开通 Workers", u:"https://dash.cloudflare.com/", b:"" }
 ];
 
+const AI_SITES = [
+  { n:"豆包",        t:"免登录", u:"https://www.doubao.com/chat/",              d:"对话、写作、看图；不登录也有基础额度" },
+  { n:"DeepSeek",    t:"要登录", u:"https://chat.deepseek.com/",                d:"对话、代码、推理；免费" },
+  { n:"Kimi",        t:"要登录", u:"https://kimi.moonshot.cn/",                 d:"长文档、PDF 直接丢进去问" },
+  { n:"通义千问",    t:"要登录", u:"https://tongyi.aliyun.com/qianwen/",        d:"对话、翻译、写作" },
+  { n:"腾讯元宝",    t:"要登录", u:"https://yuanbao.tencent.com/chat/",         d:"对话；可接微信文件" },
+  { n:"智谱清言",    t:"要登录", u:"https://chatglm.cn/main/alltoolsdetail",    d:"对话、翻译、画图" },
+  { n:"即梦 AI",     t:"要登录", u:"https://jimeng.jianying.com/ai-tool/home",  d:"生图、生视频；每天送免费积分" },
+  { n:"可灵 AI",     t:"要登录", u:"https://app.klingai.com/cn/",               d:"生视频，图生视频效果好；每日免费额度" },
+  { n:"通义万相",    t:"要登录", u:"https://tongyi.aliyun.com/wanxiang/",       d:"生图、生视频" },
+  { n:"LiblibAI",    t:"要登录", u:"https://www.liblib.art/",                   d:"生图，模型多；免费额度" },
+  { n:"海螺 AI",     t:"要登录", u:"https://hailuoai.video/",                   d:"生视频；免费额度" },
+  { n:"Hugging Face",t:"免登录", u:"https://huggingface.co/spaces",             d:"各家开源模型的在线试用，不用自己部署" }
+];
+
 const AI_KEY = "cl_ai_cfg_v1";
 const aiMsgs = [];
+
+function renderAiSites(){
+  const host = document.getElementById("aiSites");
+  if (!host) return;
+  host.className = "p-list";
+  host.innerHTML = AI_SITES.map((a, i) => (
+    '<div class="p-item"><div><b>' + a.n + '</b>' +
+      '<span>' + a.d + '</span></div>' +
+    '<div style="display:flex;gap:8px;align-items:center;white-space:nowrap">' +
+      '<span style="color:' + (a.t === "免登录" ? "var(--green)" : "var(--ink3)") + ';font-size:11.5px">' + a.t + '</span>' +
+      '<button class="btn btn-sm" data-ai-site="' + i + '">打开</button>' +
+      '<button class="btn btn-sm ghost" data-ai-embed="' + i + '">内嵌试一下</button>' +
+    '</div></div>'
+  )).join("");
+}
+
+function openAiSite(i, embed){
+  const a = AI_SITES[i];
+  if (!a) return;
+  if (!embed) { openUrl(a.u); return; }
+  openDetail({
+    kicker:"AI / 外部站点",
+    name:a.n,
+    fields:[["是否需要账号", a.t],["能做什么", a.d],["地址", a.u]],
+    url:a.u
+  });
+  setTimeout(function(){ loadPreview(a.u); }, 120);
+}
 
 function renderAiList(){
   const host = document.getElementById("aiList");
@@ -1356,6 +1472,10 @@ function fbSend(){
 }
 
 document.addEventListener("click", e => {
+  const s1 = e.target.closest("[data-ai-site]");
+  if (s1) { openAiSite(+s1.dataset.aiSite, false); return; }
+  const s2 = e.target.closest("[data-ai-embed]");
+  if (s2) { openAiSite(+s2.dataset.aiEmbed, true); return; }
   const f = e.target.closest("[data-ai-fill]");
   if (f) {
     const a = AI_SERVICES[+f.dataset.aiFill];
@@ -1369,7 +1489,150 @@ document.addEventListener("click", e => {
   if (g) { const a = AI_SERVICES[+g.dataset.aiGo]; if (a) openUrl(a.u); return; }
 });
 
+/* ==================== 班级小工具 ==================== */
+function shuffle(a){
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function splitGroups(){
+  const raw = document.getElementById("spNames").value.trim();
+  let list = raw ? raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean) : [];
+  if (!list.length) list = MEMBERS.map((m, i) => pad2(i + 1));
+  const n = Math.max(1, Math.min(list.length, parseInt(document.getElementById("spGroups").value, 10) || 1));
+  shuffle(list);
+  const groups = Array.from({ length: n }, () => []);
+  list.forEach((v, i) => groups[i % n].push(v));
+  const out = document.getElementById("spOut");
+  out.dataset.ready = "";
+  out.innerHTML = groups.map((g, i) =>
+    '<b style="color:var(--green)">第 ' + (i + 1) + ' 组（' + g.length + ' 人）</b><br>' + g.join("、") + "<br><br>"
+  ).join("");
+  toast("已分 " + n + " 组，共 " + list.length + " 人");
+}
+
+function netCalc(){
+  const ipRaw = document.getElementById("netIp").value.trim();
+  const mRaw = document.getElementById("netMask").value.trim();
+  const out = document.getElementById("netOut");
+  out.dataset.ready = "";
+  const parts = ipRaw.split(".");
+  if (parts.length !== 4 || parts.some(p => !/^\d{1,3}$/.test(p) || +p > 255)) {
+    out.textContent = "IP 格式不对，要写成 192.168.1.10 这样。";
+    return;
+  }
+  let prefix;
+  if (/^\d{1,2}$/.test(mRaw)) {
+    prefix = parseInt(mRaw, 10);
+  } else {
+    const mp = mRaw.split(".");
+    if (mp.length !== 4) { out.textContent = "掩码只接受 24 这种前缀，或 255.255.255.0 这种写法。"; return; }
+    prefix = mp.reduce((acc, x) => acc + ((+x >>> 0).toString(2).split("1").length - 1), 0);
+  }
+  if (prefix < 0 || prefix > 32) { out.textContent = "前缀要在 0–32 之间。"; return; }
+  const ipInt = ((+parts[0] << 24) | (+parts[1] << 16) | (+parts[2] << 8) | +parts[3]) >>> 0;
+  const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0;
+  const net = (ipInt & mask) >>> 0;
+  const bcast = (net | (~mask >>> 0)) >>> 0;
+  const first = prefix >= 31 ? net : (net + 1) >>> 0;
+  const last = prefix >= 31 ? bcast : (bcast - 1) >>> 0;
+  const total = Math.pow(2, 32 - prefix);
+  const hosts = prefix >= 31 ? total : Math.max(0, total - 2);
+  const cls = prefix === 0 ? "0.0.0.0" :
+    [0, 8, 16, 24].map(p => ((0xFFFFFFFF << (32 - p)) >>> 0)).filter(v => v <= mask).pop();
+  out.innerHTML =
+    '<b>网络地址</b>　' + intToIp(net) + '/' + prefix + '<br>' +
+    '<b>广播地址</b>　' + intToIp(bcast) + '<br>' +
+    '<b>可用范围</b>　' + intToIp(first) + ' ~ ' + intToIp(last) + '<br>' +
+    '<b>掩码</b>　　　' + intToIp(mask) + '<br>' +
+    '<b>通配符</b>　　' + intToIp((~mask >>> 0)) + '<br>' +
+    '<b>地址总数</b>　' + total + ' 个，可用主机 ' + hosts + ' 个' +
+    (prefix >= 31 ? '<br><span style="color:var(--ink3)">/31 与 /32 按点到点与单主机处理，不减 2。</span>' : '');
+}
+
+function ipToInt(ip){
+  const p = ip.split(".").map(Number);
+  return ((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]) >>> 0;
+}
+function intToIp(n){
+  return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+}
+
+const colState = { names: [], done: {} };
+function colLoad(){
+  const raw = document.getElementById("colNames").value.trim();
+  colState.names = raw ? raw.split(/\r?\n/).map(x => x.trim()).filter(Boolean) : MEMBERS.map((m, i) => pad2(i + 1));
+  colState.done = {};
+  colRender();
+}
+function colRender(){
+  const host = document.getElementById("colList");
+  host.innerHTML = colState.names.map((n, i) =>
+    '<button class="chip' + (colState.done[i] ? ' on' : '') + '" data-col="' + i + '">' + n + '</button>'
+  ).join("");
+  const left = colState.names.filter((n, i) => !colState.done[i]);
+  const out = document.getElementById("colOut");
+  out.dataset.ready = "";
+  out.innerHTML = '<b>' + colState.names.length + ' 人，已交 ' + (colState.names.length - left.length) + '，未交 ' + left.length + '</b>' +
+    (left.length ? '<br><br>未交：' + left.join("、") : '<br><br>全部交齐。');
+}
+
+function noticeMake(){
+  const g = id => document.getElementById(id).value.trim();
+  const sub = g("ntSub"), time = g("ntTime"), place = g("ntPlace");
+  const req = g("ntReq").split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  let t = "【班级通知】\n";
+  if (sub) t += "事项：" + sub + "\n";
+  if (time) t += "时间：" + time + "\n";
+  if (place) t += "提交 / 地点：" + place + "\n";
+  if (req.length) {
+    t += "\n要求：\n";
+    req.forEach((r, i) => { t += (i + 1) + ". " + r + "\n"; });
+  }
+  t += "\n—— 网络工程技术（本）2502 班委";
+  const out = document.getElementById("ntOut");
+  out.dataset.ready = "";
+  out.textContent = t;
+  toast("已生成，可点复制");
+}
+
+function initTools(){
+  const tabs = document.querySelectorAll("#view-plus [data-tool]");
+  Array.prototype.forEach.call(tabs, b => {
+    b.onclick = function(){
+      Array.prototype.forEach.call(tabs, x => x.classList.toggle("on", x === b));
+      Array.prototype.forEach.call(document.querySelectorAll("#view-plus .p-pane"), p => {
+        p.classList.toggle("on", p.id === b.dataset.tool);
+      });
+    };
+  });
+  const g1 = document.getElementById("spGo"); if (g1) g1.onclick = splitGroups;
+  const g2 = document.getElementById("spCopy"); if (g2) g2.onclick = function(){ copyText(document.getElementById("spOut").innerText); };
+  const n1 = document.getElementById("netGo"); if (n1) n1.onclick = netCalc;
+  const c1 = document.getElementById("colLoad"); if (c1) c1.onclick = colLoad;
+  const c2 = document.getElementById("colCopy"); if (c2) c2.onclick = function(){
+    const left = colState.names.filter((n, i) => !colState.done[i]);
+    copyText(left.length ? "未交（" + left.length + "人）：" + left.join("、") : "全部交齐");
+  };
+  const t1 = document.getElementById("ntGo"); if (t1) t1.onclick = noticeMake;
+  const t2 = document.getElementById("ntCopy"); if (t2) t2.onclick = function(){ copyText(document.getElementById("ntOut").innerText); };
+  document.addEventListener("click", e => {
+    const c = e.target.closest("[data-col]");
+    if (!c) return;
+    const i = +c.dataset.col;
+    colState.done[i] = !colState.done[i];
+    colRender();
+  });
+  const cn = document.getElementById("colNames");
+  if (cn) cn.addEventListener("input", () => { if (!colState.names.length) return; });
+}
+
 function initPlus(){
+  initTools();
+  renderAiSites();
   renderAiList();
   aiCfgLoad();
   const b = document.getElementById("aiSend");
