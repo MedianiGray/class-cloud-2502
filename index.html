@@ -552,7 +552,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">三样东西：一个自带密钥的 AI 对话台、一条不经过服务器的同网快传、一个直通学委邮箱的意见箱。全部跑在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">五张卡：34 个开箱即用的 AI 入口、三条传文件的路、一个直通学委的邮箱、四件班级小事、五件学习小工具。全部跑在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -584,9 +584,17 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
 
     <div class="task">
-      <div class="task-h"><span class="task-t">02 · 同网快传</span><span class="task-meta">无服务器 · 走链接</span></div>
+      <div class="task-h"><span class="task-t">02 · 传文件</span><span class="task-meta">三条路，按大小选</span></div>
       <div class="task-b">
-        <p>把文本或小文件压进一条链接里，同一个 WiFi 下让对方打开就能取，全程不过任何服务器，也没有人能看到内容。硬上限 200 KB；链接越长越容易被微信或 QQ 截断，20 KB 以内最稳，大文件还是走网盘或 U 盘。</p>
+        <p>大文件别用最下面那条链接办法，走前两条。</p>
+        <div class="p-list">
+          <div class="p-item"><div><b>微信文件传输助手（网页版）</b><span>电脑打开网页扫个码，把文件拖进去，手机微信里直接收。几百 MB 也吃得下，几乎人人有微信，最省事。</span></div>
+            <button class="btn btn-sm" data-open="https://szfilehelper.weixin.qq.com/">打开</button></div>
+          <div class="p-item"><div><b>PairDrop</b><span>同一个 WiFi 下，两边浏览器直接对传，不装软件、不登账号。校园网要是开了「AP 隔离」会互相看不见，那就换上面那条。</span></div>
+            <button class="btn btn-sm" data-open="https://pairdrop.net/">打开</button></div>
+        </div>
+        <div class="eyebrow" style="margin:22px 0 6px">小段文字、几十 KB 的东西：压进链接</div>
+        <p style="font-size:12.5px;color:var(--ink3)">不用对方装任何东西，把链接发过去，他打开就能在页面里看到内容。硬上限 200 KB，20 KB 以内最稳。</p>
         <label>要传的内容<textarea id="rlText" class="p-in p-ta" placeholder="粘贴文本；如果下面选了文件，则优先传文件"></textarea></label>
         <label>或者选一个文件<input id="rlFile" class="p-in" type="file"></label>
         <div class="link-acts">
@@ -607,6 +615,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <div class="link-acts">
           <button class="btn btn-sm" id="fbSend">发送邮件</button>
           <button class="btn btn-sm ghost" id="fbCopy">复制邮箱</button>
+          <button class="btn btn-sm ghost" id="fbWeb">没装邮箱？复制正文去网页版</button>
         </div>
       </div>
     </div>
@@ -667,6 +676,77 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
             <button class="btn btn-sm ghost" id="ntCopy">复制文案</button>
           </div>
           <div class="p-out" id="ntOut">生成的文案会出现在这里。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">05 · 学习与专业工具</span><span class="task-meta">成绩 / 图片 / 命名 / 编码 / 倒计时</span></div>
+      <div class="task-b">
+        <div class="p-tabs">
+          <button class="chip on" data-tool="pane-grade">成绩加权</button>
+          <button class="chip" data-tool="pane-img">图片压缩</button>
+          <button class="chip" data-tool="pane-fname">作业命名</button>
+          <button class="chip" data-tool="pane-code">编码转换</button>
+          <button class="chip" data-tool="pane-ddl">截止倒计时</button>
+        </div>
+
+        <div class="p-pane on" id="pane-grade">
+          <p>一行一科：课程名, 学分, 成绩。只算加权平均分，不换算绩点——各校算法不一样，免得算错误导你。</p>
+          <label>课程<textarea id="gdIn" class="p-in p-ta" placeholder="计算机网络, 4, 88&#10;大学英语, 3, 76"></textarea></label>
+          <div class="link-acts"><button class="btn btn-sm" id="gdGo">计算</button></div>
+          <div class="p-out" id="gdOut">结果在这里。</div>
+        </div>
+
+        <div class="p-pane" id="pane-img">
+          <p>手机拍的图动辄几 MB，传群容易失败。这里在浏览器里压到指定宽度，不上传、不经过任何服务器。</p>
+          <label>选图<input id="imgFile" class="p-in" type="file" accept="image/*"></label>
+          <div class="p-row">
+            <label>最大宽度<input id="imgW" class="p-in" type="number" value="1280"></label>
+            <label>质量 0–1<input id="imgQ" class="p-in" type="number" value="0.8" step="0.05" min="0.3" max="1"></label>
+          </div>
+          <div class="link-acts"><button class="btn btn-sm" id="imgGo">压缩</button></div>
+          <div class="p-out" id="imgOut">选一张图再点压缩。</div>
+        </div>
+
+        <div class="p-pane" id="pane-fname">
+          <p>按统一规则拼文件名，免得每个人交上来的名字都不一样。只在本地拼，不保存你填的内容。</p>
+          <div class="p-row">
+            <label>学号 / 尾号<input id="fnNo" class="p-in" placeholder="2531020210242"></label>
+            <label>姓名<input id="fnName" class="p-in" placeholder="何蕊"></label>
+          </div>
+          <div class="p-row">
+            <label>事项<input id="fnItem" class="p-in" placeholder="口语实践"></label>
+            <label>组号<input id="fnGroup" class="p-in" placeholder="3"></label>
+            <label>扩展名<input id="fnExt" class="p-in" placeholder="mp4"></label>
+          </div>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="fnGo">生成</button>
+            <button class="btn btn-sm ghost" id="fnCopy">复制</button>
+          </div>
+          <div class="p-out" id="fnOut">生成的文件名在这里。</div>
+        </div>
+
+        <div class="p-pane" id="pane-code">
+          <p>Base64 与 URL 编码互转，网络课和抓包时常用。</p>
+          <label>内容<textarea id="cdIn" class="p-in p-ta" placeholder="要编码或解码的文本"></textarea></label>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="cdB64E">Base64 编码</button>
+            <button class="btn btn-sm ghost" id="cdB64D">Base64 解码</button>
+            <button class="btn btn-sm ghost" id="cdUrlE">URL 编码</button>
+            <button class="btn btn-sm ghost" id="cdUrlD">URL 解码</button>
+          </div>
+          <div class="p-out" id="cdOut">结果显示在这里。</div>
+        </div>
+
+        <div class="p-pane" id="pane-ddl">
+          <p>一行一个：日期 + 事情，例如 2026-11-20 口语视频提交。存到本机，下次打开还在。</p>
+          <label>清单<textarea id="ddIn" class="p-in p-ta" placeholder="2026-11-20 口语视频提交&#10;2026-12-10 艺术课结课"></textarea></label>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="ddGo">计算</button>
+            <button class="btn btn-sm ghost" id="ddSave">存到本机</button>
+          </div>
+          <div class="p-out" id="ddOut">按日期算剩余天数。</div>
         </div>
       </div>
     </div>
@@ -1506,6 +1586,16 @@ function relayCheck(){
   toast("已收到对方传过来的内容");
 }
 
+function fbWeb(){
+  const sub = document.getElementById("fbSub"), body = document.getElementById("fbBody"), nm = document.getElementById("fbName");
+  const s = sub.value.trim() || "班级云库 · 意见反馈";
+  const b = body.value.trim();
+  if (!b) { toast("内容还是空的"); return; }
+  const tail = nm.value.trim() ? ("\n\n—— " + nm.value.trim()) : "";
+  copyText("收件人：himegikudirtsir@outlook.com\n主题：" + s + "\n\n" + b + tail);
+  setTimeout(function(){ openUrl("https://outlook.live.com/mail/0/"); }, 80);
+}
+
 function fbSend(){
   const sub = document.getElementById("fbSub"), body = document.getElementById("fbBody"), nm = document.getElementById("fbName");
   const s = sub.value.trim() || "班级云库 · 意见反馈";
@@ -1516,6 +1606,8 @@ function fbSend(){
 }
 
 document.addEventListener("click", e => {
+  const op = e.target.closest("[data-open]");
+  if (op) { openUrl(op.dataset.open); return; }
   const s1 = e.target.closest("[data-ai-site]");
   if (s1) { openAiSite(+s1.dataset.aiSite, false); return; }
   const s2 = e.target.closest("[data-ai-embed]");
@@ -1643,35 +1735,158 @@ function noticeMake(){
   toast("已生成，可点复制");
 }
 
-function initTools(){
-  const tabs = document.querySelectorAll("#view-plus [data-tool]");
-  Array.prototype.forEach.call(tabs, b => {
-    b.onclick = function(){
-      Array.prototype.forEach.call(tabs, x => x.classList.toggle("on", x === b));
-      Array.prototype.forEach.call(document.querySelectorAll("#view-plus .p-pane"), p => {
-        p.classList.toggle("on", p.id === b.dataset.tool);
-      });
-    };
+function gradeCalc(){
+  const raw = document.getElementById("gdIn").value.trim();
+  const out = document.getElementById("gdOut");
+  out.dataset.ready = "";
+  if (!raw) { out.textContent = "先把课程贴进来。"; return; }
+  const rows = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => l.split(/[,，\s]+/));
+  let sum = 0, cred = 0; const bad = [];
+  rows.forEach((r, i) => {
+    const c = parseFloat(r[1]), sc = parseFloat(r[2]);
+    if (!isFinite(c) || !isFinite(sc)) { bad.push("第 " + (i + 1) + " 行"); return; }
+    sum += c * sc; cred += c;
   });
-  const g1 = document.getElementById("spGo"); if (g1) g1.onclick = splitGroups;
-  const g2 = document.getElementById("spCopy"); if (g2) g2.onclick = function(){ copyText(document.getElementById("spOut").innerText); };
-  const n1 = document.getElementById("netGo"); if (n1) n1.onclick = netCalc;
-  const c1 = document.getElementById("colLoad"); if (c1) c1.onclick = colLoad;
-  const c2 = document.getElementById("colCopy"); if (c2) c2.onclick = function(){
-    const left = colState.names.filter((n, i) => !colState.done[i]);
-    copyText(left.length ? "未交（" + left.length + "人）：" + left.join("、") : "全部交齐");
+  if (!cred) { out.textContent = "没读到学分和成绩，格式是：课程名, 学分, 成绩。"; return; }
+  out.innerHTML = "<b>加权平均分 " + (sum / cred).toFixed(2) + "</b><br>总学分 " + cred +
+    "，共 " + rows.length + " 门" +
+    (bad.length ? "<br><span style='color:var(--ink3)'>没算进去：" + bad.join("、") + "</span>" : "");
+}
+
+function imgRun(){
+  const f = document.getElementById("imgFile").files[0];
+  if (!f) { toast("先选一张图"); return; }
+  const maxW = parseInt(document.getElementById("imgW").value, 10) || 1280;
+  const q = Math.min(1, Math.max(0.3, parseFloat(document.getElementById("imgQ").value) || 0.8));
+  const img = new Image();
+  const url = URL.createObjectURL(f);
+  img.onload = function(){
+    const scale = Math.min(1, maxW / img.width);
+    const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+    const cv = document.createElement("canvas");
+    cv.width = w; cv.height = h;
+    cv.getContext("2d").drawImage(img, 0, 0, w, h);
+    cv.toBlob(function(blob){
+      URL.revokeObjectURL(url);
+      if (!blob) { document.getElementById("imgOut").textContent = "压缩失败，换张图试试。"; return; }
+      const out = document.getElementById("imgOut");
+      out.dataset.ready = "";
+      const dl = URL.createObjectURL(blob);
+      out.innerHTML = "<b>原图 " + Math.round(f.size / 1024) + " KB → 压缩后 " +
+        Math.round(blob.size / 1024) + " KB（" + w + "×" + h + "）</b><br>" +
+        '<a class="btn btn-sm" style="margin-top:10px;display:inline-block" download="' +
+        f.name.replace(/\.[^.]+$/, "") + "-compressed.jpg" + '" href="' + dl + '">下载压缩图</a>';
+    }, "image/jpeg", q);
   };
-  const t1 = document.getElementById("ntGo"); if (t1) t1.onclick = noticeMake;
-  const t2 = document.getElementById("ntCopy"); if (t2) t2.onclick = function(){ copyText(document.getElementById("ntOut").innerText); };
-  document.addEventListener("click", e => {
+  img.onerror = function(){ document.getElementById("imgOut").textContent = "这张图打不开，换一张试试。"; };
+  img.src = url;
+}
+
+function nameBuild(){
+  const g = id => document.getElementById(id).value.trim();
+  const parts = [g("fnNo"), g("fnName"), g("fnItem")].filter(Boolean);
+  const gno = g("fnGroup");
+  if (gno) parts.push("第" + gno.replace(/^第/, "").replace(/组$/, "") + "组");
+  let name = parts.join("-");
+  const ext = g("fnExt").replace(/^\./, "");
+  if (ext) name += "." + ext;
+  const out = document.getElementById("fnOut");
+  out.dataset.ready = "";
+  out.textContent = name || "至少填一项";
+  if (name) toast("文件名已生成");
+}
+
+function codecRun(kind){
+  const v = document.getElementById("cdIn").value;
+  const out = document.getElementById("cdOut");
+  out.dataset.ready = "";
+  try {
+    if (kind === "b64e") out.textContent = btoa(unescape(encodeURIComponent(v)));
+    else if (kind === "b64d") out.textContent = decodeURIComponent(escape(atob(v.trim())));
+    else if (kind === "urle") out.textContent = encodeURIComponent(v);
+    else out.textContent = decodeURIComponent(v);
+  } catch (e) {
+    out.textContent = "转换失败，检查输入：Base64 解码要贴完整的一串，URL 解码里的 % 要成对。";
+  }
+}
+
+function ddlRender(){
+  const raw = document.getElementById("ddIn").value.trim();
+  const out = document.getElementById("ddOut");
+  out.dataset.ready = "";
+  if (!raw) { out.textContent = "先写截止日期。"; return; }
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  var html = "";
+  lines.forEach(function(l){
+    const m = l.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+    if (!m) { html += "<div>没认出日期：<span class='mono'>" + l + "</span></div>"; return; }
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    d.setHours(0, 0, 0, 0);
+    const days = Math.round((d - today) / 86400000);
+    const txt = l.replace(m[0], "").trim();
+    const s = days < 0 ? "已过 " + (-days) + " 天" : days === 0 ? "就是今天" : "还有 " + days + " 天";
+    const col = days < 0 ? "var(--ink3)" : days <= 3 ? "#d9534f" : "var(--green)";
+    html += "<div><b>" + (txt || m[0]) + "</b>　<span style='color:" + col + "'>" + s + "</span></div>";
+  });
+  out.innerHTML = html;
+}
+
+function initTools(){
+  Array.prototype.forEach.call(document.querySelectorAll("#view-plus .p-tabs"), function(bar){
+    const tabs = bar.querySelectorAll("[data-tool]");
+    const card = bar.parentNode;
+    Array.prototype.forEach.call(tabs, function(b){
+      b.onclick = function(){
+        Array.prototype.forEach.call(tabs, function(x){ x.classList.toggle("on", x === b); });
+        Array.prototype.forEach.call(card.querySelectorAll(".p-pane"), function(p){
+          p.classList.toggle("on", p.id === b.dataset.tool);
+        });
+      };
+    });
+  });
+
+  const bind = function(id, fn){
+    const el = document.getElementById(id);
+    if (el) el.onclick = fn;
+  };
+  bind("spGo", splitGroups);
+  bind("spCopy", function(){ copyText(document.getElementById("spOut").innerText); });
+  bind("netGo", netCalc);
+  bind("colLoad", colLoad);
+  bind("colCopy", function(){
+    const left = colState.names.filter(function(n, i){ return !colState.done[i]; });
+    copyText(left.length ? "未交（" + left.length + "人）：" + left.join("、") : "全部交齐");
+  });
+  bind("ntGo", noticeMake);
+  bind("ntCopy", function(){ copyText(document.getElementById("ntOut").innerText); });
+  bind("gdGo", gradeCalc);
+  bind("imgGo", imgRun);
+  bind("fnGo", nameBuild);
+  bind("fnCopy", function(){ copyText(document.getElementById("fnOut").innerText); });
+  bind("cdB64E", function(){ codecRun("b64e"); });
+  bind("cdB64D", function(){ codecRun("b64d"); });
+  bind("cdUrlE", function(){ codecRun("urle"); });
+  bind("cdUrlD", function(){ codecRun("urld"); });
+  bind("ddGo", ddlRender);
+  bind("ddSave", function(){
+    store.set("cl_ddl_v1", document.getElementById("ddIn").value);
+    toast("已存到本机");
+  });
+
+  const ddin = document.getElementById("ddIn");
+  if (ddin) {
+    const saved = store.get("cl_ddl_v1");
+    if (saved) ddin.value = saved;
+  }
+
+  document.addEventListener("click", function(e){
     const c = e.target.closest("[data-col]");
     if (!c) return;
     const i = +c.dataset.col;
     colState.done[i] = !colState.done[i];
     colRender();
   });
-  const cn = document.getElementById("colNames");
-  if (cn) cn.addEventListener("input", () => { if (!colState.names.length) return; });
 }
 
 function initPlus(){
@@ -1691,6 +1906,8 @@ function initPlus(){
   if (f1) f1.onclick = fbSend;
   const f2 = document.getElementById("fbCopy");
   if (f2) f2.onclick = function(){ copyText("himegikudirtsir@outlook.com"); };
+  const f3 = document.getElementById("fbWeb");
+  if (f3) f3.onclick = fbWeb;
   relayCheck();
 }
 
