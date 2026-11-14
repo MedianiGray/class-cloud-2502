@@ -226,6 +226,9 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-stage.phone .brw-body{flex:none;width:390px;max-width:100%;height:780px;border-radius:26px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.16);position:relative;padding-top:24px;background:#fff}
 .brw-stage.phone .brw-frame{border-radius:0}
 .brw-hint{padding:9px 14px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line);background:#FBFBF7;flex:none}
+/* embed=ph：被浏览器窗口当作“手机端”载入时，自身不再开浏览器层，避免套娃 */
+html.is-embed #brw{display:none!important}
+html.is-embed .drawer{display:none!important}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -483,7 +486,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">班级云库</h1>
-      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接点「电脑版 / 窄屏」预览，点成员卡可查看详情、复制链接。</p>
+      <p class="page-lead">共享库在前，成员文件夹在后。名册不含姓名，用<b>学号后三位</b>或端口序号定位自己那一格；共享库可直接点「电脑端 / 手机端」在浏览器窗口里看，点成员卡可查看详情、复制链接。</p>
       <p class="page-note dev-note"></p>
     </div>
 
@@ -495,7 +498,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <button class="btn btn-sm" data-open="shared">在 WPS 中打开</button>
         <button class="btn btn-sm ghost" data-copy="shared">复制链接</button>
         <button class="btn btn-sm ghost" data-preview="shared" data-mode="desktop">电脑版</button>
-        <button class="btn btn-sm ghost" data-preview="shared" data-mode="phone">窄屏</button>
+        <button class="btn btn-sm ghost" data-preview="shared" data-mode="phone">手机端</button>
       </div>
     </div>
 
@@ -567,7 +570,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">资料库</h1>
-      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。每张卡都能直接点「电脑版」或「窄屏」在页面里预览，也能「扫码看」让手机自己打开。</p>
+      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。每张卡点「电脑端」开一个全屏浏览器窗口看 WPS 本身；点「手机端」把它按 390×780 的真视口重排，看手机上实际的样子。</p>
     <p class="page-note dev-note"></p>
 
     </div>
@@ -956,6 +959,8 @@ const patchbar = document.getElementById("patchbar");
 const drawer = document.getElementById("drawer");
 const slot = document.getElementById("dpSlot");
 
+const EMBED = /[?&]embed=/.test(location.search);
+if (EMBED) document.documentElement.classList.add("is-embed");
 const IS_MOBILE = /Android|iPhone|iPod|iPad|Mobile|HarmonyOS/i.test(navigator.userAgent) ||
   (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
 const pad2 = n => String(n).padStart(2, "0");
@@ -1116,6 +1121,16 @@ function brwName(url){
   try { return new URL(url).host; } catch (e) { return "新标签页"; }
 }
 
+function brwSrc(cur){
+  /* 手机设备框里放“本站被手机打开的样子”：390px 的真视口，由本站自己的响应式渲染；
+     电脑设备框里放真实目标地址（WPS 库）。WPS 按服务器端 UA 分流，网页改不了，所以不硬塞。 */
+  if (brw.mode === "phone") {
+    const h = brw.localHash || "#/library";
+    return location.pathname + "?embed=ph" + h;
+  }
+  return cur && cur.url ? cur.url : "about:blank";
+}
+
 function brwRender(){
   const box = document.getElementById("brwTabs");
   if (!box) return;
@@ -1127,11 +1142,16 @@ function brwRender(){
   const f = document.getElementById("brwFrame");
   const inp = document.getElementById("brwUrl");
   if (inp) inp.value = cur ? cur.url : "";
-  if (f) f.src = cur && cur.url ? cur.url : "about:blank";
+  if (f) f.src = brwSrc(cur);
   const stage = document.getElementById("brwStage");
   if (stage) stage.classList.toggle("phone", brw.mode === "phone");
   const hint = document.getElementById("brwHint");
-  if (hint) hint.style.display = cur && cur.url ? "block" : "none";
+  if (hint) {
+    hint.style.display = "block";
+    hint.innerHTML = brw.mode === "phone"
+      ? "手机端模拟：390×780 真视口，班级云库按手机布局重排。要看 WPS 的手机版，用 ▣ 扫码在手机上打开，或按 F12 → Ctrl+Shift+M 选 iPhone。"
+      : "电脑端：真实目标地址。这里是 WPS 的页面本身，若一片空白说明对方禁止被外部页面嵌套，点 ↗ 用系统浏览器打开。";
+  }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
     b.classList.toggle("on", b.dataset.brwdev === brw.mode);
   });
@@ -1144,6 +1164,8 @@ function brwPush(url, mode){
   brw.i = 0;
   brw.hist = [url];
   brw.hi = 0;
+  const inHash = (location.hash || "").replace(/^#/, "");
+  brw.localHash = ["/library", "/res", "/home", "/portal"].indexOf(inHash) >= 0 ? location.hash : "#/library";
   document.getElementById("brw").classList.add("on");
   document.getElementById("brw").setAttribute("aria-hidden", "false");
   brwRender();
@@ -1226,13 +1248,9 @@ function brwInit(){
     const dev = e.target.closest("[data-brwdev]");
     if (dev) {
       brw.mode = dev.dataset.brwdev;
-      const stage = document.getElementById("brwStage");
-      if (stage) stage.classList.toggle("phone", brw.mode === "phone");
-      Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
-        b.classList.toggle("on", b.dataset.brwdev === brw.mode);
-      });
       store.set("cl_view_mode_v1", brw.mode);
-      toast(brw.mode === "phone" ? "已切到手机设备框（390px）；WPS 仍按电脑版返回" : "已切回电脑窗口");
+      brwRender();
+      toast(brw.mode === "phone" ? "手机端模拟：390px 真视口，页面按手机布局重排" : "电脑端：真实目标地址");
       return;
     }
   });
@@ -1342,7 +1360,7 @@ function renderRes(){
         '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
         '<div class="link-acts">' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="desktop">电脑版</button>' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="phone">窄屏</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview" data-mode="phone">手机端</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
         '</div>' +
@@ -1439,8 +1457,8 @@ const VIEWS = ["home", "library", "res", "portal", "plus", "access", "maint"];
 
 function paintDevNote(){
   const txt = IS_MOBILE
-    ? "当前是手机访问：预览拿到的就是 WPS 移动版，「窄屏」只是把宽度收回 390px。"
-    : "当前是电脑访问：浏览器身份改不了，这里再窄 WPS 也给电脑版。要看真正的移动版，扫码用手机打开，或在电脑上按 F12 → Ctrl+Shift+M 选 iPhone 再刷新。";
+    ? "当前是手机访问：浏览器窗口里就是 WPS 给的移动版页面。"
+    : "电脑端开 WPS 本体；手机端把本页按 390px 真视口重排，看的是手机上的实际版式。WPS 按服务器端 UA 分流，网页改不了它，要看 WPS 移动版请用「扫码」在手机上打开。";
   Array.prototype.forEach.call(document.querySelectorAll(".dev-note"), function(el){ el.textContent = txt; });
 }
 
@@ -1587,7 +1605,7 @@ slot.addEventListener("click", e => {
     b.classList.toggle("on", b === d);
   });
   store.set("cl_view_mode_v1", isPhone ? "phone" : "desktop");
-  toast(isPhone ? "已切到 390px 窄屏；WPS 仍会按电脑版返回" : "已切回电脑版");
+  toast(isPhone ? "已切到手机端（390px 真视口）" : "已切回电脑端");
 });
 slot.addEventListener("keydown", e => {
   if (e.key !== "Enter") return;
