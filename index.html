@@ -472,21 +472,15 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">资料库</h1>
-      <p class="page-lead">三个 WPS 源库的入口与内容清单：专业学习资料、学校相关的事宜、共享社区。文件本体都在学校 WPS 里，按账号权限决定谁能看；这一页只负责说清「里面有什么、从哪进」。</p>
+      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。点开任一张卡，可在页面内尝试内嵌预览，并切换电脑 / 手机两种视口。</p>
     </div>
 
     <div class="portal-alert">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
-      <div>下面三份清单是按 2026-11-14 的库内目录整理的快照。库里之后新增的文件不会自动出现在这一页，需要班委手动补一行；改动只影响这一页，不碰 WPS 里的文件。</div>
+      <div>文件和清单都在 WPS 里，网页只给入口，不复制内容。预览区若一片空白，是 WPS 禁止被外部网页嵌套，点「在 WPS 中打开」就能正常阅览。</div>
     </div>
 
     <div id="resWrap"></div>
-
-    <div class="maint-block" style="margin-top:26px">
-      <h3>期末速成：三科补到 60 分</h3>
-      <p>Linux 先保住文件与权限（ls、cd、cp、mv、rm、chmod 644/755），Vim 会进、会改、会存、会退；网络先保住分层模型与子网划分，再背常用端口；Python 先保住 if-elif-else 与 for，再到列表、字典、def。</p>
-      <p>内核调优、路由收敛计算、装饰器这一类难题可以暂时放下，先把会的分一分不丢。完整版（含子网例题、命令速查、练习与答案、四周复习节奏）已单独整理成 Word 讲义，需要时向学委索取。</p>
-    </div>
   </div>
 </section>
 
@@ -860,6 +854,7 @@ function openDetail(d){
 function closeDetail(){
   drawer.classList.remove("on");
   document.body.style.overflow = "";
+  slot.innerHTML = "";   /* 关掉时卸载 iframe，避免后台继续加载 WPS */
   state.cur = null;
 }
 
@@ -916,66 +911,46 @@ function loadPreview(url, mode){
 
 /* ==================== 资料库：三个 WPS 源库 ==================== */
 const REPOS = [
-  {
-    key:"study", name:"专业学习资料", slug:"cc8KmiqlrcMV",
-    meta:"3 个文件夹 · 5 份文档",
-    note:"课程配套材料、专业软件与常用网络资源。",
-    items:[
-      { k:"文件夹", t:"按日期收集摆放的资源", d:"按日期归档的课程材料" },
-      { k:"文件夹", t:"专业软件", d:"课程要用的安装包与工具" },
-      { k:"文件夹", t:"练习 WPS", d:"云文档操作练习" },
-      { k:"文档", t:"各种网络资源.docx", d:"" },
-      { k:"文档", t:"几个好用的学习网站.txt", d:"" },
-      { k:"文档", t:"网盘学习资料.DOCX", d:"" },
-      { k:"文档", t:"【学校官方FTP仓库或者web VPN资源】.docx", d:"校内外取资料的两条路径" },
-      { k:"文档", t:"感谢一路同行，你的星标是我持续维护班级资源库的动力.docx", d:"资源库维护约定" }
-    ]
-  },
-  {
-    key:"school", name:"学校相关的事宜", slug:"cpQ7FYtCJpAE",
-    meta:"3 个文件夹 · 8 张图片",
-    note:"校内项目、作业收发与现场留痕。",
-    items:[
-      { k:"文件夹", t:"Explosive-level project", d:"" },
-      { k:"文件夹", t:"近期的作业", d:"当前周期的作业收发" },
-      { k:"文件夹", t:"以前的作业", d:"往期作业归档" },
-      { k:"图片", t:"IMG_20260916_180144.jpg、IMG_2763.jpg、IMG_2930.webp、IMG_2931.jpg、IMG_2979.png、image_1790775824172.jpg", d:"现场拍摄与截图" },
-      { k:"图片", t:"screenshot_20260921_171929_com.tencent.mqq.jpg、screenshot_20260922_091724_com.tencent.mqq.jpg", d:"手机 QQ 截图" }
-    ]
-  },
-  {
-    key:"share", name:"共享社区", slug:"ctjLDPYcTofa",
-    meta:"2 个专栏 · 11 份作业 · 1 个教学动图",
-    note:"同学提交的作业与上传操作演示，由学委维护。",
-    items:[
-      { k:"专栏", t:"艺术专栏", d:"11 个按学号归档的个人/小组作业文件夹，进入后按学号找自己那份" },
-      { k:"专栏", t:"私闹专栏", d:"留档区，内有艺术专栏入口与两条占位内容" },
-      { k:"动图", t:"WPS上传作业教学.gif", d:"上传作业的完整操作演示" }
-    ]
-  }
+  { key:"study",  name:"专业学习资料",   slug:"cc8KmiqlrcMV", meta:"3 个文件夹 · 5 份文档",
+    note:"课程配套材料、专业软件与常用网络资源。" },
+  { key:"school", name:"学校相关的事宜", slug:"cpQ7FYtCJpAE", meta:"3 个文件夹 · 8 张图片",
+    note:"校内项目、作业收发与现场留痕。" },
+  { key:"share",  name:"共享社区",       slug:"ctjLDPYcTofa", meta:"2 个专栏 · 11 份作业 · 1 个教学动图",
+    note:"同学提交的作业与上传操作演示，由学委维护。" }
 ];
 
 function renderRes(){
   const host = document.getElementById("resWrap");
   if (!host) return;
-  host.innerHTML = REPOS.map(r => (
+  host.innerHTML = REPOS.map((r, i) => (
     '<div class="task">' +
-      '<div class="task-h"><span class="task-t">' + r.name + '</span><span class="task-meta">' + r.meta + '</span></div>' +
+      '<div class="task-h"><span class="task-t">' + pad2(i + 1) + ' · ' + r.name + '</span><span class="task-meta">' + r.meta + '</span></div>' +
       '<div class="task-b">' +
-        '<p style="font-size:13px;color:var(--ink3);margin:0 0 12px">' + r.note + '</p>' +
-        r.items.map((it, i) => (
-          '<div class="opt"><span class="opt-n">' + pad2(i + 1) + '</span><div>' +
-            '<span style="color:var(--ink3);font-size:12px">' + it.k + '　</span><b>' + it.t + '</b>' +
-            (it.d ? '<br><span style="color:var(--ink3);font-size:12.5px">' + it.d + '</span>' : '') +
-          '</div></div>'
-        )).join("") +
-        '<div class="link-acts" style="margin-top:14px">' +
-          '<button class="btn btn-sm" data-repo="' + r.key + '">在 WPS 中打开</button>' +
+        '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
+        '<div class="link-acts">' +
+          '<button class="btn btn-sm" data-repo="' + r.key + '" data-act="preview">打开预览</button>' +
+          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
           '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
         '</div>' +
       '</div>' +
     '</div>'
   )).join("");
+}
+
+function openRepo(r){
+  openDetail({
+    kind:"repo",
+    kicker:"REPO / WPS 源库",
+    name:r.name,
+    fields:[
+      ["库内概况", r.meta],
+      ["文件夹 ID", r.slug],
+      ["可见范围", "按 WPS 账号权限"],
+      ["维护", "学委"]
+    ],
+    url:urlOf(r.slug)
+  });
+  setTimeout(function(){ loadPreview(urlOf(r.slug)); }, 120);
 }
 
 /* ==================== 学校门户 ==================== */
@@ -1120,8 +1095,10 @@ document.addEventListener("click", e => {
   if (rp) {
     const r = REPOS.filter(x => x.key === rp.dataset.repo)[0];
     if (r) {
-      if (rp.dataset.act === "copy") copyText(urlOf(r.slug));
-      else openUrl(urlOf(r.slug));
+      const act = rp.dataset.act || "preview";
+      if (act === "copy") copyText(urlOf(r.slug));
+      else if (act === "open") openUrl(urlOf(r.slug));
+      else openRepo(r);
     }
     return;
   }
