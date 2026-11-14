@@ -229,6 +229,41 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .brw-stage.phone .brw-frame{border-radius:0}
 .brw-hint{padding:9px 14px;font-size:11.5px;color:var(--ink3);border-top:1px solid var(--line);background:#FBFBF7;flex:none}
 /* embed=ph：被浏览器窗口当作“手机端”载入时，自身不再开浏览器层，避免套娃 */
+/* ---------- 手机版 UI（只在 embed=ph 的手机框里生效，桌面版完全不受影响） ---------- */
+html.is-embed{background:#F4F4EE}
+html.is-embed #topbar{border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9;background:var(--paper)}
+html.is-embed .bar-inner{padding:9px 14px;gap:10px}
+html.is-embed .brand-txt b{font-size:13.5px}
+html.is-embed .brand-txt{font-size:10.5px;line-height:1.25}
+html.is-embed .bar-tools{display:none}
+html.is-embed .nav{display:flex;overflow-x:auto;gap:4px;padding:6px 10px 7px;border-top:1px solid var(--line);margin:0 -14px -9px;scrollbar-width:none}
+html.is-embed .nav::-webkit-scrollbar{display:none}
+html.is-embed .nav a{flex:none;padding:5px 11px;font-size:11.5px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink2)}
+html.is-embed .nav a.on{background:var(--green);border-color:var(--green);color:#fff}
+html.is-embed main{padding:14px 0 76px}
+html.is-embed .wrap{padding:0 14px}
+html.is-embed .page-h1{font-size:21px;margin:6px 0 8px}
+html.is-embed .page-lead{font-size:12px;line-height:1.65}
+html.is-embed .dev-note{display:none}
+html.is-embed .note-band{display:none}
+/* 卡片 → 列表行 */
+html.is-embed .task{border:0;border-bottom:1px solid var(--line);border-radius:0;background:#fff;padding:15px 14px 13px;margin:0 0 1px;display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 12px}
+html.is-embed .task::before{content:"";width:34px;height:34px;flex:none;border-radius:8px;
+  background:#E7EEE9 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232E5348' stroke-width='1.7'><path d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/></svg>") center/19px no-repeat;margin-top:1px}
+html.is-embed .task-h{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+html.is-embed .task-t{font-size:14.5px;font-weight:600;letter-spacing:0;color:var(--ink)}
+html.is-embed .task-meta{font-size:11px;color:var(--ink3);font-weight:400}
+html.is-embed .task-b{width:100%;padding:9px 0 0 46px}
+html.is-embed .task-b p{font-size:11.5px !important;line-height:1.55;margin:0 0 9px !important}
+html.is-embed .link-acts{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+html.is-embed .link-acts::-webkit-scrollbar{display:none}
+html.is-embed .link-acts .btn{flex:none;height:28px;padding:0 11px;font-size:11.5px;border-radius:14px}
+html.is-embed button[data-act="preview"]{display:none}
+/* 底部 tab 栏 */
+html.is-embed .m-tabbar{position:fixed;left:0;right:0;bottom:0;height:58px;display:flex;background:#fff;border-top:1px solid var(--line);z-index:20}
+html.is-embed .m-tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--ink3);text-decoration:none}
+html.is-embed .m-tabbar a.on{color:var(--green)}
+html.is-embed .m-tabbar i{font-style:normal;font-size:17px;line-height:1}
 html.is-embed #brw{display:none!important}
 html.is-embed .drawer{display:none!important}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
@@ -962,7 +997,17 @@ const drawer = document.getElementById("drawer");
 const slot = document.getElementById("dpSlot");
 
 const EMBED = /[?&]embed=/.test(location.search);
-if (EMBED) document.documentElement.classList.add("is-embed");
+if (EMBED) {
+  document.documentElement.classList.add("is-embed");
+  const bar = document.createElement("nav");
+  bar.className = "m-tabbar";
+  bar.innerHTML = '<a href="#/home" data-v="home"><i>&#9783;</i>概览</a>' +
+                  '<a href="#/library" data-v="library"><i>&#9787;</i>云库</a>' +
+                  '<a href="#/res" data-v="res"><i>&#9776;</i>资料</a>' +
+                  '<a href="#/plus" data-v="plus"><i>&#9881;</i>高级</a>';
+  if (document.body) document.body.appendChild(bar);
+  else document.addEventListener("DOMContentLoaded", function(){ document.body.appendChild(bar); });
+}
 const IS_MOBILE = /Android|iPhone|iPod|iPad|Mobile|HarmonyOS/i.test(navigator.userAgent) ||
   (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
 const pad2 = n => String(n).padStart(2, "0");
@@ -1124,8 +1169,11 @@ function brwName(url){
 }
 
 function brwSrc(cur){
-  /* 电脑端、手机端都载同一个真实地址，只是视口不同：内嵌是通的，WPS 的页面本身能显示。
-     唯一改不了的是“发给 WPS 的 UA”，那是浏览器层的事。 */
+  /* 电脑端载真实目标（WPS 桌面版）；手机端载本站自己的手机版 UI —— 390×780 真视口，
+     由本站按移动布局重排。WPS 的移动版只认 UA，页面拿不到，所以不硬塞桌面版进去。 */
+  if (brw.mode === "phone") {
+    return location.pathname + "?embed=ph" + (brw.localHash || "#/library");
+  }
   return cur && cur.url ? cur.url : "about:blank";
 }
 
@@ -1162,7 +1210,7 @@ function brwRender(){
   if (hint) {
     hint.style.display = "block";
     hint.innerHTML = brw.mode === "phone"
-      ? "手机端：390×780 的真视口，WPS 页面按这个宽度重排。要拿到 WPS 的移动版页面，得用真手机（▣ 扫码）或 F12 设备模拟——网页改不了发给服务器的 UA。"
+      ? "手机端：390×780 真视口，跑的是班级云库自己的手机版界面（列表行、底部 tab 栏），和电脑版是两套布局。"
       : "电脑端：WPS 的页面本身，内嵌可直接浏览。要新窗口看就点 ↗。";
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
