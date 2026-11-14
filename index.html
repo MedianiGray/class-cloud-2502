@@ -138,6 +138,19 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .empty p{font-size:13.5px;color:var(--ink2);margin-bottom:14px}
 
 /* ---------- 详情抽屉 ---------- */
+/* ---------- 高级功能 ---------- */
+.p-in{width:100%;border:1px solid var(--line2);background:#fff;padding:9px 11px;font-family:inherit;font-size:13px;color:var(--ink);margin-top:5px}
+.p-in:focus{outline:none;border-color:var(--green)}
+.p-ta{min-height:88px;resize:vertical;line-height:1.7}
+.p-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:12px}
+.p-out{border:1px solid var(--line2);background:#fff;padding:13px 14px;font-size:13px;line-height:1.75;min-height:58px;white-space:pre-wrap;word-break:break-word;margin-top:12px}
+.p-list{border:1px solid var(--line);margin-top:4px}
+.p-item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);font-size:12.5px}
+.p-item:last-child{border-bottom:0}
+.p-item b{font-weight:600;font-size:13px}
+.p-item span{color:var(--ink3);display:block;margin-top:2px}
+#view-plus .task-b label{display:block;font-size:12px;color:var(--ink3);margin-bottom:12px}
+#view-plus .task-b label b{color:var(--ink);font-weight:600}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -308,6 +321,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <a href="#/library" data-v="library">班级云库</a>
       <a href="#/res" data-v="res">资料库</a>
       <a href="#/portal" data-v="portal">学校入口</a>
+      <a href="#/plus" data-v="plus">高级</a>
       <a href="#/access" data-v="access">权限</a>
       <a href="#/maint" data-v="maint">维护</a>
     </nav>
@@ -525,6 +539,64 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
       <h3>网页与文档的关系</h3>
       <p>这套网页是「索引」，不是「仓库」。GitHub Pages 上只有匿名端口目录和链接，没有任何姓名、完整学号、文档正文、附件或成绩数据。真正的访问控制发生在 WPS：成员点开链接后，WPS 会先校验他的账号与权限，没权限的人看到的只是一张「无权访问」的提示。因此就算网页链接被转发出去，文件本身也不会泄露。</p>
       <p>这也是这套结构能长期用的原因：调整权限不用改代码，在 WPS 里点几下就行；网页不需要维护数据。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 视图：高级功能 ===== -->
+<section class="view" id="view-plus">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">高级功能</h1>
+      <p class="page-lead">三样东西：一个自带密钥的 AI 对话台、一条不经过服务器的同网快传、一个直通学委邮箱的意见箱。全部跑在浏览器里，这个站没有后端。</p>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">01 · AI 对话台</span><span class="task-meta">自带 Key · 只存本机</span></div>
+      <div class="task-b">
+        <p>填一次接口地址、模型名和密钥，浏览器直接向服务商发起请求。密钥只写在你这台电脑的 localStorage 里，不进代码、不经第三方中转。<b>报 CORS 是服务商禁止网页直连，报 401 是密钥无效</b>，换一家再试。</p>
+        <div class="p-grid">
+          <label>接口地址<input id="aiBase" class="p-in" placeholder="https://api.openai.com/v1"></label>
+          <label>模型<input id="aiModel" class="p-in" placeholder="gpt-4o-mini / deepseek-chat"></label>
+          <label>API Key<input id="aiKey" class="p-in" type="password" placeholder="sk-..."></label>
+        </div>
+        <label>你的问题<textarea id="aiQ" class="p-in p-ta" placeholder="例如：把我这段自我介绍改得口语一点"></textarea></label>
+        <div class="link-acts">
+          <button class="btn btn-sm" id="aiSend">发送</button>
+          <button class="btn btn-sm ghost" id="aiClear">清空对话</button>
+        </div>
+        <div class="p-out" id="aiOut">对话会显示在这里。第一次用先填上面三项。</div>
+        <div class="eyebrow" style="margin:20px 0 8px">免费额度 / 更容易申请到的服务</div>
+        <div id="aiList"></div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">02 · 同网快传</span><span class="task-meta">无服务器 · 走链接</span></div>
+      <div class="task-b">
+        <p>把文本或小文件压进一条链接里，同一个 WiFi 下让对方打开就能取，全程不过任何服务器，也没有人能看到内容。硬上限 200 KB；链接越长越容易被微信或 QQ 截断，20 KB 以内最稳，大文件还是走网盘或 U 盘。</p>
+        <label>要传的内容<textarea id="rlText" class="p-in p-ta" placeholder="粘贴文本；如果下面选了文件，则优先传文件"></textarea></label>
+        <label>或者选一个文件<input id="rlFile" class="p-in" type="file"></label>
+        <div class="link-acts">
+          <button class="btn btn-sm" id="rlMake">生成链接</button>
+          <button class="btn btn-sm ghost" id="rlReset">清空</button>
+        </div>
+        <div class="p-out" id="rlOut">生成后把链接发给对方，他在这台设备上打开就行。</div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">03 · 意见箱</span><span class="task-meta">直发学委邮箱</span></div>
+      <div class="task-b">
+        <p>收件人是 <b class="mono">himegikudirtsir@outlook.com</b>。点发送会调起你电脑上的邮件客户端，把主题和正文填好；网页本身不发请求、不存草稿。</p>
+        <label>主题<input id="fbSub" class="p-in" placeholder="例如：资料库想加一个课程分类"></label>
+        <label>内容<textarea id="fbBody" class="p-in p-ta" placeholder="写清楚建议、问题或要补的材料"></textarea></label>
+        <label>署名（可不填）<input id="fbName" class="p-in" placeholder="留个尾号也行，比如 312"></label>
+        <div class="link-acts">
+          <button class="btn btn-sm" id="fbSend">发送邮件</button>
+          <button class="btn btn-sm ghost" id="fbCopy">复制邮箱</button>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1020,7 +1092,7 @@ function initGate(){
 }
 
 /* ==================== 路由 ==================== */
-const VIEWS = ["home", "library", "res", "portal", "access", "maint"];
+const VIEWS = ["home", "library", "res", "portal", "plus", "access", "maint"];
 
 function route(){
   // 兼容旧链接：#/lessons 已改名为 #/res
@@ -1034,10 +1106,12 @@ function route(){
   Array.prototype.forEach.call(document.querySelectorAll("#nav a"), a => {
     a.classList.toggle("on", a.dataset.v === v);
   });
+  if (v === "plus") relayCheck();
   document.title =({
     home:"班级云库 · 网络工程技术（本）2502班",
     library:"班级云库 · 成员索引",
     res:"资料库 · 三个 WPS 源库",
+    plus:"高级功能 · 班级云库",
     portal:"学校入口 · 班级云库",
     access:"权限说明 · 班级云库",
     maint:"部署与维护 · 班级云库"
@@ -1140,6 +1214,179 @@ document.getElementById("lockBtn").onclick = () => {
   location.reload();
 };
 
+/* ==================== 高级功能 ==================== */
+const AI_SERVICES = [
+  { n:"Google Gemini", d:"免费额度，对话与图片生成，官方有 OpenAI 兼容层", u:"https://aistudio.google.com/apikey", b:"https://generativelanguage.googleapis.com/v1beta/openai" },
+  { n:"Groq", d:"免费额度，响应速度最快，主打对话", u:"https://console.groq.com/keys", b:"https://api.groq.com/openai/v1" },
+  { n:"OpenRouter", d:"聚合多家模型，含免费模型，适合试手", u:"https://openrouter.ai/keys", b:"https://openrouter.ai/api/v1" },
+  { n:"硅基流动 SiliconFlow", d:"国内可直连，注册送额度，对话与生图都有", u:"https://cloud.siliconflow.cn/account/ak", b:"https://api.siliconflow.cn/v1" },
+  { n:"智谱 GLM", d:"国内，有免费模型，含图片生成", u:"https://open.bigmodel.cn/usercenter/apikeys", b:"https://open.bigmodel.cn/api/paas/v4" },
+  { n:"ModelScope 魔搭", d:"国内免费额度，图与视频模型较多", u:"https://modelscope.cn/my/myaccesstoken", b:"" },
+  { n:"Hugging Face", d:"Inference API，免费额度较小", u:"https://huggingface.co/settings/tokens", b:"" },
+  { n:"Cloudflare Workers AI", d:"每天免费额度，需开通 Workers", u:"https://dash.cloudflare.com/", b:"" }
+];
+
+const AI_KEY = "cl_ai_cfg_v1";
+const aiMsgs = [];
+
+function renderAiList(){
+  const host = document.getElementById("aiList");
+  if (!host) return;
+  host.className = "p-list";
+  host.innerHTML = AI_SERVICES.map((a, i) => (
+    '<div class="p-item"><div><b>' + a.n + '</b><span>' + a.d + '</span></div>' +
+    '<div style="display:flex;gap:8px"><button class="btn btn-sm ghost" data-ai-fill="' + i + '">填入地址</button>' +
+    '<button class="btn btn-sm ghost" data-ai-go="' + i + '">申请</button></div></div>'
+  )).join("");
+}
+
+function aiCfgLoad(){
+  const b = document.getElementById("aiBase"), m = document.getElementById("aiModel"), k = document.getElementById("aiKey");
+  if (!b) return;
+  try {
+    const c = JSON.parse(localStorage.getItem(AI_KEY) || "{}");
+    b.value = c.base || ""; m.value = c.model || ""; k.value = c.key || "";
+  } catch(e) {}
+}
+function aiCfgSave(){
+  const b = document.getElementById("aiBase"), m = document.getElementById("aiModel"), k = document.getElementById("aiKey");
+  try { localStorage.setItem(AI_KEY, JSON.stringify({ base:b.value.trim(), model:m.value.trim(), key:k.value.trim() })); } catch(e) {}
+}
+
+function aiSay(who, text){
+  const out = document.getElementById("aiOut");
+  if (!out) return;
+  const box = document.createElement("div");
+  box.style.marginBottom = "10px";
+  box.innerHTML = '<b style="color:var(--green)">' + who + '</b><br>' + (text || "").replace(/</g, "&lt;");
+  if (!out.dataset.ready) { out.innerHTML = ""; out.dataset.ready = "1"; }
+  out.appendChild(box);
+  out.scrollTop = out.scrollHeight;
+}
+
+function aiSend(){
+  const b = document.getElementById("aiBase"), m = document.getElementById("aiModel"), k = document.getElementById("aiKey"), q = document.getElementById("aiQ");
+  if (!b.value.trim() || !m.value.trim() || !k.value.trim()) { toast("接口地址、模型、Key 三项都要填"); return; }
+  const text = q.value.trim();
+  if (!text) { toast("先写问题"); return; }
+  aiCfgSave();
+  aiMsgs.push({ role:"user", content:text });
+  aiSay("你", text);
+  q.value = "";
+  const url = b.value.replace(/\s/g, "").replace(/\/+$/, "") + "/chat/completions";
+  aiSay("系统", "请求中…");
+  fetch(url, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + k.value.trim() },
+    body:JSON.stringify({ model:m.value.trim(), messages:aiMsgs, temperature:0.7 })
+  }).then(r => r.json()).then(d => {
+    const txt = d && d.choices && d.choices[0] && d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d).slice(0, 400);
+    aiMsgs.push({ role:"assistant", content:txt });
+    aiSay("回复", txt);
+  }).catch(err => {
+    aiSay("失败", "请求没发出去或被 CORS 拦了：" + err.message + "。换一家服务，或用它提供的 OpenAI 兼容地址。");
+  });
+}
+
+/* 同网快传：内容压进 hash，不经过任何服务器 */
+function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
+function b64dec(b64){ return decodeURIComponent(escape(atob(b64))); }
+
+function relayBuild(obj){
+  let json = JSON.stringify(obj);
+  if (json.length > 260000) { toast("内容太大，链接装不下，压到 200KB 以内"); return; }
+  if (json.length > 24000) { toast("链接偏长，微信或 QQ 可能截断，建议复制文本直接发"); }
+  const payload = encodeURIComponent(b64enc(json));
+  const link = location.origin + location.pathname + "#/plus?share=" + payload;
+  const out = document.getElementById("rlOut");
+  out.dataset.ready = "";
+  out.innerHTML = '<b style="color:var(--green)">链接已生成</b><br><span class="mono" style="font-size:11.5px;word-break:break-all">' + link + '</span>';
+  const btn = document.createElement("button");
+  btn.className = "btn btn-sm ghost";
+  btn.style.marginTop = "10px";
+  btn.textContent = "复制链接";
+  btn.onclick = function(){ copyText(link); };
+  out.appendChild(document.createElement("br"));
+  out.appendChild(btn);
+}
+
+function relayMake(){
+  const f = document.getElementById("rlFile");
+  const txt = document.getElementById("rlText");
+  if (f && f.files && f.files[0]) {
+    const file = f.files[0];
+    if (file.size > 200 * 1024) { toast("文件超过 200KB，链接装不下"); return; }
+    const fr = new FileReader();
+    fr.onload = function(){
+      relayBuild({ t:"file", n:file.name, d:String(fr.result).split(",")[1] || "" });
+    };
+    fr.readAsDataURL(file);
+    return;
+  }
+  if (!txt.value.trim()) { toast("先写内容，或选一个文件"); return; }
+  relayBuild({ t:"text", d:txt.value });
+}
+
+function relayCheck(){
+  const h = location.hash || "";
+  const i = h.indexOf("share=");
+  if (i < 0) return;
+  const out = document.getElementById("rlOut");
+  if (!out) return;
+  let obj = null;
+  try { obj = JSON.parse(b64dec(decodeURIComponent(h.slice(i + 6)))); } catch(e) {}
+  if (!obj) { out.textContent = "这条链接里的内容读不出来，可能被聊天软件截断了。"; return; }
+  out.dataset.ready = "";
+  if (obj.t === "file") {
+    out.innerHTML = '<b style="color:var(--green)">收到文件：' + (obj.n || "未命名").replace(/</g, "&lt;") + '</b><br>' +
+      '<a class="btn btn-sm" style="display:inline-block;margin-top:10px;text-decoration:none" download="' + (obj.n || "file").replace(/"/g, "") + '" href="data:application/octet-stream;base64,' + obj.d + '">保存文件</a>';
+  } else {
+    out.innerHTML = '<b style="color:var(--green)">收到文本</b><br><textarea class="p-in" style="min-height:120px;margin-top:8px" readonly>' + String(obj.d || "").replace(/</g, "&lt;") + '</textarea>';
+  }
+  toast("已收到对方传过来的内容");
+}
+
+function fbSend(){
+  const sub = document.getElementById("fbSub"), body = document.getElementById("fbBody"), nm = document.getElementById("fbName");
+  const s = sub.value.trim() || "班级云库 · 意见反馈";
+  const b = body.value.trim();
+  if (!b) { toast("内容还是空的"); return; }
+  const tail = nm.value.trim() ? ("\n\n—— " + nm.value.trim()) : "";
+  location.href = "mailto:himegikudirtsir@outlook.com?subject=" + encodeURIComponent(s) + "&body=" + encodeURIComponent(b + tail);
+}
+
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-ai-fill]");
+  if (f) {
+    const a = AI_SERVICES[+f.dataset.aiFill];
+    if (!a) return;
+    if (!a.b) { toast("这家没有 OpenAI 兼容地址，用「申请」去官网看文档"); return; }
+    document.getElementById("aiBase").value = a.b;
+    toast("已填入 " + a.n + " 的地址，再补模型名和 Key");
+    return;
+  }
+  const g = e.target.closest("[data-ai-go]");
+  if (g) { const a = AI_SERVICES[+g.dataset.aiGo]; if (a) openUrl(a.u); return; }
+});
+
+function initPlus(){
+  renderAiList();
+  aiCfgLoad();
+  const b = document.getElementById("aiSend");
+  if (b) b.onclick = aiSend;
+  const c = document.getElementById("aiClear");
+  if (c) c.onclick = function(){ aiMsgs.length = 0; const o = document.getElementById("aiOut"); o.dataset.ready = ""; o.textContent = "对话已清空。"; };
+  const r1 = document.getElementById("rlMake");
+  if (r1) r1.onclick = relayMake;
+  const r2 = document.getElementById("rlReset");
+  if (r2) r2.onclick = function(){ document.getElementById("rlText").value = ""; document.getElementById("rlFile").value = ""; const o = document.getElementById("rlOut"); o.dataset.ready = ""; o.textContent = "已清空。"; };
+  const f1 = document.getElementById("fbSend");
+  if (f1) f1.onclick = fbSend;
+  const f2 = document.getElementById("fbCopy");
+  if (f2) f2.onclick = function(){ copyText("himegikudirtsir@outlook.com"); };
+  relayCheck();
+}
+
 /* ==================== 启动 ==================== */
 window.addEventListener("hashchange", route);
 document.getElementById("footMeta").textContent =
@@ -1147,6 +1394,7 @@ document.getElementById("footMeta").textContent =
 renderPortal();
 renderRes();
 renderPatch();
+initPlus();
 initGate();
 route();
 </script>
