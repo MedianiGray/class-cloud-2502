@@ -745,7 +745,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">六张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一个能把 WPS 切成移动版的扩展。全部在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">六张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一套手机与电脑互相看对方界面的正确做法。全部在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -877,20 +877,17 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
 
     <div class="task">
-      <div class="task-h"><span class="task-t">06 · 电脑上看移动版</span><span class="task-meta">装一次，之后一直有效</span></div>
+      <div class="task-h"><span class="task-t">06 · 手机看电脑版 / 电脑看手机版</span><span class="task-meta">不用装东西，浏览器自己就能切</span></div>
       <div class="task-b">
-        <p>WPS 给你哪套界面，只看请求头里的 UA。网页自己没有这个权限，所以<b>浏览器不允许网页直接装扩展</b> —— 非商店来源的 .crx 会被拦下。能做的是把这个扩展下回去，手动装一次。</p>
-        <p style="font-size:13px;color:var(--ink2);margin:0 0 6px"><b>装完之后，预览窗口右上角那两个「电脑 / 手机」按钮就真的能用了</b>：点一下，扩展把 kdocs.cn 的 UA 换过去，WPS 直接整套换界面 —— 两个方向都能切，来回切也行，不用再动浏览器设置。</p>
-        <ol style="font-size:13px;color:var(--ink2);line-height:1.95;margin:0 0 12px;padding-left:20px">
-          <li>点下面的「下载扩展」，得到一个 zip，<b>解压成文件夹</b>（不要在压缩包里直接选）。版本 1.1，含网页联通脚本。</li>
-          <li>Chrome 地址栏打开 <span class="mono">chrome://extensions</span>，右上角把「开发者模式」打开。</li>
-          <li>点「加载已解压的扩展程序」，选中刚才解压出来的文件夹。列表里出现「班级云库 · 移动端预览」就好了。</li>
-        </ol>
-        <div class="link-acts">
-          <a class="btn btn-sm ghost" href="ext/mobile-preview.zip" download>下载扩展（zip）</a>
-          <a class="btn btn-sm ghost" href="https://github.com/MedianiGray/class-cloud-2502/tree/main/ext" target="_blank" rel="noopener">在仓库看源码</a>
-        </div>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">它只对 <span class="mono">kdocs.cn</span> 改 UA，浏览器里别的网站照常；登录状态不变。不想用了在扩展页关掉或删掉即可，站内没有任何东西依赖它。</p>
+        <p>WPS 给你哪套界面，只看你浏览器报上去的身份（User-Agent）。网页没有权限改它 —— 这是浏览器的硬限制，任何网站都做不到，所以「在页面上点一下换界面」这种按钮不可能真的生效。</p>
+        <p style="font-size:13px;color:var(--ink2);margin:0 0 6px">能做的是让浏览器自己去说。对照你正在用的环境，一次设好，之后一直有效：</p>
+        <ul style="font-size:13px;color:var(--ink2);line-height:1.9;margin:0 0 14px;padding-left:18px">
+          <li><b>手机 · 微信或 QQ 里点开的</b>：内置浏览器没有桌面版开关。先点右上角「…」→「在浏览器打开」，跳到 Chrome、Edge 或夸克；再到那个浏览器的菜单里勾「请求桌面网站 / 电脑版网页」，刷新即可。</li>
+          <li><b>手机 · Chrome、Edge、夸克、UC</b>：打开菜单（Chrome 是地址栏右边的 ⋮）→ 勾上「桌面版网站 / Desktop site」→ 刷新。关掉开关就回到手机版。</li>
+          <li><b>电脑 · Chrome、Edge 想看成手机版</b>：按 <span class="mono">F12</span>，再按 <span class="mono">Ctrl + Shift + M</span>，顶部会出现设备框，左边选 iPhone 或安卓机型，刷新一下。关掉开发者工具就恢复原样。</li>
+          <li><b>电脑 · Firefox</b>：按 <span class="mono">Ctrl + Shift + M</span> 进响应式设计模式，顶部选机型即可。</li>
+        </ul>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里的「电脑 / 手机」只改窗口宽度，方便看排版 —— 它改不了 WPS 给你哪套界面。</p>
       </div>
     </div>
   </div>
@@ -1292,8 +1289,8 @@ function brwName(url){
 }
 
 function brwSrc(cur){
-  /* 两端都载真地址。哪一套 UI 由 UA 决定，而 UA 只有扩展能改 ——
-     装了扩展，点「手机」时它把 kdocs.cn 的 UA 换成 iPhone，WPS 就真给移动版，这边只负责刷新。 */
+  /* 两端都载真地址。哪一套 UI 由 UA 决定，而 UA 只能由浏览器自己切 ——
+     这里只负责把窗口缩成手机宽度，界面交给浏览器的「桌面版网站」开关或 F12 设备模拟。 */
   return cur && cur.url ? cur.url : "about:blank";
 }
 
@@ -1329,15 +1326,10 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    const hasExt = document.documentElement.getAttribute("data-ccl-ext") === "1";
     if (brw.mode === "phone") {
-      hint.innerHTML = hasExt
-        ? "手机视角：kdocs.cn 的 UA 已被换成 iPhone，WPS 返回<b>移动版</b> —— 底部有「新建 / 下载全部 / 保存至WPS」。"
-        : "手机视角切不动：WPS 只认请求头里的 UA，而网页没有改 UA 的权限（UA 是浏览器禁止脚本设置的请求头）。装上「06 · 电脑上看移动版」那个扩展后，这个按钮才会真的生效。";
+      hint.innerHTML = "手机框只是把窗口缩到 390px —— 浏览器身份没变，WPS 仍按你现在这台机器给界面。想在电脑上看真移动版：<b>F12 然后 Ctrl + Shift + M 选 iPhone，刷新</b>；完整做法见 06 卡。";
     } else {
-      hint.innerHTML = hasExt
-        ? "电脑视角：UA 是电脑，WPS 返回<b>桌面版</b> —— 有「新建 / 上传」。点右边「手机」可以切过去。"
-        : "电脑视角：WPS 按电脑 UA 给的是<b>桌面版</b>（有「新建 / 上传」）。想在电脑上看移动版，得先装 06 卡那个扩展。";
+      hint.innerHTML = "电脑窗口按你浏览器的真实身份取页面，一般是<b>桌面版</b>（有「新建 / 上传」）。要换手机界面：<b>F12 然后 Ctrl + Shift + M 选机型</b>；手机上想看电脑版，勾浏览器菜单里的「桌面版网站」，见 06 卡。";
     }
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
@@ -1437,12 +1429,7 @@ function brwInit(){
     if (dev) {
       brw.mode = dev.dataset.brwdev;
       store.set("cl_view_mode_v1", brw.mode);
-      if (document.documentElement.getAttribute("data-ccl-ext") === "1") {
-        window.postMessage({ ccl: "ua", on: brw.mode === "phone" }, "*");
-        toast(brw.mode === "phone" ? "已切到手机 UA，正在重载" : "已切回电脑 UA，正在重载");
-      } else {
-        toast("网页自己改不了 UA —— 装 06 卡那个扩展后，这个按钮才真生效");
-      }
+      toast(brw.mode === "phone" ? "已缩成手机宽度（390px）；WPS 给哪套界面由浏览器身份决定" : "已切回电脑窗口");
       brwRender();
       return;
     }
@@ -1515,7 +1502,7 @@ function loadPreview(url, mode){
       '<div class="sim-note">' +
         '<strong>' + (isPhone ? "手机设备框" : "电脑窗口") + '</strong>' +
         (isPhone
-          ? '这是把一个窗口缩成 390px 的手机样子，浏览器身份仍然是电脑；WPS 按身份分流，所以里面仍是电脑版内容。要真移动版：点右上角 ▣ 出二维码用手机打开，或装「班级云库移动端预览」扩展。'
+          ? '这是把一个窗口缩成 390px 的手机样子，浏览器身份仍然是电脑；WPS 按身份分流，所以里面仍是电脑版内容。要真看到移动版：点 ▣ 出二维码用真手机打开；或在电脑上按 F12 再按 Ctrl + Shift + M 选机型。'
           : 'WPS 与校内系统大多禁止被外部网页嵌套，白屏是对方的安全策略，不是这里坏了。点右上角 ↗ 在新标签打开即可正常阅览。') +
       '</div>' +
     '</div>';
@@ -1682,15 +1669,6 @@ function route(){
   window.scrollTo(0, 0);
 }
 
-
-/* 扩展把 UA 换好了，重新载一次，WPS 就会按新身份给页面 */
-window.addEventListener("message", function(ev){
-  const d = ev.data;
-  if (!d || d.ccl !== "ua-ack") return;
-  const f = document.getElementById("brwFrame");
-  const cur = brw.tabs[brw.i];
-  if (f && cur) f.src = brwSrc(cur);
-});
 
 /* ==================== 工作台 ==================== */
 (function(){
