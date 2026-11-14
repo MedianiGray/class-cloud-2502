@@ -569,7 +569,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">四张卡：34 个开箱即用的 AI 入口、一个分「电脑 / 手机」两头且能先帮你查文件的传输助手、一个收作业和分组用的班级事务、一个直通学委的邮箱。全部跑在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">三张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱。全部跑在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -606,7 +606,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
         <p>按文件大小选一条路：几百 MB 走微信或 PairDrop，几十 KB 压进链接；最后可以把地址变成二维码，让手机扫进来。</p>
 
           <div class="eyebrow" style="margin:18px 0 8px">① 先把要发的文件过一遍</div>
-          <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把要发的文件拖进来，看有几个、多大、哪个超限、哪个格式不对。不合规的先转格式或压缩，再决定走下面哪条通道。</p>
+          <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把要发的文件拖进来：能看有几个、多大、哪个超限、哪个格式不对；收作业时还能直接念出「谁没交」——按文件名里的学号尾号认人。</p>
 
           <p>把要交的文件拖进来，或者一次多选。这里帮你数清楚：有几个、多大、哪个超限、哪个格式不对，最后能复制一份清单发群里。</p>
           <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple></span></div>
@@ -655,58 +655,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
 
     <div class="task">
-      <div class="task-h"><span class="task-t">03 · 班级事务</span><span class="task-meta">分组 / 收交 / 通知</span></div>
-      <div class="task-b">
-        <div class="p-tabs">
-          <button class="chip on" data-tool="pane-split">随机分组</button>
-          <button class="chip" data-tool="pane-collect">收交清单</button>
-          <button class="chip" data-tool="pane-notice">通知文案</button>
-        </div>
-
-
-        <div class="p-pane on" id="pane-split">
-          <p>把名单打散后均分成若干组，结果可整段复制。名单留空就用班里 45 个端口序号。</p>
-          <label>名单（一行一个，留空用成员序号）<textarea id="spNames" class="p-in p-ta" placeholder="张…（一行一个）"></textarea></label>
-          <div class="p-row">
-            <label>分成几组<input id="spGroups" class="p-in" type="number" value="8" min="1" max="45"></label>
-          </div>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="spGo">分组</button>
-            <button class="btn btn-sm ghost" id="spCopy">复制结果</button>
-          </div>
-          <div class="p-out" id="spOut">点「分组」出结果。</div>
-        </div>
-
-        <div class="p-pane" id="pane-collect">
-          <p>贴一份名单，交了的点一下打勾，剩下的就是未交名单，可以整段复制发群里。</p>
-          <label>名单（一行一个）<textarea id="colNames" class="p-in p-ta" placeholder="一行一个"></textarea></label>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="colLoad">载入名单</button>
-            <button class="btn btn-sm ghost" id="colCopy">复制未交</button>
-          </div>
-          <div id="colList" style="margin-top:12px;display:flex;flex-wrap:wrap;gap:8px"></div>
-          <div class="p-out" id="colOut">载入后点名字打勾。</div>
-        </div>
-
-        <div class="p-pane" id="pane-notice">
-          <p>把事项、时间、要求填进去，生成一条能直接发群里的通知，格式统一。</p>
-          <div class="p-row">
-            <label>事项<input id="ntSub" class="p-in" placeholder="口语实践视频提交"></label>
-            <label>时间<input id="ntTime" class="p-in" placeholder="11 月 20 日 20:00 前"></label>
-            <label>地点 / 提交方式<input id="ntPlace" class="p-in" placeholder="发到班级群或共享社区"></label>
-          </div>
-          <label>要求（一行一条）<textarea id="ntReq" class="p-in p-ta" placeholder="MP4 格式，命名：组号+主题&#10;每个组员都要出镜"></textarea></label>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="ntGo">生成</button>
-            <button class="btn btn-sm ghost" id="ntCopy">复制文案</button>
-          </div>
-          <div class="p-out" id="ntOut">生成的文案会出现在这里。</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="task">
-      <div class="task-h"><span class="task-t">04 · 意见箱</span><span class="task-meta">直发学委邮箱</span></div>
+      <div class="task-h"><span class="task-t">03 · 意见箱</span><span class="task-meta">直发学委邮箱</span></div>
       <div class="task-b">
         <p>收件人是 <b class="mono">himegikudirtsir@outlook.com</b>。点发送会调起你电脑上的邮件客户端，把主题和正文填好；网页本身不发请求、不存草稿。</p>
         <label>主题<input id="fbSub" class="p-in" placeholder="例如：资料库想加一个课程分类"></label>
@@ -1836,7 +1785,7 @@ function ddlRender(){
 }
 
 /* 文件清单：只在本机内存里过一遍，不上传 */
-const fileState = { list: [] };
+const fileState = { list: [], missing: [] };
 
 function fileFmt(n){
   if (n < 1024) return n + " B";
@@ -1864,8 +1813,16 @@ function fileCheck(){
     .filter(Boolean);
   const rows = list.slice().sort(function(a, b){ return a.name.localeCompare(b.name, "zh"); });
   var bad = 0, total = 0, html = '<div class="mono" style="font-size:12px;line-height:2">';
+  var nos = MEMBERS.map(function(m){ return m.no; });
+  var hit = {}, unknown = [];
   rows.forEach(function(f){
     total += f.size;
+    var cands = f.name.match(/\d{3,}/g) || [], got = null;
+    for (var ci = 0; ci < cands.length; ci++) {
+      var t = cands[ci].slice(-3);
+      if (nos.indexOf(t) >= 0) { got = t; break; }
+    }
+    if (got) hit[got] = true; else unknown.push(f.name);
     const ext = (f.name.split(".").pop() || "").toLowerCase();
     const over = maxMB && f.size > maxMB * 1048576;
     const wrong = exts.length && exts.indexOf(ext) < 0;
@@ -1878,6 +1835,18 @@ function fileCheck(){
       (flag || "OK") + '</span></div>';
   });
   html += "</div>";
+  var hitN = Object.keys(hit).length;
+  var missing = nos.filter(function(n){ return !hit[n]; });
+  fileState.missing = missing;
+  var shown = missing.length > 12 ? missing.slice(0, 12) : missing;
+  html += '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12px;line-height:1.9">' +
+    '<b>谁没交：</b>按文件名里的尾号认人，认到 ' + hitN + ' / ' + nos.length + ' 人' +
+    (missing.length ? '，缺 ' + missing.length + ' 人' : '，<b style="color:var(--green)">一个不缺</b>') +
+    (missing.length ? '<br><span style="color:#d9534f">' + shown.join("、") +
+      (missing.length > shown.length ? ' …' : '') + '</span>' +
+      '<span style="color:var(--ink3)">（完整名单点「复制清单」）</span>' : '') +
+    (unknown.length ? '<br><span style="color:var(--ink3)">另有 ' + unknown.length + ' 个文件名里没有学号尾号（如 G03.mp4），认不出是谁，可能漏判</span>' : '') +
+    '</div>';
   out.innerHTML = '<b>' + list.length + ' 个文件，共 ' + fileFmt(total) +
     (bad ? '，' + bad + ' 个要处理' : '，全部合规') + '</b>' + html;
 }
@@ -1886,7 +1855,9 @@ function fileCopy(){
   const list = fileState.list.slice().sort(function(a, b){ return a.name.localeCompare(b.name, "zh"); });
   if (!list.length) { toast("还没有文件"); return; }
   const lines = list.map(function(f, i){ return (i + 1) + ". " + f.name + "（" + fileFmt(f.size) + "）"; });
-  copyText("共 " + list.length + " 个文件，合计 " + fileFmt(list.reduce(function(t, f){ return t + f.size; }, 0)) + "\n" + lines.join("\n"));
+  const missing = fileState.missing || [];
+  copyText("共 " + list.length + " 个文件，合计 " + fileFmt(list.reduce(function(t, f){ return t + f.size; }, 0)) + "\n" + lines.join("\n") +
+    "\n\n还没交（" + missing.length + " 人）：" + (missing.length ? missing.join("、") : "无"));
 }
 
 function initTools(){
