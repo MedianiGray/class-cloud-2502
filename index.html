@@ -671,7 +671,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">三张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱。全部跑在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">四张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱，还有一台真跑的 x86 虚拟机。全部在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -768,6 +768,19 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
           <button class="btn btn-sm ghost" id="fbCopy">复制邮箱</button>
           <button class="btn btn-sm ghost" id="fbWeb">没装邮箱？复制正文去网页版</button>
         </div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">04 · 模拟电脑</span><span class="task-meta">真 x86 虚拟机 · v86</span></div>
+      <div class="task-b">
+        <p>不是皮肤：浏览器里跑一台真的 x86 虚拟机（v86，BSD 许可，2012 年维护至今）。点启动开一个全屏窗口，你会看到 Linux 2.6 的引导日志一路滚过去，最后停在 <b class="mono">/root#</b> 提示符 —— 那里能敲真命令，不是画的。</p>
+        <div class="link-acts">
+          <button class="btn btn-sm" id="vmGo">启动 Linux</button>
+          <button class="btn btn-sm ghost" id="vmWin">换 Windows 98</button>
+          <button class="btn btn-sm ghost" id="vmSite">打开 v86 官网</button>
+        </div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">首次启动要下载 WebAssembly 和系统镜像，约 30–60 秒，之后就这只窗口能一直用。手机上不划算：虚拟机要键盘，手机只有触屏。</p>
       </div>
     </div>
   </div>
@@ -2355,6 +2368,21 @@ function initPlus(){
   if (f2) f2.onclick = function(){ copyText("himegikudirtsir@outlook.com"); };
   const f3 = document.getElementById("fbWeb");
   if (f3) f3.onclick = fbWeb;
+  const vmGo = document.getElementById("vmGo");
+  if (vmGo) vmGo.onclick = function(){
+    brwInit();
+    brwPush("https://copy.sh/v86/?profile=linux26", "desktop");
+    toast("虚拟机正在下载并引导，等 30–60 秒");
+  };
+  const vmWin = document.getElementById("vmWin");
+  if (vmWin) vmWin.onclick = function(){
+    brwInit();
+    brwPush("https://copy.sh/v86/?profile=windows98", "desktop");
+    toast("Windows 98 启动较慢，耐心等一会儿");
+  };
+  const vmSite = document.getElementById("vmSite");
+  if (vmSite) vmSite.onclick = function(){ window.open("https://copy.sh/v86/", "_blank", "noopener"); };
+
   relayCheck();
 }
 
