@@ -151,10 +151,13 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 .p-item span{color:var(--ink3);display:block;margin-top:2px}
 #view-plus .task-b label{display:block;font-size:12px;color:var(--ink3);margin-bottom:12px}
 #view-plus .task-b label b{color:var(--ink);font-weight:600}
+.qr-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:120px;padding:18px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink3);font-size:12.5px;text-align:center}
+.qr-box canvas,.qr-box img{display:block}
 .p-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .p-pane{display:none}
 .p-pane.on{display:block}
 .p-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
+.p-item button{flex:0 0 auto;white-space:nowrap}
 #drawer{position:fixed;inset:0;z-index:60;display:none}
 #drawer.on{display:block}
 .drawer-veil{position:absolute;inset:0;background:rgba(23,33,29,.4)}
@@ -552,7 +555,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">五张卡：34 个开箱即用的 AI 入口、三条传文件的路、一个直通学委的邮箱、四件班级小事、五件学习小工具。全部跑在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">四张卡：34 个开箱即用的 AI 入口、一个能生成二维码的传输助手、一个直通学委的邮箱、四件班级小事。全部跑在浏览器里，这个站没有后端。</p>
     </div>
 
     <div class="task">
@@ -584,24 +587,35 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
     </div>
 
     <div class="task">
-      <div class="task-h"><span class="task-t">02 · 传文件</span><span class="task-meta">三条路，按大小选</span></div>
+      <div class="task-h"><span class="task-t">02 · 传输助手</span><span class="task-meta">扫码 / 直传 / 链接</span></div>
       <div class="task-b">
-        <p>大文件别用最下面那条链接办法，走前两条。</p>
+
+        <div class="eyebrow" style="margin:26px 0 8px">要传真的大文件，走这两条</div>
         <div class="p-list">
-          <div class="p-item"><div><b>微信文件传输助手（网页版）</b><span>电脑打开网页扫个码，把文件拖进去，手机微信里直接收。几百 MB 也吃得下，几乎人人有微信，最省事。</span></div>
+          <div class="p-item"><div><b>微信文件传输助手（网页版）</b><span>电脑扫码登录，拖文件进去，手机微信里收。几百 MB 也行。</span></div>
             <button class="btn btn-sm" data-open="https://szfilehelper.weixin.qq.com/">打开</button></div>
-          <div class="p-item"><div><b>PairDrop</b><span>同一个 WiFi 下，两边浏览器直接对传，不装软件、不登账号。校园网要是开了「AP 隔离」会互相看不见，那就换上面那条。</span></div>
+          <div class="p-item"><div><b>PairDrop</b><span>同一 WiFi 下两边浏览器直接对传，不装软件。校园网开「AP 隔离」时会互相看不见。</span></div>
             <button class="btn btn-sm" data-open="https://pairdrop.net/">打开</button></div>
         </div>
-        <div class="eyebrow" style="margin:22px 0 6px">小段文字、几十 KB 的东西：压进链接</div>
-        <p style="font-size:12.5px;color:var(--ink3)">不用对方装任何东西，把链接发过去，他打开就能在页面里看到内容。硬上限 200 KB，20 KB 以内最稳。</p>
+
+        <div class="eyebrow" style="margin:24px 0 6px">几十 KB 的小内容：压进链接</div>
         <label>要传的内容<textarea id="rlText" class="p-in p-ta" placeholder="粘贴文本；如果下面选了文件，则优先传文件"></textarea></label>
         <label>或者选一个文件<input id="rlFile" class="p-in" type="file"></label>
         <div class="link-acts">
           <button class="btn btn-sm" id="rlMake">生成链接</button>
+          <button class="btn btn-sm" id="rlQr">把链接变二维码</button>
           <button class="btn btn-sm ghost" id="rlReset">清空</button>
         </div>
-        <div class="p-out" id="rlOut">生成后把链接发给对方，他在这台设备上打开就行。</div>
+        <div class="p-out" id="rlOut">生成后发链接，对方打开就能在页面里看到内容。硬上限 200 KB，20 KB 以内最稳。</div>
+
+        <div class="eyebrow" style="margin:26px 0 8px">让手机扫进来</div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把页面地址或刚生成的链接变成二维码，手机相机一扫就开，省得在手机上敲长地址。</p>
+        <label>要变成二维码的内容<input id="qrText" class="p-in" placeholder="链接，或者一小段文字"></label>
+        <div class="link-acts">
+          <button class="btn btn-sm" id="qrGo">生成二维码</button>
+          <button class="btn btn-sm ghost" id="qrSelf">用当前页面地址</button>
+        </div>
+        <div id="qrBox" class="qr-box">扫码就能打开，尺寸随内容变长而变密。</div>
       </div>
     </div>
 
@@ -676,77 +690,6 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
             <button class="btn btn-sm ghost" id="ntCopy">复制文案</button>
           </div>
           <div class="p-out" id="ntOut">生成的文案会出现在这里。</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="task">
-      <div class="task-h"><span class="task-t">05 · 学习与专业工具</span><span class="task-meta">成绩 / 图片 / 命名 / 编码 / 倒计时</span></div>
-      <div class="task-b">
-        <div class="p-tabs">
-          <button class="chip on" data-tool="pane-grade">成绩加权</button>
-          <button class="chip" data-tool="pane-img">图片压缩</button>
-          <button class="chip" data-tool="pane-fname">作业命名</button>
-          <button class="chip" data-tool="pane-code">编码转换</button>
-          <button class="chip" data-tool="pane-ddl">截止倒计时</button>
-        </div>
-
-        <div class="p-pane on" id="pane-grade">
-          <p>一行一科：课程名, 学分, 成绩。只算加权平均分，不换算绩点——各校算法不一样，免得算错误导你。</p>
-          <label>课程<textarea id="gdIn" class="p-in p-ta" placeholder="计算机网络, 4, 88&#10;大学英语, 3, 76"></textarea></label>
-          <div class="link-acts"><button class="btn btn-sm" id="gdGo">计算</button></div>
-          <div class="p-out" id="gdOut">结果在这里。</div>
-        </div>
-
-        <div class="p-pane" id="pane-img">
-          <p>手机拍的图动辄几 MB，传群容易失败。这里在浏览器里压到指定宽度，不上传、不经过任何服务器。</p>
-          <label>选图<input id="imgFile" class="p-in" type="file" accept="image/*"></label>
-          <div class="p-row">
-            <label>最大宽度<input id="imgW" class="p-in" type="number" value="1280"></label>
-            <label>质量 0–1<input id="imgQ" class="p-in" type="number" value="0.8" step="0.05" min="0.3" max="1"></label>
-          </div>
-          <div class="link-acts"><button class="btn btn-sm" id="imgGo">压缩</button></div>
-          <div class="p-out" id="imgOut">选一张图再点压缩。</div>
-        </div>
-
-        <div class="p-pane" id="pane-fname">
-          <p>按统一规则拼文件名，免得每个人交上来的名字都不一样。只在本地拼，不保存你填的内容。</p>
-          <div class="p-row">
-            <label>学号 / 尾号<input id="fnNo" class="p-in" placeholder="2531020210242"></label>
-            <label>姓名<input id="fnName" class="p-in" placeholder="何蕊"></label>
-          </div>
-          <div class="p-row">
-            <label>事项<input id="fnItem" class="p-in" placeholder="口语实践"></label>
-            <label>组号<input id="fnGroup" class="p-in" placeholder="3"></label>
-            <label>扩展名<input id="fnExt" class="p-in" placeholder="mp4"></label>
-          </div>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="fnGo">生成</button>
-            <button class="btn btn-sm ghost" id="fnCopy">复制</button>
-          </div>
-          <div class="p-out" id="fnOut">生成的文件名在这里。</div>
-        </div>
-
-        <div class="p-pane" id="pane-code">
-          <p>Base64 与 URL 编码互转，网络课和抓包时常用。</p>
-          <label>内容<textarea id="cdIn" class="p-in p-ta" placeholder="要编码或解码的文本"></textarea></label>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="cdB64E">Base64 编码</button>
-            <button class="btn btn-sm ghost" id="cdB64D">Base64 解码</button>
-            <button class="btn btn-sm ghost" id="cdUrlE">URL 编码</button>
-            <button class="btn btn-sm ghost" id="cdUrlD">URL 解码</button>
-          </div>
-          <div class="p-out" id="cdOut">结果显示在这里。</div>
-        </div>
-
-        <div class="p-pane" id="pane-ddl">
-          <p>一行一个：日期 + 事情，例如 2026-11-20 口语视频提交。存到本机，下次打开还在。</p>
-          <label>清单<textarea id="ddIn" class="p-in p-ta" placeholder="2026-11-20 口语视频提交&#10;2026-12-10 艺术课结课"></textarea></label>
-          <div class="link-acts">
-            <button class="btn btn-sm" id="ddGo">计算</button>
-            <button class="btn btn-sm ghost" id="ddSave">存到本机</button>
-          </div>
-          <div class="p-out" id="ddOut">按日期算剩余天数。</div>
         </div>
       </div>
     </div>
@@ -852,6 +795,7 @@ const MEMBERS = [
 
 <div id="toast"></div>
 
+<script src="qrcode.min.js"></script>
 <script>
 /* ==================== 配置区：日常只需改这一段 ==================== */
 const GATE_CODE = "2502";        // 班级口令
@@ -1531,6 +1475,34 @@ function aiSend(){
 function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
 function b64dec(b64){ return decodeURIComponent(escape(atob(b64))); }
 
+function qrDraw(text){
+  const box = document.getElementById("qrBox");
+  if (!box) return;
+  if (!text) { box.textContent = "先填点东西。"; return; }
+  if (typeof QRCode === "undefined") {
+    box.textContent = "二维码组件没加载上：qrcode.min.js 要和 index.html 放在同一个文件夹。";
+    return;
+  }
+  box.innerHTML = "";
+  try {
+    new QRCode(box, {
+      text: text,
+      width: 220,
+      height: 220,
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (e) {
+    box.textContent = "内容太长，二维码装不下。缩短一点再试。";
+  }
+}
+
+function qrSelf(){
+  const t = document.getElementById("qrText");
+  t.value = location.href.split("#")[0];
+  qrDraw(t.value);
+  toast("已换成当前页面地址");
+}
+
 function relayBuild(obj){
   let json = JSON.stringify(obj);
   if (json.length > 260000) { toast("内容太大，链接装不下，压到 200KB 以内"); return; }
@@ -1891,6 +1863,8 @@ function initTools(){
 
 function initPlus(){
   initTools();
+  const qt = document.getElementById("qrText");
+  if (qt && !qt.value) qt.value = location.href.split("#")[0];
   renderAiSites();
   renderAiList();
   aiCfgLoad();
@@ -1902,6 +1876,20 @@ function initPlus(){
   if (r1) r1.onclick = relayMake;
   const r2 = document.getElementById("rlReset");
   if (r2) r2.onclick = function(){ document.getElementById("rlText").value = ""; document.getElementById("rlFile").value = ""; const o = document.getElementById("rlOut"); o.dataset.ready = ""; o.textContent = "已清空。"; };
+  const qg = document.getElementById("qrGo");
+  if (qg) qg.onclick = function(){ qrDraw(document.getElementById("qrText").value.trim()); };
+  const qs = document.getElementById("qrSelf");
+  if (qs) qs.onclick = qrSelf;
+  const rq = document.getElementById("rlQr");
+  if (rq) rq.onclick = function(){
+    const t = document.getElementById("rlOut").innerText.trim();
+    const m = t.match(/https?:\/\/[^\s]+|file:\/\/[^\s]+/);
+    if (!m) { toast("先生成一条链接"); return; }
+    document.getElementById("qrText").value = m[0];
+    qrDraw(m[0]);
+    toast("链接已转成二维码");
+  };
+
   const f1 = document.getElementById("fbSend");
   if (f1) f1.onclick = fbSend;
   const f2 = document.getElementById("fbCopy");
