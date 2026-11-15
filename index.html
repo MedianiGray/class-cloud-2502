@@ -1058,6 +1058,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
+        <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时（手机、窄屏）按钮会明确说它不在这儿，不假装成功。</div></div>
       </div>
     </div>
 
@@ -2820,9 +2821,9 @@ route();
     <button data-q="我的文件夹在哪">我的文件夹在哪</button>
     <button data-q="课表在哪">课表在哪</button>
     <button data-q="VPN 怎么连">VPN 怎么连</button>
-    <button data-q="怎么装到桌面">怎么装到桌面</button>
-    <button data-q="口令是多少">口令是多少</button>
-    <button data-q="名册为什么没姓名">名册为什么没姓名</button>
+    <button data-q="FTP 地址是多少">FTP 地址是多少</button>
+    <button data-q="那只鱼是什么">那只鱼是什么</button>
+    <button data-q="我第一次来，从哪开始">我第一次来，从哪开始</button>
   </div>
   <form class="bot-input" id="botForm" autocomplete="off">
     <input id="botText" placeholder="打一句，比如：课表在哪" aria-label="输入问题">
@@ -2885,12 +2886,92 @@ route();
     { k: ["姓名", "名册", "名单", "谁是谁", "隐私"],
       a: "名册只存学号后三位和文件夹地址，故意不放姓名 —— 网页是公开的，整份名单不该跟着上网。" },
     { k: ["班委", "找谁", "管理员", "维护", "谁做"],
-      a: "班务去班群问；云库本身的技术维护找学委。这页是 GitHub Pages 静态页 + WPS 云文档，不租服务器、不存文件。" },
+      a: "班务去班群问；云库本身的技术维护找学委。这页是 GitHub Pages 静态页 + WPS 云文档，不租服务器、不存文件。",
+      act: { t: "看维护手册", h: "#/maint" } },
     { k: ["资料", "四级", "真题", "题库", "考试", "资源"],
       a: "资料库页是校内资源站的入口，考试、题库、网盘都在那一栏。",
-      act: { t: "去资料库", h: "#/res" } }
+      act: { t: "去资料库", h: "#/res" } },
+
+    /* 下面这几条让它能动手，不再只是答话：带人走、开那一格、复制地址、管宠物 */
+    { k: ["鱼", "宠物", "桌宠", "大肥鱼", "奶龙", "养一只"],
+      a: "左下角那只蓝色的是「大肥鱼」，开源网页宠物，只在电脑宽屏上出现：能拖、能摸头、右键里能喂饭和下五子棋。嫌它动就让它待在角落，或者干脆收起来，收掉要刷新页面才会再出来。",
+      acts: [
+        { t: "让它说句话", do: function(){ petCall("say", "有事就说，别憋着。"); } },
+        { t: "让它打个哈欠", do: function(){ petCall("play", "idle-yawn"); } },
+        { t: "把它收了", do: function(){ petCall("off"); } }
+      ] },
+    { k: ["ftp", "传文件", "仓库", "内网地址"],
+      a: "仓库只有校园网能连：主 10.0.91.2，备用 10.0.91.200。网页打不开 ftp，要用资源管理器或 FileZilla 填地址。",
+      acts: [
+        { t: "复制主节点", c: "ftp://10.0.91.2" },
+        { t: "复制备用", c: "ftp://10.0.91.200" }
+      ] },
+    { k: ["怎么用", "从哪开始", "第一次", "不会用", "上手", "入门"],
+      a: "三步：首页中间填学号后三位进你那一格；资料在首页第一张卡；学校系统在第三张卡。想找某个人，去成员索引点格子。",
+      acts: [{ t: "回首页", h: "#/home" }, { t: "去成员索引", h: "#/library" }] },
+    { k: ["现在在哪", "这是哪", "什么页", "我在哪", "当前页"],
+      a: function(){ return "你在「" + viewName() + "」，这一区有 " + hereCount() + " 个能点的入口。"; },
+      acts: [{ t: "回概览", h: "#/home" }] },
+    { k: ["多久更新", "多快生效", "更新频率", "为什么没变"],
+      a: "推一次一到两分钟生效，验证要带 ?t= 随机参数，不然浏览器缓存会骗你。装到主屏那份不会自己更新，得关掉图标重开。",
+      act: { t: "看维护手册", h: "#/maint" } }
   ];
-  var NONE = "这句我没学会。我只答：文件夹、课表、VPN、装桌面、口令、名册、班委、资料。别的事班群问更快。";
+  var NONE = "这句我没答上来。我能答：你的文件夹、课表、VPN 和学校系统、装到桌面、口令、名册、资料、FTP、这只鱼、怎么上手。别的去班群问更快。";
+
+  /* 让它是 agent 而不是气泡：这三个函数是它的手脚 */
+  var VIEW_NAME = { home:"概览", library:"成员索引", portal:"学校入口", res:"资料库", access:"访问权限", plus:"高级功能", maint:"维护手册" };
+  function viewName(){
+    var h = (location.hash || "").replace(/^#\//, "");
+    var key = h.split("/")[0] || "home";
+    return VIEW_NAME[key] || key || "概览";
+  }
+  function hereCount(){
+    var v = (location.hash || "").replace(/^#\//, "").split("/")[0] || "home";
+    var box = document.getElementById("view-" + v);
+    if (!box) return 0;
+    return box.querySelectorAll("a, button, [data-go], [data-ext], [data-seat]").length;
+  }
+  function petCall(what, arg){
+    var p = window.__PET;
+    if (!p) { bubble("宠物这会儿不在（手机、窄屏、或系统开了减少动效时它不加载）。", false); return; }
+    try {
+      if (what === "say") p.say(arg || "我在这儿。");
+      else if (what === "play") p.play(arg);
+      else if (what === "feed") p.feed();
+      else if (what === "off") { p.destroy(); window.__PET = null; bubble("它回水里去了。刷新页面才会再出来。", false); }
+    } catch (e) { bubble("它没听懂这个动作。", false); }
+  }
+  function goSeat(no){
+    no = String(no || "").replace(/[^0-9]/g, "").slice(-3);
+    if (!no) return false;
+    var hit = -1;
+    for (var i = 0; i < MEMBERS.length; i++) { if (MEMBERS[i].no === no) { hit = i; break; } }
+    if (hit < 0) { bubble("名册里没有 " + no + " 这一格。带字母的学号去成员索引按序号找。", false); return true; }
+    bubble("打开 " + no + " 那一格。", false);
+    window.open(urlOf(MEMBERS[hit].slug), "_blank", "noopener");
+    return true;
+  }
+  function findRes(q){
+    var out = [], i, j;
+    q = String(q || "").toLowerCase();
+    if (!q) return out;
+    for (i = 0; i < RESOURCES.length; i++) {
+      var r = RESOURCES[i];
+      if ((r.t + r.h + r.c).toLowerCase().indexOf(q) >= 0) {
+        out.push({ t: r.t, u: "https://" + r.h, d: "校内资源站 · " + r.c });
+      }
+    }
+    for (i = 0; i < PORTALS.length; i++) {
+      var items = PORTALS[i].items || [];
+      for (j = 0; j < items.length; j++) {
+        var p = items[j];
+        if ((p.t + " " + p.d).toLowerCase().indexOf(q) >= 0) {
+          out.push({ t: p.t, u: p.u, d: (p.b || "") + " · 学校入口" });
+        }
+      }
+    }
+    return out.slice(0, 3);
+  }
 
   var open = false;
   function toggle(v){
@@ -2917,8 +2998,21 @@ route();
     b.className = "bot-act";
     b.textContent = act.t;
     b.addEventListener("click", function(){
+      if (act.do) act.do();
       if (act.h) location.hash = act.h;
-      toggle(false);
+      if (act.o) window.open(act.o, "_blank", "noopener");
+      if (act.c) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(act.c).then(
+            function(){ toast("复制好了：" + act.c); },
+            function(){ bubble("浏览器不让复制，手动抄一下：" + act.c, false); }
+          );
+        } else {
+          bubble("这浏览器不支持自动复制，手动抄一下：" + act.c, false);
+        }
+      }
+      /* 控宠物和复制的这两个动作不关面板 —— 关了就看不见结果 */
+      if (!act.do && !act.c) toggle(false);
     });
     body.appendChild(b);
     body.scrollTop = body.scrollHeight;
@@ -2927,15 +3021,36 @@ route();
     q = String(q || "").trim();
     if (!q) return;
     bubble(q, true);
-    var s = q.toLowerCase(), hit = null;
-    for (var i = 0; i < RULES.length && !hit; i++) {
-      for (var j = 0; j < RULES[i].k.length; j++) {
+    var s = q.toLowerCase(), hit = null, i, j, text;
+
+    /* 带数字的直接办：「带我去 312」「312 那一格」，不用先教他怎么填 */
+    var num = q.match(/(?:^|[^0-9])(\d{3})(?:[^0-9]|$)/);
+    if (num && /去|打开|带|那格|那一/.test(q) && goSeat(num[1])) return;
+
+    for (i = 0; i < RULES.length && !hit; i++) {
+      for (j = 0; j < RULES[i].k.length; j++) {
         if (s.indexOf(RULES[i].k[j].toLowerCase()) >= 0) { hit = RULES[i]; break; }
       }
     }
-    if (!hit) { bubble(NONE, false); return; }
-    bubble(hit.a, false);
-    if (hit.act) actBtn(hit.act);
+    if (hit) {
+      text = (typeof hit.a === "function") ? hit.a() : hit.a;
+      bubble(text, false);
+      if (hit.act) actBtn(hit.act);
+      if (hit.acts) for (i = 0; i < hit.acts.length; i++) actBtn(hit.acts[i]);
+      return;
+    }
+
+    /* 规则没命中，就去站内目录真搜一遍 —— 别一句「没学会」把人推回班群 */
+    var found = findRes(q.replace(/搜一下|搜|找一下|找|有没有|在哪|哪里|的|了|吗|呢/g, "").trim());
+    if (found.length) {
+      bubble("站内目录里有这些，点开就是：", false);
+      for (i = 0; i < found.length; i++) {
+        actBtn({ t: "打开「" + found[i].t + "」", o: found[i].u });
+      }
+      return;
+    }
+
+    bubble(NONE, false);
   }
   if (form) form.addEventListener("submit", function(e){
     e.preventDefault();
@@ -2983,7 +3098,8 @@ route();
         ]
       };
       if (PET_AI) opt.endpoints = { chat: PET_AI };
-      window.Dafeiyu.mount(opt);
+      /* 把句柄交出去，「问问」里的那三条动作（说话/打哈欠/收了）才有东西可指 */
+      window.__PET = window.Dafeiyu.mount(opt);
     } catch (err) {
       /* 宠物挂了不影响页面任何功能 */
     }
