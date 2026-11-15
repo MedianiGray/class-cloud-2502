@@ -561,6 +561,21 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   transition:transform .18s,box-shadow .18s}
 .bot-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.36)}
 .bot-fab.on{background:linear-gradient(160deg,#A87050,#8A5638)}
+
+/* 浮动导航：跟着视口停在右下，和桌宠、问问同一块角落；窄屏取代顶栏 */
+.nav-fab{position:fixed;right:18px;bottom:86px;width:54px;height:54px;border:0;border-radius:50%;
+  background:#FFFDFB;color:#2F5F49;box-shadow:0 10px 26px rgba(47,95,73,.22);cursor:pointer;z-index:62;
+  display:flex;align-items:center;justify-content:center;transition:transform .18s,box-shadow .18s}
+.nav-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.30)}
+.nav-fab svg{width:19px;height:19px}
+.nav-fab.on{background:#2F5F49;color:#fff}
+.nav-dock{position:fixed;right:80px;bottom:22px;z-index:62;display:none;flex-direction:column;gap:4px;
+  background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:14px;padding:7px;
+  box-shadow:0 18px 40px rgba(40,60,50,.18)}
+.nav-dock.open{display:flex}
+.nav-dock a{padding:9px 15px;font-size:13px;color:var(--ink2);border-radius:9px;text-decoration:none;white-space:nowrap}
+.nav-dock a:hover{background:var(--paper2);color:var(--ink)}
+.nav-dock a.on{background:#2F5F49;color:#fff}}
 .bot-panel{position:fixed;right:18px;bottom:88px;width:min(358px,calc(100vw - 32px));max-height:min(66vh,470px);
   display:flex;flex-direction:column;background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:18px;
   box-shadow:0 20px 50px rgba(120,90,60,.24);z-index:63;overflow:hidden}
@@ -591,7 +606,11 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 @media (max-width:720px){
   .bot-fab{right:14px;bottom:78px;width:50px;height:50px}
   .bot-panel{right:12px;bottom:136px;max-height:min(62vh,430px)}
+  .nav-fab{right:14px;bottom:136px;width:50px;height:50px}
+  .nav-dock{right:14px;bottom:196px}
 }
+/* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
+@media (max-width:760px){ .nav{display:none} }
 
 </style>
 </head>
@@ -1887,6 +1906,7 @@ function route(){
   const target = focus ? document.getElementById("view-" + focus) : null;
   if (target) target.scrollIntoView({ block:"start" });
   else window.scrollTo(0, 0);
+  if (typeof window.syncNavDock === "function") window.syncNavDock();
 }
 
 
@@ -2840,6 +2860,10 @@ route();
 })();
 </script>
 
+<button class="nav-fab" id="navFab" aria-label="展开导航" title="导航">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+</button>
+<div class="nav-dock" id="navDock"></div>
 <button class="bot-fab" id="botFab" aria-label="打开云库小助手" title="云库小助手">问问</button>
 
 <div class="bot-panel off" id="botPanel" role="dialog" aria-label="云库小助手">
@@ -3332,6 +3356,35 @@ route();
     if (window.innerWidth < 420) return;
     setTimeout(loadPet, 2200);
   });
+})();
+
+/* 浮动导航：和桌宠、云库小助手同处右下角，点开列五个入口；窄屏靠它代替顶栏 */
+(function(){
+  var f = document.getElementById("navFab"), d = document.getElementById("navDock");
+  if (!f || !d) return;
+  var items = [["#/main","概览","main"],["#/res","资料库","res"],
+               ["#/library","成员索引","library"],["#/portal","学校信息","portal"],
+               ["#/admin","高级与维护","admin"]];
+  d.innerHTML = items.map(function(t){
+    return '<a href="' + t[0] + '" data-k="' + t[2] + '">' + t[1] + '</a>';
+  }).join("");
+  function closeDock(){ d.classList.remove("open"); f.classList.remove("on"); }
+  f.addEventListener("click", function(e){ e.stopPropagation(); d.classList.toggle("open"); f.classList.toggle("on"); });
+  document.addEventListener("click", function(e){ if (!d.contains(e.target)) closeDock(); });
+  d.addEventListener("click", function(e){ if (e.target.closest("a")) closeDock(); });
+  window.syncNavDock = function(){
+    var raw = (location.hash || "#/main").replace(/^#\//, "").split("?")[0];
+    var group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
+    /* res / library / portal 是 main 组里的具体页，不是组名；组内的 plus、maint 没有独立浮层项，回退到它的组 */
+    var page = GROUPS[raw] ? raw : (ALIAS[raw] ? raw : group);
+    var keys = [];
+    Array.prototype.forEach.call(d.querySelectorAll("a"), function(a){ keys.push(a.dataset.k); });
+    if (keys.indexOf(page) < 0) page = group;
+    Array.prototype.forEach.call(d.querySelectorAll("a"), function(a){
+      a.classList.toggle("on", a.dataset.k === page);
+    });
+  };
+  window.syncNavDock();
 })();
 </script>
 </body>
