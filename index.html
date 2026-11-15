@@ -223,6 +223,11 @@ html.is-embed .envbar{display:none}
 .brw-new{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#F4F4EE;border-radius:6px;font-size:13px;color:var(--ink3);margin-bottom:4px}
 .brw-bar{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#F4F4EE;border-bottom:1px solid var(--line2);flex:none;flex-wrap:wrap}
 .brw-ico{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;color:var(--ink2)}
+.brw-dev{display:flex;flex:none;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
+.brw-dev-b{border:0;background:transparent;font-size:11.5px;padding:4px 7px;color:var(--ink3);line-height:1.2;white-space:nowrap}
+.brw-dev-b.on{background:var(--green);color:#fff}
+.brw-dev-b .dev-t{font-size:9.5px;opacity:.75;margin-left:2px}
+.brw-dev-b.on .dev-t{opacity:.9}
 .brw-ico:hover{border-color:var(--ink3);color:var(--ink)}
 .brw-addr{flex:1;min-width:120px}
 .brw-addr input{width:100%;height:28px;border:1px solid var(--line);border-radius:14px;background:#fff;font-family:var(--mono);font-size:11px;color:var(--ink2);padding:0 12px}
@@ -362,6 +367,8 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 .portal-list.single{grid-template-columns:1fr!important}
 .portal-list.single .p-item{border-right:0!important;padding-left:2px!important;padding-right:2px!important}
 .portal-alert{display:flex;gap:11px;border:1px solid var(--line2);background:var(--card);padding:14px 15px;margin-bottom:26px;font-size:13px;color:var(--ink2);line-height:1.7}
+.portal-xlink{font-size:12.5px;color:var(--ink3);line-height:1.75;margin:8px 0 0;padding-left:1px}
+.portal-xlink a{color:var(--green2);text-decoration:none;border-bottom:1px solid rgba(62,125,95,.35)}
 .portal-alert svg{width:16px;height:16px;flex:none;margin-top:3px;color:var(--amber)}
 
 /* ---------- 权限 ---------- */
@@ -537,20 +544,6 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 
 /* 首页动态小字：一行会换的活话 */
 .live-line{margin-top:12px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;min-height:18px;line-height:1.6}
-.cap-fold{margin:22px 0 4px;border-top:1px solid var(--line);padding-top:8px}
-.cap-fold summary{cursor:pointer;font-size:13px;color:var(--ink2);list-style:none;padding:7px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.cap-fold summary::-webkit-details-marker{display:none}
-.cap-fold summary .cf-n{margin-left:auto;font-size:11.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
-.cap-list{margin:2px 0 0;padding:0;list-style:none;counter-reset:cf}
-.cap-list li{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;padding:9px 0;border-bottom:1px dotted var(--line);font-size:13px;line-height:1.55}
-.cap-list li .cf-i{counter-increment:cf;color:var(--ink3);font-size:11.5px;min-width:16px;font-variant-numeric:tabular-nums}
-.cap-list li .cf-i::before{content:counter(cf) "."}
-.cap-list li b{font-weight:600;color:var(--ink)}
-.cap-list li .cf-d{color:var(--ink3);font-size:12.5px;flex:1;min-width:170px}
-.cap-list li .cf-s{font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:2px;color:var(--ink2);white-space:nowrap}
-.cap-list li .cf-s.ok{border-color:rgba(62,125,95,.45);color:var(--green2)}
-.cap-list li .cf-s.wait{border-color:rgba(180,129,42,.45);color:var(--amber)}
-.cap-list li .cf-s.no{border-color:rgba(155,59,46,.38);color:var(--red)}
 
 /* 云库小助手：右下角悬浮，纯前端规则应答，不联网、不存对话 */
 .bot-fab{position:fixed;right:18px;bottom:22px;width:54px;height:54px;border:0;border-radius:50%;
@@ -662,7 +655,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <button class="quick" data-go="#/res">
         <span class="q-k">资料</span>
         <span class="q-t">校内资源站</span>
-        <span class="q-d">22 个站点：知网、教务、统一认证</span>
+        <span class="q-d">23 个站点 + 3 个 WPS 源库</span>
       </button>
       <button class="quick" data-go="#/portal">
         <span class="q-k">信息</span>
@@ -689,21 +682,11 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <div class="patchbar" id="patchbar"></div>
     </div>
 
-    <details class="cap-fold" id="capFold">
-      <summary>这个站现在能做的 10 件事<span class="cf-n">点开看，每条都标了代价</span></summary>
-      <ol class="cap-list">
-        <li><span class="cf-i"></span><b>学号后三位进自己那一格</b><span class="cf-d">首页输入框点「打开」直开你的 WPS 文件夹，输一次就记在这台设备上</span><span class="cf-s ok">可用</span></li>
-        <li><span class="cf-i"></span><b>45 格成员索引</b><span class="cf-d">点一格拉到那一位的文件夹；只存学号后三位，故意不放姓名</span><span class="cf-s ok">可用</span></li>
-        <li><span class="cf-i"></span><b>7 个学校系统与站点</b><span class="cf-d">学工、教务、两个 VPN、官网、FTP 主备 —— 校外先连 VPN</span><span class="cf-s wait">部分需校内网</span></li>
-        <li><span class="cf-i"></span><b>22 个校内资源站</b><span class="cf-d">知网、理论资源库、百度文库等，抄自学校资源访问控制系统</span><span class="cf-s wait">部分需校内网</span></li>
-        <li><span class="cf-i"></span><b>全班共享云库</b><span class="cf-d">通知归档、集体荣誉、共同文件，都归在这一行</span><span class="cf-s ok">可用</span></li>
-        <li><span class="cf-i"></span><b>装到主屏当 App</b><span class="cf-d">浏览器菜单「添加到主屏幕」，没网也能打开页面外壳</span><span class="cf-s ok">可用</span></li>
-        <li><span class="cf-i"></span><b>桌宠：一个真动画 + 五个图片形象</b><span class="cf-d">左下角，能拖能摸；说「换形象」换成小月牙、小机器人、小海豚、小团子</span><span class="cf-s ok">可用</span></li>
-        <li><span class="cf-i"></span><b>「问问」能带路、能搜、能复制</b><span class="cf-d">右下角，说三位数直接开那一格；搜「知网」给可点按钮；FTP 地址能复制</span><span class="cf-s ok">可用 · 不联网</span></li>
-        <li><span class="cf-i"></span><b>宠物自由对话</b><span class="cf-d">要先把代理 Worker 部署好，再填页面上那一行地址；key 绝不能写进页面</span><span class="cf-s wait">等一个 key</span></li>
-        <li><span class="cf-i"></span><b>WPS 换端（桌面看移动版）</b><span class="cf-d">代理脚本写好了，但 workers.dev 在国内被 DNS 污染、连不通；需要一个国内可达的出口</span><span class="cf-s no">未成</span></li>
-      </ol>
-    </details>
+    <a class="line-link" href="./more.html">
+      <span class="ll-t">这个站能做的十件事</span>
+      <span class="ll-note">8 条可用 · 2 条部分需校内网 · 2 件还没成</span>
+      <span class="ll-arrow">→</span>
+    </a>
   </div>
 </section>
 
@@ -765,7 +748,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">学校入口</h1>
-      <p class="page-lead">七个官方入口，按「要不要先连校内网」分成两组；再往下是从学校资源访问控制系统抄下来的 22 个校内资源系统。校外一律先走 VPN，否则内网系统打不开。</p>
+      <p class="page-lead">七个官方入口，按「要不要先连校内网」分成两组。这页只放「要登录去办事」的系统；二十三个校内资源站（知网、理论库、文库那些）在资料库里。校外一律先走 VPN，否则内网系统打不开。</p>
     </div>
 
     <div class="portal-alert">
@@ -783,11 +766,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <div class="portal-list" id="portalB"></div>
     </div>
 
-    <div class="portal-group">
-      <div class="group-h"><h3>校内资源目录</h3><span>22 个系统 · 源自资源站点</span></div>
-      <div class="portal-list" id="portalC"></div>
-      <p style="font-size:12.5px;color:var(--ink3);line-height:1.7;margin-top:10px">这一组抄自学校资源访问控制系统的「资源站点」页。条目本身不直连：校外必须先登录资源访问控制系统，在站内点对应系统才会被代理进内网；校园网内则可直接把域名补成 https:// 打开。点击任意一条会带你到门户登录页。</p>
-    </div>
+    <p class="portal-xlink">这页只放「要登录去办事」的系统。校内那些资源站（知网、理论库、文库等 23 个）不在这儿，在 <a href="#/res">资料库</a> 那一栏 —— 它们算资料，不算入口。</p>
   </div>
 </section>
 
@@ -796,7 +775,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">资料库</h1>
-      <p class="page-lead">三个 WPS 源库的入口：专业学习资料、学校相关的事宜、共享社区。点「预览」开一个浏览器窗口看 WPS 本身；想看手机版式，就点「扫码」用手机打开。</p>
+      <p class="page-lead">两块：上面是三个 WPS 源库（专业学习、学校事宜、共享社区），下面是学校资源访问控制系统里那 23 个资源站。想看手机版式就点「扫码」，要单独开一页就点「在 WPS 中打开」。</p>
     <p class="page-note dev-note"></p>
 
     </div>
@@ -807,6 +786,12 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     </div>
 
     <div id="resWrap"></div>
+
+    <div class="portal-group" style="margin-top:30px">
+      <div class="group-h"><h3>校内资源站 · 23</h3><span>源自资源访问控制系统</span></div>
+      <div class="portal-list" id="resSrc"></div>
+      <p class="portal-xlink">这些条目本身不直连：校外先登录资源访问控制系统，在站内点对应系统才会被代理进内网；校园网内把域名补成 https:// 就能开。点任意一条会先带你到门户登录页。</p>
+    </div>
   </div>
 </section>
 
@@ -1002,7 +987,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
           <li><b>电脑 · Chrome、Edge 想看成手机版</b>：按 <span class="mono">F12</span>，再按 <span class="mono">Ctrl + Shift + M</span>，顶部会出现设备框，左边选 iPhone 或安卓机型，刷新一下。关掉开发者工具就恢复原样。</li>
           <li><b>电脑 · Firefox</b>：按 <span class="mono">Ctrl + Shift + M</span> 进响应式设计模式，顶部选机型即可。</li>
         </ul>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里原来那对「电脑 / 手机」已经撤掉了 —— <span class="mono">User-Agent</span> 是浏览器禁止脚本设置的请求头，页面内改不了，留着只是两个按不动的假开关。要看移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版；想在电脑上直接看，得先接一个服务端代理，见「部署与维护」第十一节。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里那对「手机版 / 电脑版」现在标着<b>测试</b> —— <span class="mono">User-Agent</span> 是浏览器禁止脚本设置的请求头，页面内改不了，只能在服务端改。代理还没接上（见「部署与维护」第十一节），所以现在点它只会给说明。要看移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版。</p>
       </div>
     </div>
   </div>
@@ -1081,7 +1066,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
         <div class="step"><span class="step-n">05</span><div><b>图标</b>　重新生成 <span class="mono">icon-192.png</span> / <span class="mono">icon-512.png</span> / <span class="mono">icon-180.png</span>，同尺寸同名覆盖，<span class="mono">manifest.json</span> 不用改。</div></div>
-        <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览只走 ▣ 扫码（换端按钮已撤）；填上代理地址 = 真换 HTML 壳，但得先把按钮加回来。</div></div>
+        <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览右上角那对按钮带「测试」、点了只给说明；填上云函数入口地址 = 真换 HTML 壳，验证通过再去掉「测试」。代码在 <span class="mono">proxy/cloudbase-wps/</span>。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
         <div class="step"><span class="step-n">09</span><div><b>首页三张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>（三处：专业学习资料、校内资源站、学校信息入口）。第一卡是外链，地址硬编码在 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span>，即 <span class="mono">REPOS</span> 里的学习源库）；下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>。换库时两处与 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> 要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
@@ -1089,7 +1074,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时（手机、窄屏）按钮会明确说它不在这儿，不假装成功。</div></div>
-        <div class="step"><span class="step-n">14</span><div><b>桌宠现在有六个形象</b>　一个是「大肥鱼」，第三方开源库（MIT），带二十段真动画；另外五个是图片版：小蓝鲸、小月牙、小机器人、小海豚、小团子，图在 <span class="mono">pet/shapes/*@480.png</span>（每张约 120KB），外壳是自己写的 <span class="mono">pet/shapes.js</span>，无依赖。切换只有一句 <span class="mono">__PET_SWITCH("moon")</span>，可用的 id 是 <span class="mono">dafeiyu / whale / moon / robot / dolphin / bean</span>，选过的记在 localStorage 的 <span class="mono">cl_pet_shape_v1</span>，刷新还是它。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它<b>只挂一次</b>，切去别的形象时只把它 <span class="mono">display:none</span>，切回来再显示。「收了」也是藏，不是销毁。<b>想加新形象</b>：往 <span class="mono">pet/shapes.js</span> 的 <span class="mono">SHAPES</span> 数组加一条（id、名字、文件名、几句台词），再放一张 480 的透明 PNG，接口自动继承，别的代码一行不用改。</div></div>
+        <div class="step"><span class="step-n">14</span><div><b>桌宠现在有十个形象</b>　一个是「大肥鱼」，第三方开源库（MIT），带二十段真动画；另外九个是图片版：小蓝鲸、小月牙、小机器人、小海豚、小团子、小云朵、小闪电、小方糖、小星星，图在 <span class="mono">pet/shapes/*@480.png</span>（每张 110–160KB），外壳是自己写的 <span class="mono">pet/shapes.js</span>，无依赖。切换只有一句 <span class="mono">__PET_SWITCH("star")</span>，可用的 id 是 <span class="mono">dafeiyu / whale / moon / robot / dolphin / bean / cloud / bolt / sugar / star</span>，选过的记在 localStorage 的 <span class="mono">cl_pet_shape_v1</span>，刷新还是它。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它<b>只挂一次</b>，切去别的形象时只把它 <span class="mono">display:none</span>，切回来再显示。「收了」也是藏，不是销毁。<b>想加新形象</b>：往 <span class="mono">pet/shapes.js</span> 的 <span class="mono">SHAPES</span> 数组加一条（id、名字、文件名、几句台词），再放一张 480 的透明 PNG，接口自动继承，别的代码一行不用改 —— 「问问」的形象菜单读的就是这个数组，加完自动多一项。<b>做图注意</b>：生图要透明底，出来若带一块分离的投影（像云朵那张），按连通块只保留最大那块，否则贴在页面上会有一坨灰。</div></div>
       </div>
     </div>
 
@@ -1142,7 +1127,8 @@ C:\Windows\system32\curl.exe -sS -X PUT "https://api.cloudflare.com/client/v4/ac
     <div class="maint-block">
       <h3>十一、换端代理为什么默认关着</h3>
       <p>Worker 已经部署好了，地址是 <span class="mono">cl-wps-proxy.3534226279.workers.dev</span>。但实测这个域名在国内被 <b>DNS 污染</b>：解析到 <span class="mono">162.125.18.129</span>（Dropbox 的 IP），TCP 443 直接超时。<span class="mono">*.workers.dev</span> 在国内基本都这样，所以 <span class="mono">PROXY</span> 保持为空——填进去只会让预览窗口干等二十多秒再报错，比直接 ▣ 扫码还差。</p>
-      <p>想让代理真生效只有三条路：① 给这个 Worker 绑自有域名（Settings → Domains &amp; Routes → Custom domain），域名要国内可达；② 换国内可达的函数平台（阿里云函数计算、腾讯云 SCF），把 <span class="mono">wps-proxy.js</span> 的逻辑搬过去，只改 <span class="mono">PROXY</span>；③ 维持现状——手机上本来就能看到移动版，桌面看移动版是次要场景。</p>
+      <p>已选定第 ② 条，并且限定在<b>不产生任何费用</b>的平台：腾讯云开发的免费额度。同一套逻辑已经改写成云函数形态放在 <span class="mono">proxy/cloudbase-wps/index.js</span>，配套的 <span class="mono">README.md</span> 写了五步部署，以及哪几个按钮是真会扣钱的（升级套餐、绑支付方式、买独立域名、CDN 加速 —— 都不碰；实名要做，但实名不等于付费）。它的域名是 <span class="mono">*.tcloudbaseapp.com</span>，国内直连。额度真用尽时的表现是当天限流，不是扣钱。</p>
+      <p>部署完把入口地址填进 <span class="mono">PROXY</span>，预览窗口右上角那对「手机版 / 电脑版」就能真换壳了。验证标准只有一条：能翻目录、能开预览。做到了才把按钮里「测试」两个字摘掉 —— 在那之前它一直是测试状态，点了会如实说明，不会假装成功。</p>
     </div>
 
     <div class="maint-block">
@@ -1499,8 +1485,9 @@ function brwName(url){
 
 /* 端切换走代理：WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，
    网页改不了 UA，就让 Worker 替你改（代码见 proxy/wps-proxy.js）。 */
-let PROXY = "";   /* Worker 已部署在班级 Cloudflare（cl-wps-proxy.3534226279.workers.dev），
-                     但 workers.dev 在国内被 DNS 污染、连不上，所以这里留空；启用要先给 Worker 绑自有域名 */
+let PROXY = "";   /* 换端代理地址。空 = 按钮带「测试」且点了只给说明；
+                     填上腾讯云开发那个 HTTP 地址（proxy/cloudbase-wps，免费额度），
+                     验证能翻目录能开预览之后，把按钮里「测试」两个字去掉 */
 
 function proxyFor(u, mode){
   if (!PROXY) return u;
@@ -1535,7 +1522,7 @@ function brwRender(){
       ? (brw.mode === "phone"
         ? "这是服务器用手机身份取回的<b>移动版</b>（mShareFolder），跟你本机的浏览器身份无关。「电脑」切回桌面壳。"
         : "这是<b>桌面版</b>（ShareFolder）。切「手机」时由服务器换移动 UA 去取那一套，跟本机身份无关。")
-      : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了，所以换端按钮已经撤掉。要看移动版，点 ▣ 扫码用手机打开；↗ 可在新标签看真页面。";
+      : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了，只能让服务器替你改。上面那对「手机版 / 电脑版」现在是<b>测试</b>状态：代理还没接上，点了会给你说明。临时办法是点 ▣ 扫码，手机打开就是真移动版；↗ 可在新标签看真页面。";
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
     b.classList.toggle("on", b.dataset.brwdev === brw.mode);
@@ -1637,7 +1624,7 @@ function brwInit(){
       if (!PROXY) {
         if (cur && cur.url) brwQrPanel(cur.url);
         toast(mode === "phone"
-          ? "手机上扫这个码，WPS 会给真移动版；在这里换端，要等代理接上（proxy/wps-proxy.js）"
+          ? "这一项还在测试：只有代理接上才能在这儿换出移动版。现在点 ▣ 扫码用手机打开，手机上就是 WPS 给的移动版"
           : "电脑上直接看就是桌面版；手机上想看桌面版，用浏览器菜单勾「请求桌面版网站」");
         return;
       }
@@ -1700,20 +1687,36 @@ const REPOS = [
 
 function renderRes(){
   const host = document.getElementById("resWrap");
-  if (!host) return;
-  host.innerHTML = REPOS.map((r, i) => (
-    '<div class="task">' +
-      '<div class="task-h"><span class="task-t">' + pad2(i + 1) + ' · ' + r.name + '</span><span class="task-meta">' + r.meta + '</span></div>' +
-      '<div class="task-b">' +
-        '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
-        '<div class="link-acts">' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview">预览</button>' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
-          '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
+  if (host) {
+    host.innerHTML = REPOS.map((r, i) => (
+      '<div class="task">' +
+        '<div class="task-h"><span class="task-t">' + pad2(i + 1) + ' · ' + r.name + '</span><span class="task-meta">' + r.meta + '</span></div>' +
+        '<div class="task-b">' +
+          '<p style="font-size:13px;color:var(--ink3);margin:0 0 14px">' + r.note + '</p>' +
+          '<div class="link-acts">' +
+            '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="preview">预览</button>' +
+            '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="open">在 WPS 中打开</button>' +
+            '<button class="btn btn-sm ghost" data-repo="' + r.key + '" data-act="copy">复制链接</button>' +
+          '</div>' +
         '</div>' +
-      '</div>' +
-    '</div>'
-  )).join("");
+      '</div>'
+    )).join("");
+  }
+
+  /* 23 个校内资源站从「学校入口」并到这儿 —— 它们是资料，不是入口 */
+  const src = document.getElementById("resSrc");
+  if (src) {
+    src.innerHTML = RESOURCES.map((r, i) =>
+      '<a class="p-item" href="' + VPN_ENTRY + '" target="_blank" rel="noopener noreferrer">' +
+        '<span class="p-idx">' + pad2(i + 1) + '</span>' +
+        '<div class="p-mid">' +
+          '<div class="p-title">' + r.t + '<span class="p-badge">' + r.c + '</span></div>' +
+          '<div class="p-url">' + r.h + '</div>' +
+        '</div>' +
+        '<span class="p-go">' + ICON_GO + '</span>' +
+      '</a>'
+    ).join("");
+  }
 }
 
 function openRepo(r){
@@ -1752,20 +1755,6 @@ function renderPortal(){
       '</a>';
     }).join("");
   });
-
-  const boxC = document.getElementById("portalC");
-  if (boxC) {
-    boxC.innerHTML = RESOURCES.map((r, i) =>
-      '<a class="p-item" href="' + VPN_ENTRY + '" target="_blank" rel="noopener noreferrer">' +
-        '<span class="p-idx">' + pad2(i + 1) + '</span>' +
-        '<div class="p-mid">' +
-          '<div class="p-title">' + r.t + '<span class="p-badge">' + r.c + '</span></div>' +
-          '<div class="p-url">' + r.h + '</div>' +
-        '</div>' +
-        '<span class="p-go">' + ICON_GO + '</span>' +
-      '</a>'
-    ).join("");
-  }
 }
 
 /* ==================== 口令门 ==================== */
@@ -2743,6 +2732,10 @@ route();
     <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
+    <div class="brw-dev" id="brwDev">
+      <button class="brw-dev-b" data-brwdev="phone" title="让服务器用手机身份取移动版">手机版<span class="dev-t">测试</span></button>
+      <button class="brw-dev-b" data-brwdev="desktop" title="桌面版">电脑版</button>
+    </div>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
@@ -2908,7 +2901,7 @@ route();
       a: "门户里没有课表本体，课表是班委发在共享库里的。首页下面那行「全班共享云库」点进去，按文件名找。",
       act: { t: "去共享库那页", h: "#/library" } },
     { k: ["vpn", "外网", "教务", "成绩", "校园网", "系统"],
-      a: "学校入口页收了官方系统和校内资源站，VPN 入口也在里面。账号要去学校信息中心申请，门户只负责把门指给你。",
+      a: "学校入口页只放要登录去办事的七个系统，VPN 入口也在里面。账号要去学校信息中心申请，门户只负责把门指给你。知网那类资源站不在那儿，在资料库。",
       act: { t: "去学校入口", h: "#/portal" } },
     { k: ["装到桌面", "安装", "pwa", "主屏", "图标", "离线"],
       a: "安卓：浏览器菜单 →「添加到主屏幕」。iPhone：Safari 底部分享 →「添加到主屏幕」。装完是独立图标，没网也能打开壳。" },
@@ -2937,14 +2930,20 @@ route();
         var list = (typeof window.__PET_LIST === "function") ? window.__PET_LIST() : [];
         var names = [], i;
         for (i = 0; i < list.length; i++) names.push(list[i].name);
-        return "现在有 " + names.length + " 个：" + names.join("、") + "。想换就说名字 —— 大肥鱼是二十段真动画，其余五个是图片版，会呼吸、会跳、能拖。";
+        return "现在有 " + names.length + " 个：" + names.join("、") +
+          "。点下面任一就换，或者直接说名字。大肥鱼是二十段真动画，其余 " + (names.length - 1) + " 个是图片版，会呼吸、会跳、能拖。";
       },
-      acts: [
-        { t: "换小月牙", do: function(){ petCall("switch", "moon"); } },
-        { t: "换小机器人", do: function(){ petCall("switch", "robot"); } },
-        { t: "换小团子", do: function(){ petCall("switch", "bean"); } },
-        { t: "叫回大肥鱼", do: function(){ petCall("switch", "dafeiyu"); } }
-      ] },
+      /* 动态生成：pet/shapes.js 的 SHAPES 加一条，这里自动多一个按钮 */
+      acts: function(){
+        var list = (typeof window.__PET_LIST === "function") ? window.__PET_LIST() : [];
+        var out = [];
+        for (var i = 0; i < list.length; i++) {
+          out.push((function (it) {
+            return { t: "换" + it.name, do: function(){ petCall("switch", it.id); } };
+          })(list[i]));
+        }
+        return out;
+      } },
     { k: ["ftp", "传文件", "仓库", "内网地址"],
       a: "仓库只有校园网能连：主 10.0.91.2，备用 10.0.91.200。网页打不开 ftp，要用资源管理器或 FileZilla 填地址。",
       acts: [
@@ -3021,7 +3020,8 @@ route();
     for (i = 0; i < RESOURCES.length; i++) {
       var r = RESOURCES[i];
       if ((r.t + r.h + r.c).toLowerCase().indexOf(q) >= 0) {
-        out.push({ t: r.t, u: "https://" + r.h, d: "校内资源站 · " + r.c });
+        /* 资源站是校内系统，直接给裸域名在校外是打不开的 —— 统一走门户登录页，和资料库里那 22 条一个行为 */
+        out.push({ t: r.t, u: VPN_ENTRY, d: "校内资源站 · " + r.c + " · 校内直接开 " + r.h });
       }
     }
     for (i = 0; i < PORTALS.length; i++) {
@@ -3062,8 +3062,27 @@ route();
     b.textContent = act.t;
     b.addEventListener("click", function(){
       if (act.do) act.do();
-      if (act.h) location.hash = act.h;
-      if (act.o) window.open(act.o, "_blank", "noopener");
+      if (act.h) {
+        var cur = location.hash || "";
+        if (cur === act.h) bubble("你已经在这个页面了，往下翻就能看到。", false);
+        else location.hash = act.h;
+      }
+      if (act.o) {
+        /* 站内窗口优先：浏览器常拦弹窗，而 window.open 有时静默返回一个空壳 —— 那就成了「点了没反应」 */
+        if (typeof window.brwPush === "function") {
+          window.brwPush(act.o);
+          toggle(false);
+          toast("已在站内窗口打开；一片空白说明对方不许被嵌，页内能复制地址");
+          return;
+        }
+        var w = null;
+        try { w = window.open(act.o, "_blank"); } catch (e) { w = null; }
+        if (w) { try { w.opener = null; } catch (e) {} }
+        else {
+          bubble("浏览器把弹窗拦了。手动打开这个地址：" + act.o, false);
+          return;
+        }
+      }
       if (act.c) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(act.c).then(
@@ -3103,16 +3122,17 @@ route();
       text = (typeof hit.a === "function") ? hit.a() : hit.a;
       bubble(text, false);
       if (hit.act) actBtn(hit.act);
-      if (hit.acts) for (i = 0; i < hit.acts.length; i++) actBtn(hit.acts[i]);
+      var many = (typeof hit.acts === "function") ? hit.acts() : hit.acts;
+      if (many) for (i = 0; i < many.length; i++) actBtn(many[i]);
       return;
     }
 
     /* 规则没命中，就去站内目录真搜一遍 —— 别一句「没学会」把人推回班群 */
     var found = findRes(q.replace(/搜一下|搜|找一下|找|有没有|在哪|哪里|的|了|吗|呢/g, "").trim());
     if (found.length) {
-      bubble("站内目录里有这些，点开就是：", false);
+      bubble("站内目录里有这些。点开先进学校门户，登录后再在站内点它 —— 校外不走这一步进不去内网。", false);
       for (i = 0; i < found.length; i++) {
-        actBtn({ t: "打开「" + found[i].t + "」", o: found[i].u });
+        actBtn({ t: "去门户开「" + found[i].t + "」", o: found[i].u });
       }
       return;
     }
