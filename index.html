@@ -447,6 +447,78 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 .cell-copy:hover{color:var(--green);border-color:var(--green2)}
 @media (min-width:640px){.cell-copy{display:grid}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* ==================== 质感层：借 mental-demo 的暖卡片语言 ====================
+   只换背景 / 圆角 / 阴影 / 按钮 / 输入框 / 顶栏 / 分隔线，不动任何 display、grid、padding。
+   要退回原来的纸感编辑风：把这一段（到样式表结束标签之前）整段删掉即可，其余一字不用改。 */
+:root{
+  --warm:#C0845F; --warm2:#A87050; --cream:#FDF8F3;
+  --r-lg:18px; --r-md:12px;
+  --sh-1:0 2px 6px rgba(120,92,64,.05);
+  --sh-2:0 10px 30px rgba(120,92,64,.09),0 2px 6px rgba(120,92,64,.05);
+  --sh-3:0 20px 50px rgba(120,92,64,.13),0 4px 12px rgba(120,92,64,.06);
+}
+html{background:linear-gradient(163deg,#FAF6F1 0%,#F5EDE4 52%,#EFE7DC 100%)}
+body{background:transparent}
+/* 两枚漂浮光斑：一枚陶土、一枚深绿，缓慢呼吸 */
+body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:-1}
+body::before{width:44vw;height:44vw;left:-14vw;top:-12vw;background:rgba(192,132,95,.18);animation:glowA 10s ease-in-out infinite}
+body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72,.11);animation:glowB 12s ease-in-out infinite}
+@keyframes glowA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(2.2vw,3.2vh) scale(1.07)}}
+@keyframes glowB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-3vw,2.4vh) scale(1.09)}}
+@media (prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
+
+/* 顶栏：毛玻璃，去硬边 */
+#topbar{background:rgba(253,248,243,.80);backdrop-filter:blur(14px) saturate(1.08);-webkit-backdrop-filter:blur(14px) saturate(1.08);border-bottom:1px solid rgba(214,198,182,.55);box-shadow:0 6px 24px rgba(120,92,64,.06)}
+
+/* 分隔线统一柔化 */
+.divider{background:rgba(200,185,170,.42)}
+.view.on + .view.on{border-top-color:rgba(200,185,170,.42)}
+.count-line,.member-grid,.cell,.foot,.maint-block{border-color:rgba(200,185,170,.42)}
+
+/* 卡片：大圆角 + 多层柔阴影 */
+.gate-card,.shared-card,.entry,.qr-box,.p-out,.p-list,.ai-g,.fold-head,.desk,.p-drop{
+  border-radius:var(--r-lg);
+  border-color:rgba(198,182,166,.42);
+  box-shadow:var(--sh-2);
+}
+.ai-g,.p-list{overflow:hidden}
+.entries{background:transparent;border:0;box-shadow:none;gap:14px}
+.view:not(.folded) > .wrap > .fold-head{background:transparent;border-color:transparent;box-shadow:none}
+.entry{padding:24px 22px 22px;transition:transform .18s,box-shadow .18s,background .18s}
+.entry:hover{background:#fff;transform:translateY(-2px);box-shadow:var(--sh-3)}
+.shared-card{padding:20px 20px 18px}
+.shared-card::before{width:4px}
+
+/* 胶囊与大按钮：渐变 + 上浮 */
+.subnav a,.chip{background:rgba(255,255,255,.72);border-color:rgba(198,182,166,.5);border-radius:999px;backdrop-filter:blur(6px)}
+.subnav a:hover,.chip:hover{border-color:var(--green2);color:var(--green)}
+.subnav a.on,.chip.on{background:linear-gradient(135deg,#2E5348 0%,#3E7D5F 100%);border-color:transparent;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(46,83,72,.20)}
+.btn{border:0;border-radius:var(--r-md);background:linear-gradient(135deg,#2E5348 0%,#3E7D5F 100%);box-shadow:0 4px 14px rgba(46,83,72,.22);transition:transform .15s,box-shadow .15s}
+.btn:hover{background:linear-gradient(135deg,#274A3F 0%,#3E7D5F 100%);transform:translateY(-1px);box-shadow:0 9px 24px rgba(46,83,72,.26)}
+.btn.ghost{background:rgba(255,255,255,.75);border:1px solid rgba(198,182,166,.55);box-shadow:var(--sh-1);color:var(--ink2)}
+.btn.ghost:hover{background:#fff;border-color:rgba(198,182,166,.85);color:var(--ink)}
+
+/* 输入框：圆润、奶油底、聚焦柔光 */
+#gateInput,.p-in,.brw-addr input{border-radius:var(--r-md);border-color:rgba(198,182,166,.5);background:#FFFDFB}
+#gateInput:focus,.p-in:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,125,95,.13)}
+.search-box{border-radius:var(--r-md);border-color:rgba(198,182,166,.5);background:rgba(255,255,255,.82)}
+.search-box:focus-within{border-color:var(--green2);outline:none;box-shadow:0 0 0 3px rgba(62,125,95,.13)}
+
+/* 口令页：去掉点阵，让光斑透上来 */
+#gate{background:linear-gradient(163deg,#FAF6F1 0%,#F5EDE4 100%);background-image:linear-gradient(163deg,#FAF6F1 0%,#F5EDE4 100%)}
+.gate-card{background:rgba(255,253,250,.94);padding:30px 26px 24px}
+
+/* 陶土色进主视觉：与深绿形成双色对比 */
+.hero h1 em{color:var(--warm2)}
+.shared-card .tag{color:var(--warm2)}
+.page-note{border-left-color:var(--warm)}
+
+/* 细滚动条 */
+*{scrollbar-width:thin;scrollbar-color:rgba(160,140,120,.40) transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(160,140,120,.35);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
 </style>
 </head>
 <body>
