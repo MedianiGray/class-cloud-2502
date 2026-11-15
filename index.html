@@ -513,7 +513,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .home-lead h1 em{font-style:normal;color:var(--warm2)}
 .home-lead p{font-size:14px;color:var(--ink2);margin-top:10px;max-width:52ch}
 .quick-grid{display:grid;gap:12px;margin:0 0 26px}
-@media (min-width:720px){.quick-grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:720px){.quick-grid{grid-template-columns:repeat(2,1fr)}}
 .quick{display:flex;flex-direction:column;gap:5px;text-align:left;padding:20px 18px 18px;background:#fff;
   border:1px solid rgba(198,182,166,.42);border-radius:var(--r-lg);box-shadow:var(--sh-2);
   transition:transform .18s,box-shadow .18s,border-color .18s}
@@ -642,25 +642,20 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="home-lead">
       <h1>要什么，<em>点一下</em>。</h1>
-      <p>专业资料、校内站点、学校系统 —— 三处入口，一步到。</p>
+      <p>要资料，还是要去办事 —— 两处，点一下就到。</p>
       <p class="live-line" id="liveLine">45 个格子都在</p>
     </div>
 
     <div class="quick-grid">
-      <button class="quick" data-ext="https://www.kdocs.cn/folder/cc8KmiqlrcMV">
-        <span class="q-k">学习</span>
-        <span class="q-t">专业学习资料</span>
-        <span class="q-d">专业课与网络方向的资料，3 个文件夹 · 5 份文档</span>
-      </button>
       <button class="quick" data-go="#/res">
         <span class="q-k">资料</span>
-        <span class="q-t">校内资源站</span>
-        <span class="q-d">23 个站点 + 3 个 WPS 源库</span>
+        <span class="q-t">资料库</span>
+        <span class="q-d">23 个校内站点 + 3 个 WPS 源库</span>
       </button>
       <button class="quick" data-go="#/portal">
-        <span class="q-k">信息</span>
-        <span class="q-t">学校信息入口</span>
-        <span class="q-d">学工、VPN、官网 —— 7 个官方入口</span>
+        <span class="q-k">入口</span>
+        <span class="q-t">学校系统</span>
+        <span class="q-d">学工、VPN、官网 —— 7 个要登录才办得成的</span>
       </button>
     </div>
 
@@ -681,12 +676,6 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <div class="patch-head"><span>成员端口 · 45</span><span id="patchTip">点一格，跳到索引里那一格</span></div>
       <div class="patchbar" id="patchbar"></div>
     </div>
-
-    <a class="line-link" href="./more.html">
-      <span class="ll-t">这个站能做的十件事</span>
-      <span class="ll-note">8 条可用 · 2 条部分需校内网 · 2 件还没成</span>
-      <span class="ll-arrow">→</span>
-    </a>
   </div>
 </section>
 
@@ -1069,12 +1058,12 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览右上角那对按钮带「测试」、点了只给说明；填上云函数入口地址 = 真换 HTML 壳，验证通过再去掉「测试」。代码在 <span class="mono">proxy/cloudbase-wps/</span>。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
-        <div class="step"><span class="step-n">09</span><div><b>首页三张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>（三处：专业学习资料、校内资源站、学校信息入口）。第一卡是外链，地址硬编码在 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span>，即 <span class="mono">REPOS</span> 里的学习源库）；下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>。换库时两处与 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> 要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页两张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只有两处：资料库、学校系统，都靠 <span class="mono">data-go</span> 跳 hash。<b>别再加回第三张</b>：原来那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>；「这个站能做的十件事」不在首页了，挪到页脚和 <span class="mono">more.html</span>，首页不再挂第二条窄链。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这两处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时（手机、窄屏）按钮会明确说它不在这儿，不假装成功。</div></div>
-        <div class="step"><span class="step-n">14</span><div><b>桌宠现在有十个形象</b>　一个是「大肥鱼」，第三方开源库（MIT），带二十段真动画；另外九个是图片版：小蓝鲸、小月牙、小机器人、小海豚、小团子、小云朵、小闪电、小方糖、小星星，图在 <span class="mono">pet/shapes/*@480.png</span>（每张 110–160KB），外壳是自己写的 <span class="mono">pet/shapes.js</span>，无依赖。切换只有一句 <span class="mono">__PET_SWITCH("star")</span>，可用的 id 是 <span class="mono">dafeiyu / whale / moon / robot / dolphin / bean / cloud / bolt / sugar / star</span>，选过的记在 localStorage 的 <span class="mono">cl_pet_shape_v1</span>，刷新还是它。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它<b>只挂一次</b>，切去别的形象时只把它 <span class="mono">display:none</span>，切回来再显示。「收了」也是藏，不是销毁。<b>想加新形象</b>：往 <span class="mono">pet/shapes.js</span> 的 <span class="mono">SHAPES</span> 数组加一条（id、名字、文件名、几句台词），再放一张 480 的透明 PNG，接口自动继承，别的代码一行不用改 —— 「问问」的形象菜单读的就是这个数组，加完自动多一项。<b>做图注意</b>：生图要透明底，出来若带一块分离的投影（像云朵那张），按连通块只保留最大那块，否则贴在页面上会有一坨灰。</div></div>
+        <div class="step"><span class="step-n">14</span><div><b>桌宠现在有二十二个形象</b>　一个是「大肥鱼」，第三方开源库（MIT），带二十段真动画；另外二十一个是图片版：小蓝鲸、小月牙、小机器人、小海豚、小团子、小云朵、小闪电、小方糖、小星星，加上按抖音那批「AI 娘」做的 Q 版 —— 大小姐、白龙娘、紫双星、千问、小桃子、黑和风、金发斧、橘发水手，再加小奶龙、小猫娘、向日葵、代码小姐。图在 <span class="mono">pet/shapes/*@480.png</span>（每张 100–230KB），外壳是自己写的 <span class="mono">pet/shapes.js</span>，无依赖。切换只有一句 <span class="mono">__PET_SWITCH("star")</span>，可用 id：<span class="mono">dafeiyu / whale / moon / robot / dolphin / bean / cloud / bolt / sugar / star / claude / gpt / gemini / qwen / peach / glm / grok / mistral / nailong / catgirl / sunflower / codex</span>，选过的记在 localStorage 的 <span class="mono">cl_pet_shape_v1</span>，刷新还是它。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它<b>只挂一次</b>，切去别的形象时只把它 <span class="mono">display:none</span>，切回来再显示。「收了」也是藏，不是销毁。<b>想加新形象</b>：往 <span class="mono">pet/shapes.js</span> 的 <span class="mono">SHAPES</span> 数组加一条（id、名字、文件名、几句台词），再放一张 480 的透明 PNG，接口自动继承，别的代码一行不用改 —— 「问问」的形象菜单读的就是这个数组，加完自动多一项。<b>做图注意</b>：生图要透明底，出来若带一块分离的投影（像云朵那张），按连通块只保留最大那块，否则贴在页面上会有一坨灰；人物类一律做成 Q 版童趣，别照搬别人的同人立绘。</div></div>
       </div>
     </div>
 
@@ -1147,7 +1136,7 @@ git push</div>
   <div class="wrap" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;width:100%">
     <span id="footMeta">GXAU · 网络工程技术（本）2502 · 2026</span>
     <div class="foot-links">
-      <a href="#/library">云库</a><a href="#/portal">入口</a><a href="#/access">权限</a><a href="#/maint">维护</a>
+      <a href="#/library">云库</a><a href="#/portal">入口</a><a href="#/access">权限</a><a href="#/maint">维护</a><a href="./more.html">十件事</a>
     </div>
   </div>
 </footer>
@@ -2867,7 +2856,7 @@ route();
   var today = (now.getMonth() + 1) + " 月 " + now.getDate() + " 日 周" + wk;
   var lines = [
     today + " · " + greet + "，45 个格子都在",
-    "专业资料在第一张卡，校内站点在第二张",
+    "资料库在左边那张卡，学校系统在右边那张",
     "共享库和你那一格，收在下面那一行"
   ];
   var i = 0;
@@ -2951,7 +2940,7 @@ route();
         { t: "复制备用", c: "ftp://10.0.91.200" }
       ] },
     { k: ["怎么用", "从哪开始", "第一次", "不会用", "上手", "入门"],
-      a: "三步：首页中间填学号后三位进你那一格；资料在首页第一张卡；学校系统在第三张卡。想找某个人，去成员索引点格子。",
+      a: "两步：首页中间填学号后三位进你那一格；要资料点左边那张卡，要办事点右边那张卡。想找某个人，去成员索引点格子。",
       acts: [{ t: "回首页", h: "#/home" }, { t: "去成员索引", h: "#/library" }] },
     { k: ["现在在哪", "这是哪", "什么页", "我在哪", "当前页"],
       a: function(){ return "你在「" + viewName() + "」，这一区有 " + hereCount() + " 个能点的入口。"; },
@@ -3177,7 +3166,7 @@ route();
          否则窄视口里拿到的是一句空 handle —— 用户主动点「叫回大肥鱼」时不该再拦他 */
       enabledOnMobile: true,
       lines: [
-        "资料在第一张卡上，慢点翻，别急着问。",
+        "资料在资料库那一栏，慢点翻，别急着问。",
         "学号后三位填一次，往后它自己记得。",
         "要开学校系统的，先连上 VPN 再说。",
         "四十五个格子，一人一格，别点错。",
