@@ -513,7 +513,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .home-lead h1 em{font-style:normal;color:var(--warm2)}
 .home-lead p{font-size:14px;color:var(--ink2);margin-top:10px;max-width:52ch}
 .quick-grid{display:grid;gap:12px;margin:0 0 26px}
-@media (min-width:720px){.quick-grid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:720px){.quick-grid{grid-template-columns:1fr}}
 .quick{display:flex;flex-direction:column;gap:5px;text-align:left;padding:20px 18px 18px;background:#fff;
   border:1px solid rgba(198,182,166,.42);border-radius:var(--r-lg);box-shadow:var(--sh-2);
   transition:transform .18s,box-shadow .18s,border-color .18s}
@@ -541,6 +541,15 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .line-link .ll-t{font-size:13.5px;font-weight:600}
 .line-link .ll-note{font-size:12.5px;color:var(--ink3)}
 .line-link .ll-arrow{margin-left:auto;color:var(--warm2);font-size:13px}
+
+/* 次要路口：一排小胶囊，靠边不抢戏 */
+.mini-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+.mini-nav a,.mini-nav button{display:inline-flex;align-items:baseline;gap:7px;padding:8px 13px;border-radius:999px;
+  background:rgba(255,255,255,.6);border:1px solid rgba(198,182,166,.4);color:var(--ink2);
+  font-size:12.5px;line-height:1.3;text-decoration:none;cursor:pointer;font-family:inherit;
+  transition:background .15s,border-color .15s,color .15s}
+.mini-nav a:hover,.mini-nav button:hover{background:#fff;color:var(--ink);border-color:rgba(62,125,95,.4)}
+.mini-nav .mn-d{color:var(--ink3);font-size:11.5px}
 
 /* 首页动态小字：一行会换的活话 */
 .live-line{margin-top:12px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;min-height:18px;line-height:1.6}
@@ -648,15 +657,16 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 
     <div class="quick-grid">
       <button class="quick" data-go="#/res">
-        <span class="q-k">资料</span>
-        <span class="q-t">资料库</span>
-        <span class="q-d">23 个校内站点 + 3 个 WPS 源库</span>
+        <span class="q-k">从这里进</span>
+        <span class="q-t">专业学习资料</span>
+        <span class="q-d">23 个校内站点 + 3 个 WPS 源库 —— 专业课、题库、数据库、文献，都在这一栏</span>
       </button>
-      <button class="quick" data-go="#/portal">
-        <span class="q-k">入口</span>
-        <span class="q-t">学校系统</span>
-        <span class="q-d">学工、VPN、官网 —— 7 个要登录才办得成的</span>
-      </button>
+    </div>
+
+    <div class="mini-nav">
+      <button data-go="#/library">班级云库 <span class="mn-d">共享库 · 45 个成员文件夹</span></button>
+      <button data-go="#/portal">学校信息 <span class="mn-d">学工 · VPN · 官网</span></button>
+      <a href="./more.html">十件事</a>
     </div>
 
     <div class="seat-row">
@@ -664,17 +674,6 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <input id="homeNo" inputmode="numeric" maxlength="3" placeholder="如 201" autocomplete="off" aria-describedby="homeNoNote">
       <button class="btn btn-sm" id="homeGo">打开</button>
       <p class="seat-note" id="homeNoNote">输入一次，记在这台设备上，下次进来点一下就到你那一库。</p>
-    </div>
-
-    <a class="line-link" href="https://www.kdocs.cn/folder/ceMSyJ9Ww4NJ" target="_blank" rel="noopener">
-      <span class="ll-t">全班共享云库</span>
-      <span class="ll-note">通知归档 · 集体荣誉 · 共同文件</span>
-      <span class="ll-arrow">↗</span>
-    </a>
-
-    <div class="patch">
-      <div class="patch-head"><span>成员端口 · 45</span><span id="patchTip">点一格，跳到索引里那一格</span></div>
-      <div class="patchbar" id="patchbar"></div>
     </div>
   </div>
 </section>
@@ -698,6 +697,11 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
         <button class="btn btn-sm ghost" data-copy="shared">复制链接</button>
         <button class="btn btn-sm ghost" data-preview="shared">预览</button>
       </div>
+    </div>
+
+    <div class="patch">
+      <div class="patch-head"><span>成员端口 · 45</span><span id="patchTip">点一格，跳到索引里那一格</span></div>
+      <div class="patchbar" id="patchbar"></div>
     </div>
 
     <div class="toolbar">
@@ -1913,7 +1917,7 @@ function route(){
     openUrl(urlOf(MEMBERS[i].slug));
   }
 
-  q.addEventListener("click", function(e){
+  document.addEventListener("click", function(e){
     var b = e.target.closest("[data-go],[data-ext],[data-seat]");
     if (!b) return;
     if (b.dataset.seat) { act(); return; }
