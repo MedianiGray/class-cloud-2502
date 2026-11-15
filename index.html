@@ -857,7 +857,7 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
           <li><b>电脑 · Chrome、Edge 想看成手机版</b>：按 <span class="mono">F12</span>，再按 <span class="mono">Ctrl + Shift + M</span>，顶部会出现设备框，左边选 iPhone 或安卓机型，刷新一下。关掉开发者工具就恢复原样。</li>
           <li><b>电脑 · Firefox</b>：按 <span class="mono">Ctrl + Shift + M</span> 进响应式设计模式，顶部选机型即可。</li>
         </ul>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里的「电脑 / 手机」只改窗口宽度，方便看排版 —— 它改不了 WPS 给你哪套界面。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里点「手机」也不会在页面内改 UA —— <span class="mono">User-Agent</span> 属于浏览器禁止脚本设置的请求头，改了会被静默丢弃。现在点它只会弹二维码：用手机扫开，那就是 WPS 本来就给的移动版。想在电脑上直接看移动版，得先接一个服务端代理，见「部署与维护」第十一节。</p>
       </div>
     </div>
   </div>
@@ -913,6 +913,94 @@ const MEMBERS = [
     <div class="maint-block">
       <h3>五、给评奖评优留的位置</h3>
       <p>这套结构先把「材料归位」做掉，评优就不靠临时翻聊天记录。建议每学期在共享库里固定四类目录：<span class="mono">01 通知归档 / 02 集体荣誉 / 03 个人材料 / 04 申报汇总</span>；个人证书扫描件各人放进自己的独立文件夹。学期末班委只需打开总目录，逐人核对即可，不必再逐个私聊收材料。</p>
+    </div>
+
+    <div class="maint-block">
+      <h3>六、交接清单：这套站点由哪几块拼成</h3>
+      <p>接手前先把这五项对一遍。任何一项对不上，先别动文件，问清楚再说。</p>
+      <div class="steps">
+        <div class="step"><span class="step-n">01</span><div><b>代码仓库</b>　<span class="mono">github.com/MedianiGray/class-cloud-2502</span>（公开）。主文件只有 <span class="mono">index.html</span> 一个，样式、数据、逻辑全在里面；<span class="mono">manifest.json</span>、<span class="mono">sw.js</span>、三个图标是「装到主屏」用的附件，改页面不用碰它们。</div></div>
+        <div class="step"><span class="step-n">02</span><div><b>对外地址</b>　<span class="mono">medianigray.github.io/class-cloud-2502/</span>。push 到 <span class="mono">main</span> 后自动发布，链接永远不变，二维码印错了才需要重做。</div></div>
+        <div class="step"><span class="step-n">03</span><div><b>文档库</b>　班级 WPS 共享文件夹。成员链接收在脚本里的 <span class="mono">MEMBERS</span>，只存尾号，不存姓名与完整学号；文件本身始终在 WPS，权限由 WPS 把关。</div></div>
+        <div class="step"><span class="step-n">04</span><div><b>换端代理</b>　Cloudflare Worker <span class="mono">cl-wps-proxy</span>（account id <span class="mono">9b541232809822d0a0af2a7150310e47</span>），在班级 Cloudflare 账号里，<b>已部署但默认未启用</b>，原因见第十一节。</div></div>
+        <div class="step"><span class="step-n">05</span><div><b>账号归属</b>　GitHub 与 Cloudflare 都用班级公共账号。登录邮箱、密码、两步验证由现任管理员保管，换届时当面移交并书面记一笔。别落在个人号上——人一走，站就断。</div></div>
+      </div>
+    </div>
+
+    <div class="maint-block">
+      <h3>七、改什么，改哪里</h3>
+      <p>页面是单文件，所有可改项都在 <span class="mono">index.html</span> 末尾的脚本区。</p>
+      <div class="steps">
+        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，排序、检索、统计会自动重算。</div></div>
+        <div class="step"><span class="step-n">02</span><div><b>换口令</b>　<span class="mono">GATE_CODE</span>。现在是纯前端校验，挡的是随手点开的人，不是安全措施；换了之后记得在班群说明。</div></div>
+        <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
+        <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
+        <div class="step"><span class="step-n">05</span><div><b>图标</b>　重新生成 <span class="mono">icon-192.png</span> / <span class="mono">icon-512.png</span> / <span class="mono">icon-180.png</span>，同尺寸同名覆盖，<span class="mono">manifest.json</span> 不用改。</div></div>
+        <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 点「手机」弹二维码；填上代理地址 = 真换 HTML 壳。</div></div>
+        <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
+        <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
+      </div>
+    </div>
+
+    <div class="maint-block">
+      <h3>八、推上去之后多久生效</h3>
+      <div class="steps">
+        <div class="step"><span class="step-n">01</span><div><b>页面</b>：push 到 <span class="mono">main</span> 后 Pages 构建 1–2 分钟。验证时<b>一定要带随机参数</b>，例如 <span class="mono">?t=123</span>，否则浏览器缓存会骗你，看起来像没更新。</div></div>
+        <div class="step"><span class="step-n">02</span><div><b>Service Worker</b>：<span class="mono">sw.js</span> 是网络优先，改页面内容不用动它。<b>只有改了缓存清单 <span class="mono">SHELL</span></b>，才需要把 <span class="mono">CACHE</span> 从 <span class="mono">v1</span> 改成 <span class="mono">v2</span>，否则老缓存会一直留着那批旧文件。</div></div>
+        <div class="step"><span class="step-n">03</span><div><b>装到主屏的 PWA</b>：不会随刷新更新，关掉图标重开一次才拉新版。全班看着像没改，多半是这一步没做。</div></div>
+      </div>
+    </div>
+
+    <div class="maint-block">
+      <h3>九、更新 Worker：一条命令，别用网页编辑器</h3>
+      <p>Cloudflare 的在线编辑器是嵌在跨域 iframe 里的 Monaco，自动粘贴进不去，手贴 150 行也容易漏行。改完 <span class="mono">proxy/wps-proxy.js</span> 直接用 API 传，最稳。</p>
+      <div class="code" style="white-space:pre-wrap;word-break:break-all"># 1) 建 Token：dash.cloudflare.com/profile/api-tokens → Create Token
+#    → Start from scratch → Account policy → Workers Scripts: Edit → 有效期选 7 days
+#    Token 只显示一次，用完立刻 Delete
+
+$acc  = "9b541232809822d0a0af2a7150310e47"
+$tok  = "&lt;刚才那个 Token&gt;"
+$f    = "proxy\wps-proxy.js"
+$meta = "$env:TEMP\cf-meta.json"
+$json = '{"body_part":"worker.js","compatibility_date":"2025-01-01"}'
+
+[IO.File]::WriteAllText($meta, $json, (New-Object System.Text.UTF8Encoding -ArgumentList $false))
+
+C:\Windows\system32\curl.exe -sS -X PUT "https://api.cloudflare.com/client/v4/accounts/$acc/workers/scripts/cl-wps-proxy" -H "Authorization: Bearer $tok" -F "metadata=@$meta;type=application/json" -F "worker.js=@$f;type=application/javascript"</div>
+      <p>返回 <span class="mono">"success": true</span> 就是上线了。四个坑，按顺序都可能踩到：</p>
+      <div class="steps">
+        <div class="step"><span class="step-n">01</span><div><b>别用「Edit Cloudflare Workers」模板建 Token</b>。它带一条 Zone policy，而班级账号名下没有域名，会卡在 <span class="mono">Choose a zone resource</span> 出不来。用 <span class="mono">Start from scratch</span> 只勾 <span class="mono">Account → Workers Scripts: Edit</span>。</div></div>
+        <div class="step"><span class="step-n">02</span><div><b>metadata 必须走文件</b>。写成 <span class="mono">-F 'metadata={"main_module":"worker.js"}'</span> 会被 PowerShell 剥掉内层引号，服务端报 <span class="mono">invalid character 'm' looking for beginning of object key string</span>。</div></div>
+        <div class="step"><span class="step-n">03</span><div><b>别写 <span class="mono">main_module</span>，源码里也别出现 <span class="mono">export default</span></b>。这个 Worker 是 classic 类型，带了就报 <span class="mono">Unexpected token 'export'</span>。所以脚本用的是 <span class="mono">addEventListener("fetch", ...)</span> + 顶层 <span class="mono">async function handleRequest</span>，改代码时保持这个结构。</div></div>
+        <div class="step"><span class="step-n">04</span><div><b>curl 要写全路径</b>。PowerShell 里 <span class="mono">curl</span> 是 <span class="mono">Invoke-WebRequest</span> 的别名，写法不同会静默失败；一律用 <span class="mono">C:\Windows\system32\curl.exe</span>。</div></div>
+      </div>
+    </div>
+
+    <div class="maint-block">
+      <h3>十、最容易出问题的六个地方</h3>
+      <div class="steps">
+        <div class="step"><span class="step-n">01</span><div><b>WPS 改版</b>。代理靠的是 WPS「服务端按 UA 分两套壳」这个行为，它一改目录结构，代理可能只返回壳、内容出不来。自查一行：<br><span class="mono">$h = @{ "User-Agent" = "…iPhone…" }; $r = Invoke-WebRequest "https://www.kdocs.cn/folder/&lt;slug&gt;" -Headers $h -UseBasicParsing; $r.RawContentLength; ($r.Content -match 'mShareFolder')</span><br>返回 5000 字节上下、<span class="mono">mShareFolder</span> 为真 → 分流还在；变成登录页或 2000 字节左右 → 手机壳入口变了。</div></div>
+        <div class="step"><span class="step-n">02</span><div><b>Worker 免费额度</b>。每天 10 万请求，班级规模一年用不到百分之一。<b>别把白名单 <span class="mono">HOSTS</span> 扩大</b>，否则它会变成公开代理，额度很快烧完还可能被封。</div></div>
+        <div class="step"><span class="step-n">03</span><div><b>WPS 限流</b>。同一个分享页被反复代理抓，可能触发风控返回验证页。Worker 里给的是 <span class="mono">cache-control: max-age=30</span>，别改成 0。真被限流时把 <span class="mono">PROXY</span> 临时清空即可——点「手机」退回弹二维码，不影响任何人看文档。</div></div>
+        <div class="step"><span class="step-n">04</span><div><b>分享被撤回</b>。写着「永久有效」也会被分享者收回。撤回后代理拿到的是 WPS 的错误页，不是站点坏了，别去改代码。</div></div>
+        <div class="step"><span class="step-n">05</span><div><b>PWA 装不上</b>。按顺序排查：当前是不是 <span class="mono">https</span>（<span class="mono">file://</span> 一定不行）→ 是不是在微信 / QQ 内置浏览器（装不了，先「在浏览器打开」）→ DevTools → Application → Service Workers → Unregister 清掉旧壳再试。</div></div>
+        <div class="step"><span class="step-n">06</span><div><b>全班都还看到旧版</b>。把 <span class="mono">sw.js</span> 里的 <span class="mono">CACHE = "class-cloud-2502-v1"</span> 改成 <span class="mono">v2</span> 再推，<span class="mono">activate</span> 阶段会清掉旧缓存。</div></div>
+      </div>
+    </div>
+
+    <div class="maint-block">
+      <h3>十一、换端代理为什么默认关着</h3>
+      <p>Worker 已经部署好了，地址是 <span class="mono">cl-wps-proxy.3534226279.workers.dev</span>。但实测这个域名在国内被 <b>DNS 污染</b>：解析到 <span class="mono">162.125.18.129</span>（Dropbox 的 IP），TCP 443 直接超时。<span class="mono">*.workers.dev</span> 在国内基本都这样，所以 <span class="mono">PROXY</span> 保持为空——填进去只会让「手机」按钮干等二十多秒再报错，比弹二维码还差。</p>
+      <p>想让代理真生效只有三条路：① 给这个 Worker 绑自有域名（Settings → Domains &amp; Routes → Custom domain），域名要国内可达；② 换国内可达的函数平台（阿里云函数计算、腾讯云 SCF），把 <span class="mono">wps-proxy.js</span> 的逻辑搬过去，只改 <span class="mono">PROXY</span>；③ 维持现状——手机上本来就能看到移动版，桌面看移动版是次要场景。</p>
+    </div>
+
+    <div class="maint-block">
+      <h3>十二、出事了先做这一句</h3>
+      <p>页面是单文件，改坏了直接回退，别在原地抢救：</p>
+      <div class="code">git checkout HEAD~1 -- index.html
+git commit -m "revert index.html"
+git push</div>
+      <p>回退后等 1–2 分钟，带 <span class="mono">?t=随机数</span> 打开确认。确认好了再慢慢找原因——站点始终可用，比「修好」更重要。</p>
     </div>
   </div>
 </section>
