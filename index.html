@@ -535,6 +535,16 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .quick .q-t{font-size:19px;font-weight:700;letter-spacing:-.02em;color:var(--ink);line-height:1.3}
 .quick .q-d{font-size:13px;color:var(--ink2);line-height:1.5}
 
+/* 学号直达条：记住一次，下次一键到自己的库 */
+.seat-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:14px 16px;margin:0 0 26px;
+  background:rgba(255,255,255,.72);border:1px solid rgba(198,182,166,.42);border-radius:var(--r-lg);box-shadow:var(--sh-1)}
+.seat-lbl{flex:none;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--ink3);white-space:nowrap}
+#homeNo{flex:none;width:92px;height:38px;padding:0 10px;border:1px solid rgba(198,182,166,.5);border-radius:var(--r-md);
+  background:#FFFDFB;font-family:var(--mono);font-size:15px;letter-spacing:.1em;color:var(--ink);text-align:center}
+#homeNo:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,125,95,.13)}
+#homeGo{flex:none}
+.seat-note{flex:1 1 100%;min-width:0;font-size:12.5px;color:var(--ink3);line-height:1.5}
+
 </style>
 </head>
 <body>
@@ -602,16 +612,23 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
         <span class="q-t">班级共享云库</span>
         <span class="q-d">通知归档、集体荣誉、共同文件</span>
       </button>
-      <button class="quick" data-go="#/library">
+      <button class="quick" id="cardMine" data-seat="1">
         <span class="q-k">一人一库</span>
         <span class="q-t">我的文件夹</span>
-        <span class="q-d">45 人成员索引，按学号后三位找自己</span>
+        <span class="q-d">输入学号后三位，记住后一键直达</span>
       </button>
       <button class="quick" data-go="#/portal">
         <span class="q-k">校内</span>
         <span class="q-t">学校入口</span>
         <span class="q-d">7 个官方系统 + 22 个资源站，含 VPN</span>
       </button>
+    </div>
+
+    <div class="seat-row">
+      <label class="seat-lbl" for="homeNo">学号后三位</label>
+      <input id="homeNo" inputmode="numeric" maxlength="3" placeholder="如 201" autocomplete="off" aria-describedby="homeNoNote">
+      <button class="btn btn-sm" id="homeGo">打开</button>
+      <p class="seat-note" id="homeNoNote">输入一次，记在这台设备上，下次进来点一下就到你那一库。</p>
     </div>
 
     <div class="patch">
@@ -1020,7 +1037,7 @@ const MEMBERS = [
       <h3>七、改什么，改哪里</h3>
       <p>页面是单文件，所有可改项都在 <span class="mono">index.html</span> 末尾的脚本区。</p>
       <div class="steps">
-        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，排序、检索、统计会自动重算。</div></div>
+        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。</div></div>
         <div class="step"><span class="step-n">02</span><div><b>换口令</b>　<span class="mono">GATE_CODE</span>。现在是纯前端校验，挡的是随手点开的人，不是安全措施；换了之后记得在班群说明。</div></div>
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
@@ -1028,6 +1045,8 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览只走 ▣ 扫码（换端按钮已撤）；填上代理地址 = 真换 HTML 壳，但得先把按钮加回来。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页三张入口卡</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，共三处。第一卡地址是硬编码的 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/ceMSyJ9Ww4NJ</span>）。换共享库时，这里和 <span class="mono">SHARED.slug</span> 必须同时改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
       </div>
     </div>
 
@@ -1849,16 +1868,57 @@ function route(){
   }
 })();
 
-/* 首页快捷卡：与工作台图标同一套规则（data-go 走哈希路由，data-ext 新窗口打开） */
+/* 首页：快捷卡跳转 + 学号直达（记住后一键打开自己的库） */
 (function(){
+  var KEY = "cl-seat-no";
   var q = document.querySelector(".quick-grid");
+  var inp = document.getElementById("homeNo");
+  var btn = document.getElementById("homeGo");
+  var note = document.getElementById("homeNoNote");
   if (!q) return;
+
+  function recall(){ try { return localStorage.getItem(KEY) || ""; } catch(e){ return ""; } }
+  function save(no){ try { localStorage.setItem(KEY, no); } catch(e){} }
+  function fit(no){
+    for (var i = 0; i < MEMBERS.length; i++) if (MEMBERS[i].no === no) return i;
+    return -1;
+  }
+  function paint(){
+    if (!inp || !btn || !note) return;
+    var no = recall();
+    if (no) {
+      inp.value = no;
+      note.textContent = "已记：" + no + "　点「打开」直接进你的库；换人就把数字改成别的。";
+      btn.textContent = "打开我的文件夹";
+    } else {
+      inp.value = "";
+      note.textContent = "输入一次，记在这台设备上，下次进来点一下就到你那一库。";
+      btn.textContent = "打开";
+    }
+  }
+  function act(){
+    if (!inp) return;
+    var no = String(inp.value || "").replace(/[^0-9]/g, "").slice(-3);
+    if (!no) { inp.focus(); return; }
+    var i = fit(no);
+    if (i < 0) {
+      if (note) note.textContent = "名册里没有 " + no + " 这一格。学号带字母的去「成员索引」按序号找。";
+      return;
+    }
+    save(no); paint();
+    openUrl(urlOf(MEMBERS[i].slug));
+  }
+
   q.addEventListener("click", function(e){
-    var b = e.target.closest("[data-go],[data-ext]");
+    var b = e.target.closest("[data-go],[data-ext],[data-seat]");
     if (!b) return;
+    if (b.dataset.seat) { act(); return; }
     if (b.dataset.go) { location.hash = b.dataset.go; return; }
     if (b.dataset.ext) { window.open(b.dataset.ext, "_blank", "noopener"); return; }
   });
+  if (btn) btn.addEventListener("click", act);
+  if (inp) inp.addEventListener("keydown", function(e){ if (e.key === "Enter") { e.preventDefault(); act(); } });
+  paint();
 })();
 
 /* ==================== 事件绑定 ==================== */
