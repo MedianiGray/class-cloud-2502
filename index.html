@@ -1057,6 +1057,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">09</span><div><b>首页三张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>（三处：专业学习资料、校内资源站、学校信息入口）。第一卡是外链，地址硬编码在 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span>，即 <span class="mono">REPOS</span> 里的学习源库）；下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>。换库时两处与 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> 要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
+        <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
       </div>
     </div>
 
@@ -2954,12 +2955,18 @@ route();
      位置左下，避开右下角的「问问」；拉不到就不显示，页面本身照常工作 ===== -->
 <script>
 (function(){
+  /* 想让宠物真能聊天：把 proxy/pet-ai.js 部署到 Cloudflare Workers，
+     再把下面这行填成 https://xxx.workers.dev/chat。
+     留空 = 不联网：双击宠物没有聊天面板，碎碎念只走本地台词池。
+     为什么不能直接填别家的 key：这是纯静态页，写进来等于公开，谁都能拿去烧。 */
+  var PET_AI = "";
+
   var mounted = false;
   function mountPet(){
     if (mounted || !window.Dafeiyu || typeof window.Dafeiyu.mount !== "function") return;
     mounted = true;
     try {
-      window.Dafeiyu.mount({
+      var opt = {
         assetBase: "pet/assets/",
         size: 210,
         position: "bottom-left",
@@ -2974,7 +2981,9 @@ route();
           "四十五个格子，一人一格，别点错。",
           "通知都往共享库那一行归，找文件先去那儿。"
         ]
-      });
+      };
+      if (PET_AI) opt.endpoints = { chat: PET_AI };
+      window.Dafeiyu.mount(opt);
     } catch (err) {
       /* 宠物挂了不影响页面任何功能 */
     }
