@@ -108,10 +108,9 @@
       'filter:drop-shadow(0 6px 12px rgba(0,0,0,.18));' +
       'animation:breathe 4.2s ease-in-out infinite;transform-origin:50% 88%;}' +
       'img.pet{object-fit:contain;}' +
-      /* 精灵图每格是 192:208，元素按这个比例才不会被横向拉宽 */
-      '.pet.sp{width:92.31%;height:100%;margin:0 auto;' +
-      'background-repeat:no-repeat;background-position:0% 0%;' +
-      'image-rendering:-webkit-optimize-contrast;}' +
+      /* 精灵图用 canvas 画：每格 96×104 是整数，相邻格不会互相插值出白边 */
+      '.pet.cv{width:92.31%;height:100%;margin:0 auto;display:block;animation:none;}' +
+      '.pet.cv.hop{animation:hop .55s cubic-bezier(.3,.9,.4,1) 1;}' +
       '.pet.drag{cursor:grabbing;animation:none;}' +
       '@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.035,.975)}}' +
       '@keyframes hop{0%{transform:translateY(0) scale(1)}30%{transform:translateY(-16px) scale(1.05,.95)}' +
@@ -132,21 +131,7 @@
     var bubbleTimer = null, whisperTimer = null;
 
     function stopFrames() {
-      if (frameTimer) { clearInterval(frameTimer); frameTimer = null; }
-    }
-
-    function startFrames(sp) {
-      stopFrames();
-      if (reduce) return;
-      var cols = sp.cols || 8, rows = sp.rows || 11, row = sp.row || 0;
-      var col = 0;
-      var yPct = -((rows > 1 ? row / (rows - 1) : 0) * 100);
-      el.style.backgroundPosition = "0% " + yPct + "%";
-      frameTimer = setInterval(function () {
-        if (dead || document.hidden) return;
-        col = (col + 1) % cols;
-        el.style.backgroundPosition = (-((col / (cols - 1)) * 100)) + "% " + yPct + "%";
-      }, 1000 / (sp.fps || 9));
+      if (frameTimer) { clearTimeout(frameTimer); frameTimer = null; }
     }
 
     /* 绑拖拽与点击：换形象时元素会重建，所以要每次重绑 */
@@ -187,12 +172,37 @@
       stopFrames();
       var dir = sh.base || base;
       if (sh.sprite) {
-        var rows = sh.sprite.rows || 11, cols = sh.sprite.cols || 8;
-        el = document.createElement("div");
-        el.className = "pet sp";
-        el.style.backgroundImage = "url(" + dir + sh.file + ")";
-        el.style.backgroundSize = (cols * 100) + "% " + (rows * 100) + "%";
-        startFrames(sh.sprite);
+        var cols = sh.sprite.cols || 8, rows = sh.sprite.rows || 11, row = sh.sprite.row || 0;
+        var cw = sh.sprite.cw || 96, chh = sh.sprite.ch || 104;
+        var span = sh.sprite.span || 2;    /* 画到 canvas 的倍数，整数放大不糊 */
+        var cv = document.createElement("canvas");
+        cv.className = "pet cv";
+        cv.width = cw * span;
+        cv.height = chh * span;
+        el = cv;
+        var ctx = cv.getContext("2d");
+        var sheet = new Image();
+        sheet.onload = function () {
+          if (dead) return;
+          ctx.imageSmoothingEnabled = true;
+          var col = 0;
+          var draw = function () {
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            ctx.drawImage(sheet, col * cw, row * chh, cw, chh, 0, 0, cv.width, cv.height);
+            col = (col + 1) % cols;
+          };
+          draw();
+          if (reduce) return;
+          var gap = 1000 / (sh.sprite.fps || 9);
+          var tick = function () {
+            if (dead) return;
+            draw();
+            frameTimer = setTimeout(tick, gap);
+          };
+          frameTimer = setTimeout(tick, gap);
+        };
+        sheet.onerror = function () { say("这张图没取到。"); };
+        sheet.src = dir + sh.file;
       } else {
         el = document.createElement("img");
         el.className = "pet";
