@@ -536,7 +536,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .quick .q-d{font-size:13px;color:var(--ink2);line-height:1.5}
 
 /* 学号直达条：记住一次，下次一键到自己的库 */
-.seat-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:14px 16px;margin:0 0 26px;
+.seat-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:14px 16px;margin:0 0 12px;
   background:rgba(255,255,255,.72);border:1px solid rgba(198,182,166,.42);border-radius:var(--r-lg);box-shadow:var(--sh-1)}
 .seat-lbl{flex:none;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--ink3);white-space:nowrap}
 #homeNo{flex:none;width:92px;height:38px;padding:0 10px;border:1px solid rgba(198,182,166,.5);border-radius:var(--r-md);
@@ -544,6 +544,15 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 #homeNo:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,125,95,.13)}
 #homeGo{flex:none}
 .seat-note{flex:1 1 100%;min-width:0;font-size:12.5px;color:var(--ink3);line-height:1.5}
+
+/* 次级入口：一行窄链，不占第一屏的重量 */
+.line-link{display:flex;align-items:center;gap:10px;padding:12px 16px;margin:0 0 26px;flex-wrap:wrap;
+  background:rgba(255,255,255,.5);border:1px solid rgba(198,182,166,.32);border-radius:var(--r-md);
+  text-decoration:none;color:var(--ink);transition:background .15s,border-color .15s}
+.line-link:hover{background:#fff;border-color:rgba(62,125,95,.4)}
+.line-link .ll-t{font-size:13.5px;font-weight:600}
+.line-link .ll-note{font-size:12.5px;color:var(--ink3)}
+.line-link .ll-arrow{margin-left:auto;color:var(--warm2);font-size:13px}
 
 /* 首页动态小字：一行会换的活话 */
 .live-line{margin-top:12px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;min-height:18px;line-height:1.6}
@@ -645,25 +654,25 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="home-lead">
       <h1>要什么，<em>点一下</em>。</h1>
-      <p>文件都在班级 WPS 里，这里只负责把门打开 —— 三处入口，一步到东西。</p>
+      <p>专业资料、校内站点、学校系统 —— 三处入口，一步到。</p>
       <p class="live-line" id="liveLine">45 个格子都在</p>
     </div>
 
     <div class="quick-grid">
-      <button class="quick" data-ext="https://www.kdocs.cn/folder/ceMSyJ9Ww4NJ">
-        <span class="q-k">全班可读</span>
-        <span class="q-t">班级共享云库</span>
-        <span class="q-d">通知归档、集体荣誉、共同文件</span>
+      <button class="quick" data-ext="https://www.kdocs.cn/folder/cc8KmiqlrcMV">
+        <span class="q-k">学习</span>
+        <span class="q-t">专业学习资料</span>
+        <span class="q-d">专业课与网络方向的资料，3 个文件夹 · 5 份文档</span>
       </button>
-      <button class="quick" id="cardMine" data-seat="1">
-        <span class="q-k">一人一库</span>
-        <span class="q-t">我的文件夹</span>
-        <span class="q-d">输入学号后三位，记住后一键直达</span>
+      <button class="quick" data-go="#/res">
+        <span class="q-k">资料</span>
+        <span class="q-t">校内资源站</span>
+        <span class="q-d">22 个站点：知网、教务、统一认证</span>
       </button>
       <button class="quick" data-go="#/portal">
-        <span class="q-k">校内</span>
-        <span class="q-t">学校入口</span>
-        <span class="q-d">7 个官方系统 + 22 个资源站，含 VPN</span>
+        <span class="q-k">信息</span>
+        <span class="q-t">学校信息入口</span>
+        <span class="q-d">学工、VPN、官网 —— 7 个官方入口</span>
       </button>
     </div>
 
@@ -673,6 +682,12 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <button class="btn btn-sm" id="homeGo">打开</button>
       <p class="seat-note" id="homeNoNote">输入一次，记在这台设备上，下次进来点一下就到你那一库。</p>
     </div>
+
+    <a class="line-link" href="https://www.kdocs.cn/folder/ceMSyJ9Ww4NJ" target="_blank" rel="noopener">
+      <span class="ll-t">全班共享云库</span>
+      <span class="ll-note">通知归档 · 集体荣誉 · 共同文件</span>
+      <span class="ll-arrow">↗</span>
+    </a>
 
     <div class="patch">
       <div class="patch-head"><span>成员端口 · 45</span><span id="patchTip">点任意一格直达</span></div>
@@ -1088,7 +1103,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览只走 ▣ 扫码（换端按钮已撤）；填上代理地址 = 真换 HTML 壳，但得先把按钮加回来。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
-        <div class="step"><span class="step-n">09</span><div><b>首页三张入口卡</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，共三处。第一卡地址是硬编码的 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/ceMSyJ9Ww4NJ</span>）。换共享库时，这里和 <span class="mono">SHARED.slug</span> 必须同时改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页三张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>（三处：专业学习资料、校内资源站、学校信息入口）。第一卡是外链，地址硬编码在 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span>，即 <span class="mono">REPOS</span> 里的学习源库）；下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>。换库时两处与 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> 要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
       </div>
     </div>
@@ -2891,8 +2906,8 @@ route();
   var today = (now.getMonth() + 1) + " 月 " + now.getDate() + " 日 周" + wk;
   var lines = [
     today + " · " + greet + "，45 个格子都在",
-    "课表和通知在共享库，你自己那格在第二张卡",
-    "装到桌面之后，下次不用再去找网址"
+    "专业资料在第一张卡，校内站点在第二张",
+    "共享库和你那一格，收在下面那一行"
   ];
   var i = 0;
   el.style.transition = "opacity .26s";
@@ -2919,10 +2934,10 @@ route();
 
   var RULES = [
     { k: ["我的文件夹", "我那一格", "我的库", "自己那", "个人文件夹", "学号"],
-      a: "首页第二张卡：输学号后三位，点「打开」就进你那一格 WPS 文件夹。记住一次之后，下次点一下就开。",
+      a: "首页中间那条：填学号后三位，点「打开」就进你那一格 WPS 文件夹。记住一次，下次点一下就开。",
       act: { t: "回首页去输入", h: "#/home" } },
     { k: ["课表", "课程表", "时间表", "上课", "作息"],
-      a: "门户里没有课表本体，课表是班委发在共享库里的。去「成员索引」页的第一张卡进共享库，按文件名找。",
+      a: "门户里没有课表本体，课表是班委发在共享库里的。首页下面那行「全班共享云库」点进去，按文件名找。",
       act: { t: "去共享库那页", h: "#/library" } },
     { k: ["vpn", "外网", "教务", "成绩", "校园网", "系统"],
       a: "学校入口页收了官方系统和校内资源站，VPN 入口也在里面。账号要去学校信息中心申请，门户只负责把门指给你。",
