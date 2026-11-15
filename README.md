@@ -26,7 +26,7 @@
 ├── icon-512.png      # PWA 图标 512
 ├── icon-180.png      # iOS 添加到主屏幕用的图标
 ├── proxy/
-│   └── wps-proxy.js  # Cloudflare Worker：让「电脑 / 手机」真切换（可选，不部署也不影响其它功能）
+│   └── wps-proxy.js  # Cloudflare Worker（已部署，但 workers.dev 在国内不可达，故未启用）
 ├── 404.html          # 路径不存在时回首页
 ├── robots.txt        # 禁止搜索引擎收录
 ├── .nojekyll         # 关闭 Jekyll，保证文件原样发布
@@ -89,7 +89,7 @@ const MEMBERS = [
 
 文档本身不因网页公开而泄露，因为点开链接后 WPS 还会校验账号权限。
 
-**二、内嵌预览大概率是空白，且「电脑 / 手机」要接代理才真生效。** WPS 和校内系统普遍设置了禁止外部页面嵌套（`X-Frame-Options` / `frame-ancestors`），这是对方的安全策略，无法绕过。另外，实测确认 WPS 是**在服务端按 UA 分发两套完全不同的页面**（桌面 `ShareFolder`、移动 `mShareFolder`，同一链接按 Windows UA 返回 2130 B、按 iPhone UA 返回 5070 B），而在网页里改不了 UA（`User-Agent` 属于 forbidden header，脚本设置会被静默丢弃）。所以预览窗那两个按钮只有在部署了 `proxy/wps-proxy.js` 之后才真正换端——那时是让 Worker 用手机 UA 去取移动版。没部署时点「手机」会直接弹二维码：用手机扫，WPS 本来就给移动版。真正的阅览与编辑始终在 WPS 里完成，权限也始终由 WPS 把关。
+**二、内嵌预览大概率是空白，且「电脑 / 手机」要接代理才真生效。** WPS 和校内系统普遍设置了禁止外部页面嵌套（`X-Frame-Options` / `frame-ancestors`），这是对方的安全策略，无法绕过。另外，实测确认 WPS 是**在服务端按 UA 分发两套完全不同的页面**（桌面 `ShareFolder`、移动 `mShareFolder`，同一链接按 Windows UA 返回 2130 B、按 iPhone UA 返回 5070 B），而在网页里改不了 UA（`User-Agent` 属于 forbidden header，脚本设置会被静默丢弃）。所以预览窗那两个按钮只有在部署了 `proxy/wps-proxy.js`、并且把 `PROXY` 填成代理地址之后才真正换端（这个 Worker 已经部署好了，但 `workers.dev` 在国内被 DNS 污染、连不上，所以地址仍留空，详见下面的「电脑 / 手机 切换」）——那时是让 Worker 用手机 UA 去取移动版。没启用时点「手机」会直接弹二维码：用手机扫，WPS 本来就给移动版。真正的阅览与编辑始终在 WPS 里完成，权限也始终由 WPS 把关。
 
 **三、FTP 不能用浏览器打开。** Chrome、Edge、Firefox 都已移除 `ftp://` 协议支持，点了没反应是正常的。点一下会复制地址，粘贴到 Windows 资源管理器地址栏或 FileZilla 里用，且必须在校内网。
 
@@ -114,18 +114,105 @@ GitHub Pages 本身就是 `https`，所以这一套自动生效，不需要额�
 - 电脑上想预览这条提示：地址后面加 `?env=1`。
 - `sw.js` 会缓存一份页面壳，断网能打开页面框架；具体内容仍要联网（WPS 在外网）。
 
-## 电脑 / 手机 切换（可选，需要一个 Cloudflare Worker）
+## 电脑 / 手机 切换（Worker 已部署，默认未启用）
 
-WPS 在服务端按 UA 给两套壳，网页里改不了 UA，所以真切换只能让服务器替你去请求。`proxy/wps-proxy.js` 就是写好的那一个：
+WPS 在服务端按 UA 给两套壳，网页里改不了 UA，所以真切换只能让服务器替你去请求。`proxy/wps-proxy.js` 就是那个 Worker，**已经部署在班级账号的 Cloudflare 里**：
 
-1. 打开 `dash.cloudflare.com` → Workers & Pages → Create → Worker；
-2. 把 `proxy/wps-proxy.js` 全文粘进编辑器，Deploy；
-3. 记下分配到的地址（形如 `https://xxx.yyy.workers.dev`）；
-4. 回到 `index.html`，把 `let PROXY = "";` 改成那个地址，提交推送。
+| 项 | 值 |
+| --- | --- |
+| Worker 名 | `cl-wps-proxy` |
+| 地址 | `https://cl-wps-proxy.3534226279.workers.dev` |
+| Cloudflare 账号 | `3534226279@qq.com`（account id `9b541232809822d0a0af2a7150310e47`） |
+| 脚本类型 | classic（`addEventListener("fetch")`，Dashboard 在线编辑器和 API 都吃得下） |
+| 最后部署 | 2026-11-15，走 API 直传 |
 
-之后预览窗的「电脑 / 手机」才真换 HTML 壳：电脑上点「手机」，Worker 用 iPhone UA 去取 `mShareFolder`；手机上点「电脑」反过来。
+**但它在国内用不了。** 实测 `cl-wps-proxy.3534226279.workers.dev` 被 DNS 污染，解析到 `162.125.18.129`（Dropbox 的 IP），TCP 443 直接超时——`*.workers.dev` 在国内基本都这样。所以 `index.html` 里的 `let PROXY = ""` **保持为空**：点「手机」仍走弹二维码那条路，手机上扫码打开，WPS 本来就给移动版。
 
-边界说清楚：只对**公开分享链接**有效（要登录才看得到的文档，Worker 没有你的账号态）；页面里的接口请求已被注入脚本改道到代理，但个别依赖个人空间的能力可能失效——能看、能翻目录、能预览，写操作别指望。不部署 Worker 的话，其它功能一切照常，那两个按钮会改为直接弹二维码。
+想让代理真生效，只有三条路：
+
+1. **给这个 Worker 绑自定义域名**（Workers → Settings → Domains & Routes → Custom domain）。域名得解析到 Cloudflare、且国内可达；`workers.dev` 这一层绕不过去。
+2. **换个国内可达的函数平台**（阿里云函数计算、腾讯云 SCF 之类），把 `proxy/wps-proxy.js` 的逻辑搬过去，只改 `PROXY` 地址。
+3. **维持现状**。手机上本来就能看移动版，桌面看移动版是次要场景，弹二维码已经够用。
+
+填上地址之后的行为：电脑上点「手机」，Worker 用 iPhone UA 去取 `mShareFolder`；手机上点「电脑」反过来。要撤回就把 `PROXY` 清空再推。
+
+边界说清楚：只对**公开分享链接**有效（要登录才看得到的文档，Worker 没有你的账号态）；页面里的接口请求已被注入脚本改道到代理，但个别依赖个人空间的能力可能失效——能看、能翻目录、能预览，写操作别指望。
+
+## 维护与稳定性
+
+### 改什么，改哪里
+
+| 要改的东西 | 位置 |
+| --- | --- |
+| 加人 / 删人 | `MEMBERS` 数组，`no` 只填学号后三位 |
+| 换口令 | `GATE_CODE` |
+| 学校入口 / 校内资源 | `PORTALS` / `RESOURCES` |
+| 分区顺序与折叠 | `GROUPS`、`SUBS`、`ALIAS` |
+| 图标 | 重新生成 `icon-*.png`，同尺寸覆盖即可，`manifest.json` 不用改 |
+| 换端代理地址 | `index.html` 里的 `let PROXY = ""` |
+| 改代理本身 | `proxy/wps-proxy.js`，改完按下面「更新 Worker」推上去 |
+| 顶部提示条文案 | `#envbar` 那段脚本里的 `show(...)` 三个分支 |
+
+### 推上去之后多久生效
+
+- push 到 `main` 后 Pages 构建 1–2 分钟。验证时**一定要带随机参数**（`?t=123`），否则浏览器缓存会骗你，看起来像没更新。
+- `sw.js` 是网络优先策略，改页面内容不用动它。**只有改了缓存清单 `SHELL` 才需要把 `CACHE` 从 `v1` 改成 `v2`**，否则老缓存会一直留着那批旧文件。
+- 装到主屏的 PWA 不会因为刷新就更新界面，关掉图标重开一次才会拉新版。
+
+### 更新 Worker（一条命令，别用网页编辑器）
+
+Cloudflare 的在线编辑器是跨域 iframe 里的 Monaco，自动化粘贴进不去，手贴 150 行也容易漏。改完 `proxy/wps-proxy.js` 直接用 API 传：
+
+```powershell
+$acc  = "9b541232809822d0a0af2a7150310e47"
+$tok  = "<7 天期的 API Token>"
+$f    = "proxy\wps-proxy.js"
+$meta = "I:\WindowsCache\Temp\cf-meta.json"
+
+[IO.File]::WriteAllText($meta, '{"body_part":"worker.js","compatibility_date":"2025-01-01"}', (New-Object Text.UTF8Encoding $false))
+
+curl.exe -sS -X PUT "https://api.cloudflare.com/client/v4/accounts/$acc/workers/scripts/cl-wps-proxy" -H "Authorization: Bearer $tok" -F "metadata=@$meta;type=application/json" -F "worker.js=@$f;type=application/javascript"
+```
+
+返回 `"success": true` 就是上线了。四个坑：
+
+- **Token 别用模板**。`Create Token` 里的「Edit Cloudflare Workers」模板带一条 Zone policy，这个账号没有域名，会卡在 `Choose a zone resource` 出不来。改用 `Start from scratch` → Account policy → `Workers Scripts: Edit`，有效期选 **7 days**，创建完立刻复制、用完就 Delete（页面关掉就再也看不到）。
+- **metadata 必须走文件**。写成 `-F 'metadata={"main_module":"worker.js"}'` 会被 PowerShell 剥掉内层引号，服务端报 `invalid character 'm' looking for beginning of object key string`。
+- **别写 `main_module`**。这个 Worker 是 classic 类型；带 `main_module`、或源码里有 `export default`，都会报 `Unexpected token 'export'`。所以 `wps-proxy.js` 用的是 `addEventListener("fetch", ...)` + 顶层 `async function handleRequest`，改代码时保持这个结构。
+- **`curl.exe` 要写全路径**。PowerShell 里 `curl` 是 `Invoke-WebRequest` 的别名，写法不同会静默失败；用 `C:\Windows\system32\curl.exe`。
+
+### 容易出问题的六个地方
+
+1. **WPS 改版**。Worker 靠的是 WPS「服务端按 UA 分两套壳」这个行为。哪天它换目录结构，代理可能只返回壳、内容出不来。自查一行命令：
+
+   ```powershell
+   $h = @{ "User-Agent" = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1" }
+   $r = Invoke-WebRequest "https://www.kdocs.cn/folder/<slug>" -Headers $h -UseBasicParsing
+   $r.RawContentLength; ($r.Content -match 'mShareFolder')
+   ```
+
+   返回 5000 字节上下、`mShareFolder` 为真，说明分流还在，代理能用；变成登录页或 2000 字节左右，说明手机壳的入口变了。
+
+2. **Worker 免费额度**。每天 10 万请求，班级规模一年也用不到百分之一。别把白名单 `HOSTS` 扩大，否则它会变成公开代理，额度很快烧完还可能被封。
+
+3. **WPS 限流**。同一个分享页被反复代理抓，可能触发风控返回验证页。Worker 里给的是 `cache-control: max-age=30`，别改成 0。真被限流时把 `PROXY` 临时清空即可——点「手机」会退回弹二维码，不影响任何人看文档。
+
+4. **分享被撤回**。写着「永久有效」也会被分享者收回。撤回后代理拿到的是 WPS 的错误页，不是站点坏了。
+
+5. **PWA 装不上**。按顺序排查：当前是不是 `https`（`file://` 一定不行）→ 是不是在微信 / QQ 内置浏览器 → DevTools → Application → Service Workers → Unregister 清掉旧壳再试。
+
+6. **所有手机都看到旧版**。把 `sw.js` 里的 `CACHE = "class-cloud-2502-v1"` 改成 `v2` 再推，`activate` 阶段会清掉旧缓存。
+
+### 出事了先做这一句
+
+页面是单文件，改坏了直接回退：
+
+```bash
+git checkout HEAD~1 -- index.html
+git commit -m "revert index.html" && git push
+```
+
+`manifest.json`、`sw.js`、图标这三样不动也能一直跑；换端代理是可选装饰，它坏了不影响任何人打开文档。
 
 ## 技术说明
 

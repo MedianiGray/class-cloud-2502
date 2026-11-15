@@ -78,8 +78,7 @@ function rewriteHtml(html, target, mode, base) {
   return html;
 }
 
-export default {
-  async fetch(request) {
+async function handleRequest(request) {
     const url = new URL(request.url);
 
     if (request.method === "OPTIONS") {
@@ -137,5 +136,8 @@ export default {
     out.set("content-type", "text/html; charset=utf-8");
     out.set("cache-control", "public, max-age=30");
     return new Response(rewriteHtml(html, target, mode, base), { status: 200, headers: out });
-  }
-};
+}
+
+addEventListener("fetch", function (event) {
+  event.respondWith(handleRequest(event.request));
+});
