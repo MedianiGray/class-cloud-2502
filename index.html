@@ -1062,12 +1062,12 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览右上角那对按钮带「测试」、点了只给说明；填上云函数入口地址 = 真换 HTML 壳，验证通过再去掉「测试」。代码在 <span class="mono">proxy/cloudbase-wps/</span>。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
-        <div class="step"><span class="step-n">09</span><div><b>首页两张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只有两处：资料库、学校系统，都靠 <span class="mono">data-go</span> 跳 hash。<b>别再加回第三张</b>：原来那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>；「这个站能做的十件事」不在首页了，挪到页脚和 <span class="mono">more.html</span>，首页不再挂第二条窄链。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这两处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 三颗小胶囊：班级云库（<span class="mono">#/library</span>）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>别再往首页加第三张卡或第四颗胶囊</b>：45 格成员端口和「全班共享库」那一行都已经在 <span class="mono">#/library</span> 里，首页只负责把人送到，不负责自己摊开。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时（手机、窄屏）按钮会明确说它不在这儿，不假装成功。</div></div>
-        <div class="step"><span class="step-n">14</span><div><b>桌宠现在有二十二个形象</b>　一个是「大肥鱼」，第三方开源库（MIT），带二十段真动画；另外二十一个是图片版：小蓝鲸、小月牙、小机器人、小海豚、小团子、小云朵、小闪电、小方糖、小星星，加上按抖音那批「AI 娘」做的 Q 版 —— 大小姐、白龙娘、紫双星、千问、小桃子、黑和风、金发斧、橘发水手，再加小奶龙、小猫娘、向日葵、代码小姐。图在 <span class="mono">pet/shapes/*@480.png</span>（每张 100–230KB），外壳是自己写的 <span class="mono">pet/shapes.js</span>，无依赖。切换只有一句 <span class="mono">__PET_SWITCH("star")</span>，可用 id：<span class="mono">dafeiyu / whale / moon / robot / dolphin / bean / cloud / bolt / sugar / star / claude / gpt / gemini / qwen / peach / glm / grok / mistral / nailong / catgirl / sunflower / codex</span>，选过的记在 localStorage 的 <span class="mono">cl_pet_shape_v1</span>，刷新还是它。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它<b>只挂一次</b>，切去别的形象时只把它 <span class="mono">display:none</span>，切回来再显示。「收了」也是藏，不是销毁。<b>想加新形象</b>：往 <span class="mono">pet/shapes.js</span> 的 <span class="mono">SHAPES</span> 数组加一条（id、名字、文件名、几句台词），再放一张 480 的透明 PNG，接口自动继承，别的代码一行不用改 —— 「问问」的形象菜单读的就是这个数组，加完自动多一项。<b>做图注意</b>：生图要透明底，出来若带一块分离的投影（像云朵那张），按连通块只保留最大那块，否则贴在页面上会有一坨灰；人物类一律做成 Q 版童趣，别照搬别人的同人立绘。</div></div>
+<div class="step"><span class="step-n">14</span><div><b>桌宠二十四个形象，其中六个真会动</b>　<b>大肥鱼</b>是第三方开源库（MIT），二十段真动画，能拖、能摸头、能喂饭。<b>另外五个是逐帧精灵图</b>：大肥鱼·女仆、深海少女、白龙娘、大小姐、小桃子 —— 抖音那批拟人 AI 里能拿到开源素材的五家（DeepSeek 两只、GPT、Claude、豆包），来自 <span class="mono">github.com/legeling/awesome-codex-pet</span>，<b>代码 MIT、素材 CC BY-NC 4.0</b>：可分享可改编、必须署名、<b>不许商用</b>（班级站非商业，但 <span class="mono">SHAPES</span> 里的 <span class="mono">credit</span> 字段和 <span class="mono">more.html</span> 那句出处要留着）。图在 <span class="mono">pet/sprites/*.webp</span>，原图 1536×2288（v1 是 1536×1872），按 0.6 压到 921 宽，每张 120–410KB。剩下十八个是静态 PNG，在 <span class="mono">pet/shapes/*@480.png</span>。<b>精灵图怎么播</b>：8 列，v2 十一行（九套动作＋十六个朝向）、v1 九行，每格 192×208，每行八帧循环，第一行当待机；外壳给 <span class="mono">.pet.sp</span> 设 <span class="mono">background-size:800% (rows*100)%</span>，每 1/fps 秒把 <span class="mono">background-position</span> 往左挪一格；元素宽取 92.31%，保住 192:208 的比例，不然会被横向拉宽。<b>想加形象</b>：往 <span class="mono">SHAPES</span> 加一条，静态的给 <span class="mono">file</span>，动画的再加 <span class="mono">sprite:{cols,rows,row,fps}</span> 和 <span class="mono">base:"pet/sprites/"</span>，菜单自动多一项、且显示「（动）」字。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它只挂一次，切去别的形象时只 <span class="mono">display:none</span>；<b>也别去扒 B 站那种 Live2D 公皮</b>，作者明确禁止盗用，只用 CC 授权的素材。切换一句 <span class="mono">__PET_SWITCH("whalechan")</span>，可用 id 看 <span class="mono">__PET_LIST()</span>，选过的记在 <span class="mono">cl_pet_shape_v1</span>。</div></div>
       </div>
     </div>
 
@@ -2924,7 +2924,7 @@ route();
         var names = [], i;
         for (i = 0; i < list.length; i++) names.push(list[i].name);
         return "现在有 " + names.length + " 个：" + names.join("、") +
-          "。点下面任一就换，或者直接说名字。大肥鱼是二十段真动画，其余 " + (names.length - 1) + " 个是图片版，会呼吸、会跳、能拖。";
+          "。点下面任一就换，或者直接说名字。名字后面带「动」的 5 个是逐帧精灵图，每行一套动作自己会演；「大肥鱼」是二十段真动画；其余是图片版，会呼吸、会跳、能拖。";
       },
       /* 动态生成：pet/shapes.js 的 SHAPES 加一条，这里自动多一个按钮 */
       acts: function(){
@@ -2932,7 +2932,7 @@ route();
         var out = [];
         for (var i = 0; i < list.length; i++) {
           out.push((function (it) {
-            return { t: "换" + it.name, do: function(){ petCall("switch", it.id); } };
+            return { t: "换" + it.name + (it.anim ? "（动）" : ""), do: function(){ petCall("switch", it.id); } };
           })(list[i]));
         }
         return out;
@@ -2944,7 +2944,7 @@ route();
         { t: "复制备用", c: "ftp://10.0.91.200" }
       ] },
     { k: ["怎么用", "从哪开始", "第一次", "不会用", "上手", "入门"],
-      a: "两步：首页中间填学号后三位进你那一格；要资料点左边那张卡，要办事点右边那张卡。想找某个人，去成员索引点格子。",
+      a: "两步：首页中间填学号后三位进你那一格；要资料点上面那张大卡，要办事就点下面那排小按钮（班级云库 / 学校信息 / 十件事）。想找某个人，去成员索引点格子。",
       acts: [{ t: "回首页", h: "#/home" }, { t: "去成员索引", h: "#/library" }] },
     { k: ["现在在哪", "这是哪", "什么页", "我在哪", "当前页"],
       a: function(){ return "你在「" + viewName() + "」，这一区有 " + hereCount() + " 个能点的入口。"; },
@@ -3269,7 +3269,8 @@ route();
     var out = [{ id: "dafeiyu", name: "大肥鱼" }];
     if (window.SmallShapes && window.SmallShapes.list) {
       for (var i = 0; i < window.SmallShapes.list.length; i++) {
-        out.push({ id: window.SmallShapes.list[i].id, name: window.SmallShapes.list[i].name });
+        out.push({ id: window.SmallShapes.list[i].id, name: window.SmallShapes.list[i].name,
+                   anim: !!window.SmallShapes.list[i].sprite });
       }
     }
     return out;
