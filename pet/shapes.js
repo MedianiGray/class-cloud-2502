@@ -69,7 +69,7 @@
       lines: ["先看报错，再猜原因。", "能跑就行，回头再漂亮。", "别在半夜改架构。", "我写的是代码，不是许愿。"] }
   ];
 
-  var TKEY = "cl_pet_shape_v1";
+  var TKEY = "cl_pet_shape_v2";
 
   function pick(id) {
     for (var i = 0; i < SHAPES.length; i++) { if (SHAPES[i].id === id) return SHAPES[i]; }
@@ -108,7 +108,7 @@
       'filter:drop-shadow(0 6px 12px rgba(0,0,0,.18));' +
       'animation:breathe 4.2s ease-in-out infinite;transform-origin:50% 88%;}' +
       'img.pet{object-fit:contain;}' +
-      /* 精灵图用 canvas 画：每格 96×104 是整数，相邻格不会互相插值出白边 */
+      /* 精灵图用 canvas 画：每格 144×156 是整数，相邻格不会互相插值出白边 */
       '.pet.cv{width:92.31%;height:100%;margin:0 auto;display:block;animation:none;}' +
       '.pet.cv.hop{animation:hop .55s cubic-bezier(.3,.9,.4,1) 1;}' +
       '.pet.drag{cursor:grabbing;animation:none;}' +
