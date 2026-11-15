@@ -562,14 +562,15 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.36)}
 .bot-fab.on{background:linear-gradient(160deg,#A87050,#8A5638)}
 
-/* 浮动导航：跟着视口停在右下，和桌宠、问问同一块角落；窄屏取代顶栏 */
+/* 浮动导航：正常由大肥鱼本体承载（点鱼弹菜单），只在鱼没挂上时退化成这颗独立钮 */
 .nav-fab{position:fixed;right:18px;bottom:86px;width:54px;height:54px;border:0;border-radius:50%;
   background:#FFFDFB;color:#2F5F49;box-shadow:0 10px 26px rgba(47,95,73,.22);cursor:pointer;z-index:62;
-  display:flex;align-items:center;justify-content:center;transition:transform .18s,box-shadow .18s}
+  display:none;align-items:center;justify-content:center;transition:transform .18s,box-shadow .18s}
+.nav-fab.show{display:flex}
 .nav-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.30)}
 .nav-fab svg{width:19px;height:19px}
 .nav-fab.on{background:#2F5F49;color:#fff}
-.nav-dock{position:fixed;right:80px;bottom:22px;z-index:62;display:none;flex-direction:column;gap:4px;
+.nav-dock{position:fixed;left:18px;right:auto;bottom:250px;z-index:62;display:none;flex-direction:column;gap:4px;
   background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:14px;padding:7px;
   box-shadow:0 18px 40px rgba(40,60,50,.18)}
 .nav-dock.open{display:flex}
@@ -607,7 +608,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   .bot-fab{right:14px;bottom:78px;width:50px;height:50px}
   .bot-panel{right:12px;bottom:136px;max-height:min(62vh,430px)}
   .nav-fab{right:14px;bottom:136px;width:50px;height:50px}
-  .nav-dock{right:14px;bottom:196px}
+  .nav-dock{left:14px;bottom:186px}
 }
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:760px){ .nav{display:none} }
@@ -3257,12 +3258,23 @@ route();
     return null;
   }
 
+  function wireFishNav(){
+    if (dyHost && window.bindFishNav) { window.bindFishNav(dyHost); return true; }
+    if (dyHost) { setTimeout(wireFishNav, 300); return false; }
+    return false;
+  }
+
   function holdDafeiyu(){
-    if (dy) return true;
+    if (dy) { wireFishNav(); return true; }
     if (!window.Dafeiyu) return false;
     dy = mountDafeiyu();
     dyHost = grabDyHost();
-    if (!dyHost) setTimeout(function(){ if (!dyHost) dyHost = grabDyHost(); }, 400);
+    if (!dyHost) {
+      setTimeout(function(){
+        if (!dyHost) dyHost = grabDyHost();
+        wireFishNav();
+      }, 400);
+    } else wireFishNav();
     return !!dy;
   }
 
@@ -3368,10 +3380,51 @@ route();
   d.innerHTML = items.map(function(t){
     return '<a href="' + t[0] + '" data-k="' + t[2] + '">' + t[1] + '</a>';
   }).join("");
+  var fishHost = null;
+
+  /* 菜单挂在鱼头顶上方。鱼的位置写在宿主自己的 transform 里（translate(x, y)），
+     而它内部的 video / 容器 rect 读出来是 0，所以这里直接解 transform */
+  function placeDock(){
+    d.style.left = ""; d.style.right = ""; d.style.bottom = "";
+    if (!fishHost) return;
+    var tf = (fishHost.style.transform || "").match(/translate(?:3d)?\(([-\d.]+)px,\s*([-\d.]+)px/);
+    var x, y;
+    if (tf) { x = parseFloat(tf[1]); y = parseFloat(tf[2]); }
+    else {
+      var r = fishHost.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+      x = r.left; y = r.top;
+    }
+    if (!isFinite(x) || !isFinite(y)) return;
+    d.style.left = Math.max(10, Math.min(x, window.innerWidth - 150)) + "px";
+    d.style.right = "auto";
+    d.style.bottom = Math.max(12, window.innerHeight - y + 10) + "px";
+  }
+  function openDock(){ placeDock(); d.classList.add("open"); f.classList.add("on"); }
   function closeDock(){ d.classList.remove("open"); f.classList.remove("on"); }
-  f.addEventListener("click", function(e){ e.stopPropagation(); d.classList.toggle("open"); f.classList.toggle("on"); });
+
+  /* 点鱼开菜单。用捕获阶段监听：鱼自己的内部逻辑就算 stopPropagation 也挡不住；
+     只认「轻点」，拖鱼、长按摸头都不会误触 */
+  window.bindFishNav = function(host){
+    if (!host || host === fishHost) return;
+    fishHost = host;
+    f.classList.remove("show");
+    var x0 = 0, y0 = 0, t0 = 0;
+    host.addEventListener("pointerdown", function(e){
+      x0 = e.clientX; y0 = e.clientY; t0 = Date.now();
+    }, true);
+    host.addEventListener("pointerup", function(e){
+      var dt = Date.now() - t0;
+      var dd = Math.sqrt((e.clientX - x0) * (e.clientX - x0) + (e.clientY - y0) * (e.clientY - y0));
+      if (dt < 520 && dd < 12) { d.classList.contains("open") ? closeDock() : openDock(); }
+    }, true);
+  };
+
+  f.addEventListener("click", function(e){ e.stopPropagation(); openDock(); });
   document.addEventListener("click", function(e){ if (!d.contains(e.target)) closeDock(); });
   d.addEventListener("click", function(e){ if (e.target.closest("a")) closeDock(); });
+  /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），导航退化成右上那颗独立钮，不能没有入口 */
+  setTimeout(function(){ if (!fishHost) f.classList.add("show"); }, 6000);
   window.syncNavDock = function(){
     var raw = (location.hash || "#/main").replace(/^#\//, "").split("?")[0];
     var group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
