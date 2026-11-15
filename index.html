@@ -1056,6 +1056,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
         <div class="step"><span class="step-n">09</span><div><b>首页三张卡与共享库那一行</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>（三处：专业学习资料、校内资源站、学校信息入口）。第一卡是外链，地址硬编码在 <span class="mono">data-ext</span>（<span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span>，即 <span class="mono">REPOS</span> 里的学习源库）；下面 <span class="mono">.line-link</span> 是班级共享库，硬编码 <span class="mono">ceMSyJ9Ww4NJ</span>。换库时两处与 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> 要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
+        <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
       </div>
     </div>
 
@@ -2944,6 +2945,52 @@ route();
   if (chips) chips.addEventListener("click", function(e){
     var b = e.target.closest("[data-q]");
     if (b) ask(b.getAttribute("data-q"));
+  });
+})();
+</script>
+
+<!-- ===== 网页宠物「大肥鱼」：dafeiyu（MIT），动画素材来自 dsh-pet（MIT）
+     脚本与素材都在本站 pet/ 目录，不走外部 CDN；只在电脑宽屏、页面静下来两秒后出现，
+     位置左下，避开右下角的「问问」；拉不到就不显示，页面本身照常工作 ===== -->
+<script>
+(function(){
+  var mounted = false;
+  function mountPet(){
+    if (mounted || !window.Dafeiyu || typeof window.Dafeiyu.mount !== "function") return;
+    mounted = true;
+    try {
+      window.Dafeiyu.mount({
+        assetBase: "pet/assets/",
+        size: 210,
+        position: "bottom-left",
+        zIndex: 61,
+        name: "大肥鱼",
+        whisperIntervalSec: 200,
+        enabledOnMobile: false,
+        lines: [
+          "资料在第一张卡上，慢点翻，别急着问。",
+          "学号后三位填一次，往后它自己记得。",
+          "要开学校系统的，先连上 VPN 再说。",
+          "四十五个格子，一人一格，别点错。",
+          "通知都往共享库那一行归，找文件先去那儿。"
+        ]
+      });
+    } catch (err) {
+      /* 宠物挂了不影响页面任何功能 */
+    }
+  }
+  function loadPet(){
+    var s = document.createElement("script");
+    s.src = "pet/dafeiyu.iife.js";
+    s.async = true;
+    s.onload = mountPet;
+    s.onerror = function(){ /* 脚本缺失也不报错、不提示 */ };
+    document.head.appendChild(s);
+  }
+  window.addEventListener("load", function(){
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.innerWidth < 760) return;
+    setTimeout(loadPet, 2200);
   });
 })();
 </script>

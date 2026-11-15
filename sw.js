@@ -32,6 +32,10 @@ self.addEventListener("fetch", function (e) {
   try { url = new URL(req.url); } catch (err) { return; }
   if (url.origin !== location.origin) return;
 
+  /* 宠物素材（pet/ 下近 9 MB 的视频）不进离线缓存：
+     浏览器 HTTP 缓存会照常处理，交给 Cache API 反而让首次访问多写一遍盘 */
+  if (url.pathname.indexOf("/pet/") !== -1) return;
+
   e.respondWith(
     fetch(req).then(function (res) {
       if (res && res.status === 200 && res.type === "basic") {
