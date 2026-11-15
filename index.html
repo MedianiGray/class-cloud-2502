@@ -1260,7 +1260,8 @@ function brwName(url){
 
 /* 端切换走代理：WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，
    网页改不了 UA，就让 Worker 替你改（代码见 proxy/wps-proxy.js）。 */
-let PROXY = "";   /* 部署 proxy/wps-proxy.js 后填 Worker 地址，例如 "https://cl-wps.xxx.workers.dev" */
+let PROXY = "";   /* Worker 已部署在班级 Cloudflare（cl-wps-proxy.3534226279.workers.dev），
+                     但 workers.dev 在国内被 DNS 污染、连不上，所以这里留空；启用要先给 Worker 绑自有域名 */
 
 function proxyFor(u, mode){
   if (!PROXY) return u;
