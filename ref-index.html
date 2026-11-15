@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>班级云库 · 索引</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='7' height='7' fill='%232E5348'/%3E%3Crect x='14' y='3' width='7' height='7' fill='%232E5348' opacity='.5'/%3E%3Crect x='3' y='14' width='7' height='7' fill='%232E5348' opacity='.5'/%3E%3Crect x='14' y='14' width='7' height='7' fill='%232E5348'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#FCFCFB;
+  --ink:#171C1A;
+  --ink-2:#4B5450;
+  --ink-3:#7A837E;
+  --rule:#DCDED9;
+  --accent:#2E5348;
+  --wash:#EDF1EE;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:20;background:rgba(252,252,251,.92);border-bottom:1px solid var(--rule);backdrop-filter:blur(8px)}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 18px;height:52px;max-width:1180px;margin:0 auto}
+.brand{text-decoration:none;display:flex;align-items:baseline;gap:8px;min-width:0}
+.brand b{font-size:14.5px;font-weight:650;letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{font-size:13px;color:var(--ink-2);text-decoration:none;white-space:nowrap;padding:6px 10px;border:1px solid var(--rule);border-radius:3px}
+.back:hover{border-color:var(--accent);color:var(--accent)}
+.shell{max-width:1180px;margin:0 auto;padding:0 18px 88px}
+.toc{position:sticky;top:52px;z-index:10;background:var(--paper);display:flex;gap:20px;padding:14px 0 10px;border-bottom:1px solid var(--rule);overflow-x:auto;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{font-size:13px;color:var(--ink-2);text-decoration:none;white-space:nowrap;padding-bottom:9px;margin-bottom:-11px;border-bottom:2px solid transparent}
+.toc a.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+h1{margin:34px 0 10px;font-size:30px;line-height:1.2;letter-spacing:-.022em;font-weight:680}
+.lede{max-width:52ch;margin:0 0 8px;color:var(--ink-2);font-size:14.5px;line-height:1.75}
+.lede b{color:var(--ink);font-weight:600}
+section{margin-top:40px;scroll-margin-top:76px}
+h2{margin:0 0 4px;font-size:18.5px;line-height:1.3;letter-spacing:-.014em;font-weight:650}
+.sub{margin:0;color:var(--ink-3);font-size:12.5px}
+table{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:14px}
+col.c1{width:54px}
+col.c3{width:104px}
+thead th{
+  text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.06em;color:var(--ink-3);
+  padding:0 0 7px;border-bottom:1px solid var(--rule);
+}
+tbody td{padding:13px 12px 13px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+tbody td:first-child{padding-left:2px;color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:12.5px}
+tbody td:last-child{padding-right:0;text-align:right}
+.nm{font-size:14px;font-weight:600;letter-spacing:-.008em}
+.nm a{text-decoration:none}
+.nm a:hover{text-decoration:underline;text-underline-offset:3px}
+.ds{display:block;margin-top:3px;color:var(--ink-2);font-size:12.5px;line-height:1.6}
+.reach{display:inline-block;margin-top:5px;padding:1px 6px;border:1px solid var(--rule);border-radius:2px;font-size:11px;color:var(--ink-3);letter-spacing:.02em}
+.reach.warn{color:#8a5a3c;border-color:#e3d3c6;background:#fdf7f2}
+.reach.ok{color:var(--accent);border-color:#cfdcd6;background:var(--wash)}
+.act{display:inline-block;font-size:12.5px;text-decoration:none;color:var(--accent);border:1px solid #cfdcd6;border-radius:3px;padding:5px 11px;white-space:nowrap;background:#fff}
+.act:hover{background:var(--wash)}
+.grid-mem{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;margin-top:16px;background:var(--rule);border:1px solid var(--rule)}
+.m{background:var(--paper);padding:9px 6px 8px;text-align:center;text-decoration:none;display:block}
+.m:hover{background:var(--wash)}
+.m .i{display:block;font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.m .n{display:block;margin-top:2px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.note-line{margin:12px 0 0;font-size:12px;color:var(--ink-3)}
+.cmp{margin-top:16px;border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:100px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--rule)}
+.row .k{font-size:12px;color:var(--ink-3)}
+.row .v{font-size:13.5px;line-height:1.7}
+.row .v em{font-style:normal;color:var(--ink-3)}
+.row .v b{font-weight:600}
+.foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:12.5px;line-height:1.75;max-width:56ch}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,12px);opacity:0;pointer-events:none;
+  background:var(--ink);color:#fff;font-size:12.5px;padding:9px 14px;border-radius:3px;transition:opacity .18s,transform .18s;z-index:30}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (min-width:760px){
+  body{font-size:14.5px}
+  h1{font-size:38px;margin-top:44px}
+  .shell{padding:0 24px 104px}
+  .toc{gap:26px;padding:18px 0 12px}
+  .grid-mem{grid-template-columns:repeat(9,1fr)}
+  .row{grid-template-columns:132px 1fr;gap:20px}
+  tbody td{padding:14px 14px 14px 0}
+  .m{padding:11px 8px 10px}
+  .m .n{font-size:13.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .toast{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="index.html"><b>班级云库</b><span>2502 · 网络工程技术</span></a>
+    <a class="back" href="index.html">回门户</a>
+  </div>
+</header>
+
+<main class="shell">
+
+  <nav class="toc" id="toc">
+    <a href="#s-res" data-to="s-res">资源</a>
+    <a href="#s-sys" data-to="s-sys">系统</a>
+    <a href="#s-mem" data-to="s-mem">成员</a>
+    <a href="#s-note" data-to="s-note">对照</a>
+  </nav>
+
+  <h1>索引</h1>
+  <p class="lede">班里能用到的东西分三摊：<b>WPS 里的三个库</b>、<b>校内的七个系统入口</b>、<b>四十五个人各一格</b>。这一页只做一件事——让你按名字查到它在哪、点得开、还是得先连校园网。</p>
+  <p class="sub">文件本体都在 WPS，权限由 WPS 账号和分享设置管；这页只存入口，不复制、不缓存任何文档内容。</p>
+
+  <section id="s-res">
+    <h2>资源</h2>
+    <p class="sub">三个 WPS 共享库，公网可直接打开。</p>
+    <table>
+      <colgroup><col class="c1"><col><col class="c3"></colgroup>
+      <thead><tr><th>序号</th><th>名称与内容</th><th>动作</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>01</td>
+          <td><span class="nm"><a href="https://www.kdocs.cn/folder/cc8KmiqlrcMV" target="_blank" rel="noopener">专业学习资料</a></span>
+              <span class="ds">专业课与网络方向的资料汇编。</span>
+              <span class="reach">3 个文件夹 · 5 份文档</span></td>
+          <td><a class="act" href="https://www.kdocs.cn/folder/cc8KmiqlrcMV" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>02</td>
+          <td><span class="nm"><a href="https://www.kdocs.cn/folder/cpQ7FYtCJpAE" target="_blank" rel="noopener">学校相关的事宜</a></span>
+              <span class="ds">通知、表格、需要留底的截图都收在这里。</span>
+              <span class="reach">3 个文件夹 · 8 张图片</span></td>
+          <td><a class="act" href="https://www.kdocs.cn/folder/cpQ7FYtCJpAE" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>03</td>
+          <td><span class="nm"><a href="https://www.kdocs.cn/folder/ctjLDPYcTofa" target="_blank" rel="noopener">共享社区</a></span>
+              <span class="ds">作业互看、专栏、教学动图，班里自己往里放东西的地方。</span>
+              <span class="reach">2 个专栏 · 11 份作业 · 1 个动图</span></td>
+          <td><a class="act" href="https://www.kdocs.cn/folder/ctjLDPYcTofa" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>04</td>
+          <td><span class="nm"><a href="https://www.kdocs.cn/folder/ceMSyJ9Ww4NJ" target="_blank" rel="noopener">班级共享云库</a></span>
+              <span class="ds">全班共用的那一格：通知归档、集体荣誉、共同文件。</span>
+              <span class="reach ok">公网可达</span></td>
+          <td><a class="act" href="https://www.kdocs.cn/folder/ceMSyJ9Ww4NJ" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="s-sys">
+    <h2>系统</h2>
+    <p class="sub">学校七个官方入口。标「需校内网」的，校外要先走 VPN。</p>
+    <table>
+      <colgroup><col class="c1"><col><col class="c3"></colgroup>
+      <thead><tr><th>序号</th><th>系统与用途</th><th>动作</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>01</td>
+          <td><span class="nm"><a href="https://xgxtsudent.gxnzd.com.cn/Student/Page/StudentHome.html" target="_blank" rel="noopener">智慧学工 · 学生端</a></span>
+              <span class="ds">学籍信息、资助申请、请假、评奖评优。</span>
+              <span class="reach warn">需校内网</span></td>
+          <td><a class="act" href="https://xgxtsudent.gxnzd.com.cn/Student/Page/StudentHome.html" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>02</td>
+          <td><span class="nm"><a href="https://vpn.gxnzd.com.cn/login" target="_blank" rel="noopener">资源访问控制系统</a></span>
+              <span class="ds">校外访问校内系统的统一认证入口，登录后按提示接入内网。</span>
+              <span class="reach">校外必走</span></td>
+          <td><a class="act" href="https://vpn.gxnzd.com.cn/login" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>03</td>
+          <td><span class="nm"><a href="https://ssl.gxnzd.edu.cn/portal/#!/login" target="_blank" rel="noopener">SSL VPN 门户</a></span>
+              <span class="ds">备用线路，主入口异常时改走这里。</span>
+              <span class="reach">校外备线</span></td>
+          <td><a class="act" href="https://ssl.gxnzd.edu.cn/portal/#!/login" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>04</td>
+          <td><span class="nm"><a href="https://www.gxnzd.edu.cn/" target="_blank" rel="noopener">广西农业职业技术大学官网</a></span>
+              <span class="ds">校内新闻、通知公告、机构设置与联系方式。</span>
+              <span class="reach ok">公网可达</span></td>
+          <td><a class="act" href="https://www.gxnzd.edu.cn/" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>05</td>
+          <td><span class="nm"><a href="https://bgty.gxnzd.edu.cn/" target="_blank" rel="noopener">bgty 业务站点</a></span>
+              <span class="ds">资料原文只给了域名，没写用途；进去自己看。</span>
+              <span class="reach warn">需校内网</span></td>
+          <td><a class="act" href="https://bgty.gxnzd.edu.cn/" target="_blank" rel="noopener">打开</a></td>
+        </tr>
+        <tr>
+          <td>06</td>
+          <td><span class="nm">FTP 仓库 · 主节点</span>
+              <span class="ds">校内文件仓库，浏览器打不开，要用资源管理器或 FileZilla。</span>
+              <span class="reach warn">仅校园网</span></td>
+          <td><button class="act" type="button" data-copy="10.0.91.2">复制地址</button></td>
+        </tr>
+        <tr>
+          <td>07</td>
+          <td><span class="nm">FTP 仓库 · 备用节点</span>
+              <span class="ds">主节点不通时换这个，同样限校园网。</span>
+              <span class="reach warn">仅校园网</span></td>
+          <td><button class="act" type="button" data-copy="10.0.91.200">复制地址</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="s-mem">
+    <h2>成员</h2>
+    <p class="sub">四十五格，点一格进你自己的 WPS 文件夹。格子里上面是序号、下面是学号尾号。</p>
+    <div class="grid-mem" id="memGrid"></div>
+    <p class="note-line" id="memNote"></p>
+  </section>
+
+  <section id="s-note">
+    <h2>对照</h2>
+    <p class="sub">这一页和门户首页是同一份数据、两种排法。下面写清差在哪，以及各自适合谁。</p>
+    <div class="cmp">
+      <div class="row"><span class="k">第一眼</span><span class="v"><b>门户首页</b>先给你三张大卡，各一句话。　<em>本页：先给你一张目录，全部条目同屏可扫。</em></span></div>
+      <div class="row"><span class="k">找东西</span><span class="v"><b>门户首页</b>认卡 → 点进去 → 再找。　<em>本页：按名字扫一行，行内就写着点不点得开。</em></span></div>
+      <div class="row"><span class="k">四十五人</span><span class="v"><b>门户首页</b>彩色端口条，靠颜色记人。　<em>本页：编号网格，和学号尾号对齐，扫得比认得快。</em></span></div>
+      <div class="row"><span class="k">改内容</span><span class="v"><b>门户首页</b>改卡片文案与图标。　<em>本页：加删一行数据，页码自己跟着变。</em></span></div>
+      <div class="row"><span class="k">适合谁</span><span class="v"><b>门户首页</b>第一次来的人，需要有人领着走。　<em>本页：已经知道要找什么的人，只想快点拿到。</em></span></div>
+    </div>
+  </section>
+
+  <p class="foot">数据与门户同源：三处 WPS 库、七个系统入口、四十五位成员，都取自同一个记录。名册里没有 <span style="font-variant-numeric:tabular-nums">222</span> 这一格，是原表就这样，本页不补空位。改门户的成员表时，这页的网格要一起改。</p>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var MEMBERS = [{"no":"312","slug":"coPIh8Gpsej1"},{"no":"201","slug":"ctWvsvDFbsPW"},{"no":"202","slug":"cnz1JZHoHLro"},{"no":"203","slug":"caPs8g8EntZf"},{"no":"204","slug":"ckngLXqMCDWT"},{"no":"205","slug":"csS511YwbGwB"},{"no":"206","slug":"clDRxERyyNSp"},{"no":"207","slug":"ci5Bc9RuR3ju"},{"no":"208","slug":"caRisTWLrJUs"},{"no":"209","slug":"cuoQIVlYn1ML"},{"no":"210","slug":"cqlaWryabkWl"},{"no":"211","slug":"cimfiV3s6ujY"},{"no":"212","slug":"csb3w0NPH4tE"},{"no":"213","slug":"chLoXcHp8CRt"},{"no":"214","slug":"ceeqTnq6PCYI"},{"no":"215","slug":"cuzgdcQfUXfJ"},{"no":"216","slug":"cdtfWXAEaT42"},{"no":"217","slug":"csphjmHCUD0y"},{"no":"218","slug":"cf6pbKoI8gc2"},{"no":"219","slug":"cezEo2BPznco"},{"no":"220","slug":"ckmzQdQnLYiW"},{"no":"221","slug":"celyolXSHzxN"},{"no":"223","slug":"ct4edqOHe6WU"},{"no":"224","slug":"caR9ZMnn0bIe"},{"no":"225","slug":"cgssOMlobSZu"},{"no":"226","slug":"cqriafeaFoa4"},{"no":"227","slug":"crDSdWfN3h4u"},{"no":"228","slug":"cutSzuWv28Yh"},{"no":"229","slug":"cklDmbods1qn"},{"no":"230","slug":"ccwldHqBQJxt"},{"no":"231","slug":"cuqwnGBNSRal"},{"no":"232","slug":"cixUZF8G4Bfq"},{"no":"233","slug":"chvv6EbZgWEu"},{"no":"234","slug":"caTSZAAV1BCP"},{"no":"235","slug":"cepwUGQkHqVQ"},{"no":"236","slug":"clwi4hb6kd5W"},{"no":"237","slug":"ckzKCB7EHMIL"},{"no":"238","slug":"cqsFDJATdIeT"},{"no":"239","slug":"ctkSEyS6oty5"},{"no":"240","slug":"cbMLm40ktQqy"},{"no":"241","slug":"chNCXDw52DZ2"},{"no":"242","slug":"cpaBJlArFcrc"},{"no":"243","slug":"cg3ObUBOo2mJ"},{"no":"244","slug":"crWiHIzHNRXx"},{"no":"245","slug":"cuy6qjnhLmJ0"}];
+
+function pad2(n){ return (n < 10 ? "0" : "") + n; }
+
+(function buildMem(){
+  var grid = document.getElementById("memGrid");
+  grid.innerHTML = MEMBERS.map(function(m, i){
+    return '<a class="m" href="https://www.kdocs.cn/folder/' + m.slug + '" target="_blank" rel="noopener" title="第 ' + pad2(i + 1) + " 位 · 尾号 " + m.no + '">'
+      + '<span class="i">' + pad2(i + 1) + '</span>'
+      + '<span class="n">' + m.no + '</span></a>';
+  }).join("");
+  document.getElementById("memNote").textContent = "共 " + MEMBERS.length + " 格，序号按名册顺序。";
+})();
+
+(function tocSpy(){
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+  links.forEach(function(a){
+    a.addEventListener("click", function(e){
+      e.preventDefault();
+      var sec = document.getElementById(a.dataset.to);
+      if (sec) sec.scrollIntoView({ behavior:"smooth", block:"start" });
+      links.forEach(function(x){ x.classList.remove("on"); });
+      a.classList.add("on");
+    });
+  });
+  var secs = links.map(function(a){ return document.getElementById(a.dataset.to); });
+  if (!("IntersectionObserver" in window)) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      var idx = secs.indexOf(en.target);
+      if (idx < 0) return;
+      links.forEach(function(x, i){ x.classList.toggle("on", i === idx); });
+    });
+  }, { rootMargin:"-92px 0px -55% 0px", threshold:0 });
+  secs.forEach(function(s){ if (s) obs.observe(s); });
+})();
+
+(function copyFtp(){
+  var toast = document.getElementById("toast");
+  var timer = null;
+  function say(msg){
+    toast.textContent = msg;
+    toast.classList.add("on");
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(function(){ toast.classList.remove("on"); }, 1700);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-copy]"), function(btn){
+    btn.addEventListener("click", function(){
+      var v = btn.dataset.copy;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(v).then(function(){ say("已复制 " + v); })
+          .catch(function(){ say("复制失败，手动选取：" + v); });
+      } else {
+        say("这浏览器不给复制，手动记一下：" + v);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

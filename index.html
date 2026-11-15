@@ -537,6 +537,20 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 
 /* 首页动态小字：一行会换的活话 */
 .live-line{margin-top:12px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;min-height:18px;line-height:1.6}
+.cap-fold{margin:22px 0 4px;border-top:1px solid var(--line);padding-top:8px}
+.cap-fold summary{cursor:pointer;font-size:13px;color:var(--ink2);list-style:none;padding:7px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cap-fold summary::-webkit-details-marker{display:none}
+.cap-fold summary .cf-n{margin-left:auto;font-size:11.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.cap-list{margin:2px 0 0;padding:0;list-style:none;counter-reset:cf}
+.cap-list li{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;padding:9px 0;border-bottom:1px dotted var(--line);font-size:13px;line-height:1.55}
+.cap-list li .cf-i{counter-increment:cf;color:var(--ink3);font-size:11.5px;min-width:16px;font-variant-numeric:tabular-nums}
+.cap-list li .cf-i::before{content:counter(cf) "."}
+.cap-list li b{font-weight:600;color:var(--ink)}
+.cap-list li .cf-d{color:var(--ink3);font-size:12.5px;flex:1;min-width:170px}
+.cap-list li .cf-s{font-size:11px;padding:1px 6px;border:1px solid var(--line2);border-radius:2px;color:var(--ink2);white-space:nowrap}
+.cap-list li .cf-s.ok{border-color:rgba(62,125,95,.45);color:var(--green2)}
+.cap-list li .cf-s.wait{border-color:rgba(180,129,42,.45);color:var(--amber)}
+.cap-list li .cf-s.no{border-color:rgba(155,59,46,.38);color:var(--red)}
 
 /* 云库小助手：右下角悬浮，纯前端规则应答，不联网、不存对话 */
 .bot-fab{position:fixed;right:18px;bottom:22px;width:54px;height:54px;border:0;border-radius:50%;
@@ -674,6 +688,22 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <div class="patch-head"><span>成员端口 · 45</span><span id="patchTip">点一格，跳到索引里那一格</span></div>
       <div class="patchbar" id="patchbar"></div>
     </div>
+
+    <details class="cap-fold" id="capFold">
+      <summary>这个站现在能做的 10 件事<span class="cf-n">点开看，每条都标了代价</span></summary>
+      <ol class="cap-list">
+        <li><span class="cf-i"></span><b>学号后三位进自己那一格</b><span class="cf-d">首页输入框点「打开」直开你的 WPS 文件夹，输一次就记在这台设备上</span><span class="cf-s ok">可用</span></li>
+        <li><span class="cf-i"></span><b>45 格成员索引</b><span class="cf-d">点一格拉到那一位的文件夹；只存学号后三位，故意不放姓名</span><span class="cf-s ok">可用</span></li>
+        <li><span class="cf-i"></span><b>7 个学校系统与站点</b><span class="cf-d">学工、教务、两个 VPN、官网、FTP 主备 —— 校外先连 VPN</span><span class="cf-s wait">部分需校内网</span></li>
+        <li><span class="cf-i"></span><b>22 个校内资源站</b><span class="cf-d">知网、理论资源库、百度文库等，抄自学校资源访问控制系统</span><span class="cf-s wait">部分需校内网</span></li>
+        <li><span class="cf-i"></span><b>全班共享云库</b><span class="cf-d">通知归档、集体荣誉、共同文件，都归在这一行</span><span class="cf-s ok">可用</span></li>
+        <li><span class="cf-i"></span><b>装到主屏当 App</b><span class="cf-d">浏览器菜单「添加到主屏幕」，没网也能打开页面外壳</span><span class="cf-s ok">可用</span></li>
+        <li><span class="cf-i"></span><b>桌宠：一个真动画 + 五个图片形象</b><span class="cf-d">左下角，能拖能摸；说「换形象」换成小月牙、小机器人、小海豚、小团子</span><span class="cf-s ok">可用</span></li>
+        <li><span class="cf-i"></span><b>「问问」能带路、能搜、能复制</b><span class="cf-d">右下角，说三位数直接开那一格；搜「知网」给可点按钮；FTP 地址能复制</span><span class="cf-s ok">可用 · 不联网</span></li>
+        <li><span class="cf-i"></span><b>宠物自由对话</b><span class="cf-d">要先把代理 Worker 部署好，再填页面上那一行地址；key 绝不能写进页面</span><span class="cf-s wait">等一个 key</span></li>
+        <li><span class="cf-i"></span><b>WPS 换端（桌面看移动版）</b><span class="cf-d">代理脚本写好了，但 workers.dev 在国内被 DNS 污染、连不通；需要一个国内可达的出口</span><span class="cf-s no">未成</span></li>
+      </ol>
+    </details>
   </div>
 </section>
 
@@ -1059,6 +1089,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时（手机、窄屏）按钮会明确说它不在这儿，不假装成功。</div></div>
+        <div class="step"><span class="step-n">14</span><div><b>桌宠现在有六个形象</b>　一个是「大肥鱼」，第三方开源库（MIT），带二十段真动画；另外五个是图片版：小蓝鲸、小月牙、小机器人、小海豚、小团子，图在 <span class="mono">pet/shapes/*@480.png</span>（每张约 120KB），外壳是自己写的 <span class="mono">pet/shapes.js</span>，无依赖。切换只有一句 <span class="mono">__PET_SWITCH("moon")</span>，可用的 id 是 <span class="mono">dafeiyu / whale / moon / robot / dolphin / bean</span>，选过的记在 localStorage 的 <span class="mono">cl_pet_shape_v1</span>，刷新还是它。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它<b>只挂一次</b>，切去别的形象时只把它 <span class="mono">display:none</span>，切回来再显示。「收了」也是藏，不是销毁。<b>想加新形象</b>：往 <span class="mono">pet/shapes.js</span> 的 <span class="mono">SHAPES</span> 数组加一条（id、名字、文件名、几句台词），再放一张 480 的透明 PNG，接口自动继承，别的代码一行不用改。</div></div>
       </div>
     </div>
 
@@ -2893,12 +2924,26 @@ route();
       act: { t: "去资料库", h: "#/res" } },
 
     /* 下面这几条让它能动手，不再只是答话：带人走、开那一格、复制地址、管宠物 */
-    { k: ["鱼", "宠物", "桌宠", "大肥鱼", "奶龙", "养一只"],
-      a: "左下角那只蓝色的是「大肥鱼」，开源网页宠物，只在电脑宽屏上出现：能拖、能摸头、右键里能喂饭和下五子棋。嫌它动就让它待在角落，或者干脆收起来，收掉要刷新页面才会再出来。",
+    { k: ["鱼", "宠物", "桌宠", "大肥鱼", "奶龙", "养一只", "叫出来", "收起来"],
+      a: "左下角那只蓝色的是「大肥鱼」，开源网页宠物，只在电脑宽屏上出现：能拖、能摸头、右键里能喂饭和下五子棋。嫌它动就让它待在角落，或者收起来 —— 收起来也能再叫回来。",
       acts: [
         { t: "让它说句话", do: function(){ petCall("say", "有事就说，别憋着。"); } },
         { t: "让它打个哈欠", do: function(){ petCall("play", "idle-yawn"); } },
-        { t: "把它收了", do: function(){ petCall("off"); } }
+        { t: "把它收了", do: function(){ petCall("off"); } },
+        { t: "叫它出来", do: function(){ petCall("back"); } }
+      ] },
+    { k: ["换一个", "换成", "换只", "有哪些形象", "形象", "别的宠物", "其他宠物", "换只宠物"],
+      a: function(){
+        var list = (typeof window.__PET_LIST === "function") ? window.__PET_LIST() : [];
+        var names = [], i;
+        for (i = 0; i < list.length; i++) names.push(list[i].name);
+        return "现在有 " + names.length + " 个：" + names.join("、") + "。想换就说名字 —— 大肥鱼是二十段真动画，其余五个是图片版，会呼吸、会跳、能拖。";
+      },
+      acts: [
+        { t: "换小月牙", do: function(){ petCall("switch", "moon"); } },
+        { t: "换小机器人", do: function(){ petCall("switch", "robot"); } },
+        { t: "换小团子", do: function(){ petCall("switch", "bean"); } },
+        { t: "叫回大肥鱼", do: function(){ petCall("switch", "dafeiyu"); } }
       ] },
     { k: ["ftp", "传文件", "仓库", "内网地址"],
       a: "仓库只有校园网能连：主 10.0.91.2，备用 10.0.91.200。网页打不开 ftp，要用资源管理器或 FileZilla 填地址。",
@@ -2933,12 +2978,30 @@ route();
   }
   function petCall(what, arg){
     var p = window.__PET;
-    if (!p) { bubble("宠物这会儿不在（手机、窄屏、或系统开了减少动效时它不加载）。", false); return; }
+    /* 收起来之后还能叫回来，不然「收了」这个按钮就是单向的 */
+    if (what === "back") {
+      if (typeof window.__PET_SWITCH !== "function") { bubble("这页的宠物模块没加载，叫不出来。", false); return; }
+      var last = null;
+      try { last = localStorage.getItem("cl_pet_shape_v1"); } catch (e) {}
+      bubble("叫出来了：" + window.__PET_SWITCH(arg || last || "dafeiyu") + "。", false);
+      return;
+    }
+    if (what === "switch") {
+      if (typeof window.__PET_SWITCH !== "function") { bubble("换不了，宠物模块没加载。", false); return; }
+      bubble("换成了 " + window.__PET_SWITCH(arg) + "。", false);
+      return;
+    }
+    if (!p) { bubble("宠物这会儿不在（手机、窄屏、或系统开了减少动效时它不加载）。说一句「把它叫出来」还能叫回来。", false); return; }
     try {
       if (what === "say") p.say(arg || "我在这儿。");
       else if (what === "play") p.play(arg);
       else if (what === "feed") p.feed();
-      else if (what === "off") { p.destroy(); window.__PET = null; bubble("它回水里去了。刷新页面才会再出来。", false); }
+      else if (what === "off") {
+        /* 收 = 藏，不是销毁；销毁就再也叫不回来了 */
+        if (typeof window.__PET_HIDE === "function") window.__PET_HIDE();
+        else { p.destroy(); window.__PET = null; }
+        bubble("它收起来了。说「把它叫出来」能再叫。", false);
+      }
     } catch (e) { bubble("它没听懂这个动作。", false); }
   }
   function goSeat(no){
@@ -3027,6 +3090,10 @@ route();
     var num = q.match(/(?:^|[^0-9])(\d{3})(?:[^0-9]|$)/);
     if (num && /去|打开|带|那格|那一/.test(q) && goSeat(num[1])) return;
 
+    /* 宠物指令直达：说「叫出来」就是叫出来，不该再让人点一次按钮 */
+    if (/叫出来|叫回|出来吧|回来吧/.test(q)) { petCall("back"); return; }
+    if (/收了|收起来|藏起来/.test(q) && /宠物|它|鱼|形象/.test(q)) { petCall("off"); return; }
+
     for (i = 0; i < RULES.length && !hit; i++) {
       for (j = 0; j < RULES[i].k.length; j++) {
         if (s.indexOf(RULES[i].k[j].toLowerCase()) >= 0) { hit = RULES[i]; break; }
@@ -3075,43 +3142,158 @@ route();
      留空 = 不联网：双击宠物没有聊天面板，碎碎念只走本地台词池。
      为什么不能直接填别家的 key：这是纯静态页，写进来等于公开，谁都能拿去烧。 */
   var PET_AI = "";
+  var SHAPE_KEY = "cl_pet_shape_v1";
+  var booted = false;
 
-  var mounted = false;
-  function mountPet(){
-    if (mounted || !window.Dafeiyu || typeof window.Dafeiyu.mount !== "function") return;
-    mounted = true;
+  function dafeiyuOpts(){
+    var opt = {
+      assetBase: "pet/assets/",
+      size: 210,
+      position: "bottom-left",
+      zIndex: 61,
+      name: "大肥鱼",
+      whisperIntervalSec: 200,
+      /* 自动加载已经用 innerWidth<760 挡过一道；这里再关掉包自己的移动端判断，
+         否则窄视口里拿到的是一句空 handle —— 用户主动点「叫回大肥鱼」时不该再拦他 */
+      enabledOnMobile: true,
+      lines: [
+        "资料在第一张卡上，慢点翻，别急着问。",
+        "学号后三位填一次，往后它自己记得。",
+        "要开学校系统的，先连上 VPN 再说。",
+        "四十五个格子，一人一格，别点错。",
+        "通知都往共享库那一行归，找文件先去那儿。"
+      ]
+    };
+    if (PET_AI) opt.endpoints = { chat: PET_AI };
+    return opt;
+  }
+
+  function mountDafeiyu(){
+    if (!window.Dafeiyu || typeof window.Dafeiyu.mount !== "function") return null;
+    try { return window.Dafeiyu.mount(dafeiyuOpts()); } catch (e) { return null; }
+  }
+
+  function mountImage(id){
+    if (!window.SmallShapes || typeof window.SmallShapes.mount !== "function") return null;
     try {
-      var opt = {
-        assetBase: "pet/assets/",
-        size: 210,
-        position: "bottom-left",
-        zIndex: 61,
-        name: "大肥鱼",
-        whisperIntervalSec: 200,
-        enabledOnMobile: false,
-        lines: [
-          "资料在第一张卡上，慢点翻，别急着问。",
-          "学号后三位填一次，往后它自己记得。",
-          "要开学校系统的，先连上 VPN 再说。",
-          "四十五个格子，一人一格，别点错。",
-          "通知都往共享库那一行归，找文件先去那儿。"
-        ]
-      };
-      if (PET_AI) opt.endpoints = { chat: PET_AI };
-      /* 把句柄交出去，「问问」里的那三条动作（说话/打哈欠/收了）才有东西可指 */
-      window.__PET = window.Dafeiyu.mount(opt);
-    } catch (err) {
-      /* 宠物挂了不影响页面任何功能 */
+      return window.SmallShapes.mount({
+        base: "pet/shapes/", shape: id, size: 158,
+        zIndex: 61, whisperIntervalSec: 180
+      });
+    } catch (e) { return null; }
+  }
+
+  function shapeName(id){
+    if (window.SmallShapes && window.SmallShapes.list) {
+      for (var i = 0; i < window.SmallShapes.list.length; i++) {
+        if (window.SmallShapes.list[i].id === id) return window.SmallShapes.list[i].name;
+      }
+    }
+    return id;
+  }
+
+  var dy = null, dyHost = null, img = null;
+
+  function grabDyHost(){
+    var all = document.querySelectorAll("div"), i;
+    for (i = 0; i < all.length; i++) {
+      if (all[i].shadowRoot && !all[i].shadowRoot.querySelector("img.pet")) return all[i];
+    }
+    return null;
+  }
+
+  function holdDafeiyu(){
+    if (dy) return true;
+    if (!window.Dafeiyu) return false;
+    dy = mountDafeiyu();
+    dyHost = grabDyHost();
+    if (!dyHost) setTimeout(function(){ if (!dyHost) dyHost = grabDyHost(); }, 400);
+    return !!dy;
+  }
+
+  /* 换形象：大肥鱼只挂一次，之后靠显示 / 隐藏切换。
+     destroy 之后这个库重建不出来（实测切回就是 no-host），别再改回去。 */
+  window.__PET_SWITCH = function(id){
+    id = String(id || "").trim();
+    if (!id) return "";
+    var name;
+    if (id === "dafeiyu" || id === "fish" || id === "大肥鱼") {
+      holdDafeiyu();
+      if (img) { try { img.destroy(); } catch (e) {} img = null; }
+      if (dyHost) dyHost.style.display = "";
+      if (dy && dy.setVoice) { try { dy.setVoice(true); } catch (e) {} }
+      window.__PET = dy;
+      try { localStorage.setItem(SHAPE_KEY, "dafeiyu"); } catch (e) {}
+      return "大肥鱼";
+    }
+    name = shapeName(id);
+    holdDafeiyu();
+    if (dyHost) {
+      dyHost.style.display = "none";
+      if (dy && dy.setVoice) { try { dy.setVoice(false); } catch (e) {} }
+    }
+    if (img && img.current && img.current() === id) { window.__PET = img; return name; }
+    if (img) { try { img.destroy(); } catch (e) {} img = null; }
+    img = mountImage(id);
+    window.__PET = img;
+    try { localStorage.setItem(SHAPE_KEY, id); } catch (e) {}
+    return name;
+  };
+
+  /* 收起来 = 全藏起来，不是销毁。销毁就再也叫不回来了 */
+  window.__PET_HIDE = function(){
+    if (dyHost) {
+      dyHost.style.display = "none";
+      if (dy && dy.setVoice) { try { dy.setVoice(false); } catch (e) {} }
+    }
+    if (img) { try { img.destroy(); } catch (e) {} img = null; }
+    window.__PET = null;
+    return true;
+  };
+
+  /* 给「问问」用的菜单：现在有哪几个形象可选 */
+  window.__PET_LIST = function(){
+    var out = [{ id: "dafeiyu", name: "大肥鱼" }];
+    if (window.SmallShapes && window.SmallShapes.list) {
+      for (var i = 0; i < window.SmallShapes.list.length; i++) {
+        out.push({ id: window.SmallShapes.list[i].id, name: window.SmallShapes.list[i].name });
+      }
+    }
+    return out;
+  };
+
+  function boot(){
+    if (!window.Dafeiyu && !window.SmallShapes) return;
+    var last = null;
+    try { last = localStorage.getItem(SHAPE_KEY); } catch (e) {}
+    if (last && last !== "dafeiyu" && window.SmallShapes) {
+      /* 先把大肥鱼挂上藏好，再摆出上次选的形象 —— 这样「叫回大肥鱼」随时能用 */
+      holdDafeiyu();
+      if (dyHost) dyHost.style.display = "none";
+      window.__PET_SWITCH(last);
+    } else {
+      window.__PET_SWITCH("dafeiyu");
+      if (!window.__PET && window.SmallShapes) window.__PET_SWITCH("bean");
     }
   }
+
   function loadPet(){
-    var s = document.createElement("script");
-    s.src = "pet/dafeiyu.iife.js";
-    s.async = true;
-    s.onload = mountPet;
-    s.onerror = function(){ /* 脚本缺失也不报错、不提示 */ };
-    document.head.appendChild(s);
+    var total = 2, done = 0;
+    function tick(){
+      done++;
+      if (done >= total && !booted) { booted = true; boot(); }
+    }
+    var list = ["pet/dafeiyu.iife.js", "pet/shapes.js"];
+    for (var i = 0; i < list.length; i++) {
+      var s = document.createElement("script");
+      s.src = list[i];
+      s.async = true;
+      s.onload = tick;
+      s.onerror = tick;   /* 缺一个也不影响，另一个照样能挂 */
+      document.head.appendChild(s);
+    }
   }
+
   window.addEventListener("load", function(){
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if (window.innerWidth < 760) return;
