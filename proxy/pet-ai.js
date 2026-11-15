@@ -164,7 +164,14 @@ async function handleChat(request, env, origin) {
   }
   const model = (env && env.AI_MODEL) || prov.model;
   if (!model) {
-    return new Response(JSON.stringify({ message: "这个服务商必须填 AI_MODEL" }), {
+    /* 火山方舟（豆包）是这几家里唯一必须自己填的：它按「推理接入点」计费，
+       光有 key 不够，还得在控制台建一个接入点，把 ep- 开头的 ID 填进来。
+       填模型 ID（如 doubao-seed-...）在新版方舟上也认；两个都不对时，
+       上游会回 400 并列出可用值，照那个改就行。 */
+    const msg = name === "volc"
+      ? "火山方舟（豆包）要填 AI_MODEL：控制台 → 在线推理 → 创建接入点 → 复制 ep- 开头的 ID"
+      : "这个服务商必须填 AI_MODEL";
+    return new Response(JSON.stringify({ message: msg }), {
       status: 500, headers: { ...head, "content-type": "application/json; charset=utf-8" }
     });
   }
