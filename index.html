@@ -1837,8 +1837,8 @@ function applyFold(k, folded){
 function paintSubnav(group, focus){
   const box = document.getElementById("subnav");
   if (!box) return;
-  /* 首页已有主卡 + 三颗小胶囊，组内导航再摆一排就是同一批入口写三遍；只在子页显示 */
-  box.style.display = (group === "main" && !focus) ? "none" : "";
+  /* main 组四项顶栏都有，页内不再摆第二排；组内导航只留给 admin */
+  box.style.display = (group === "main") ? "none" : "";
   const cur = focus || GROUPS[group][0];
   box.innerHTML = SUBS[group].map(function(p){
     return '<a href="#/' + p[0] + '"' + (p[0] === cur ? ' class="on"' : '') + '>' + p[1] + '</a>';
@@ -1852,10 +1852,15 @@ function route(){
   const group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
   let focus = GROUPS[raw] ? null : (ALIAS[raw] ? raw : null);
   if (focus === "desk") focus = "home";   /* 工作台已并入概览 */
+  /* main 组的四个视图各自是一页（顶栏五项已经直达），只有 admin 仍做组内折叠。
+     首页（#/main）只显示概览本身，不再把成员索引 / 学校入口 / 资料库也铺进来 */
+  const mainSingle = (group === "main");
+  const mainKey = focus || GROUPS.main[0];
   GROUPS_NAMES.forEach(function(g){
     GROUPS[g].forEach(function(k){
       const el = document.getElementById("view-" + k);
-      if (el) el.classList.toggle("on", g === group);
+      if (!el) return;
+      el.classList.toggle("on", mainSingle ? (g === group && k === mainKey) : (g === group));
     });
   });
   /* 当前态要认「组」也认「组里的具体页」：四个内容页同属 main 组，
@@ -1868,10 +1873,13 @@ function route(){
     a.classList.toggle("on", (a.dataset.k || "") === (focus || GROUPS[group][0]));
   });
   paintSubnav(group, focus);
-  ensureFolds(group);
-  GROUPS[group].forEach(function(k, i){
-    applyFold(k, focus ? k !== focus : i !== 0);
-  });
+  /* 折叠只留给 admin：main 的每一页都独占一屏，没有需要收起来的东西 */
+  if (group === "admin") {
+    ensureFolds(group);
+    GROUPS[group].forEach(function(k, i){
+      applyFold(k, focus ? k !== focus : i !== 0);
+    });
+  }
   const plusOn = document.getElementById("view-plus");
   if (plusOn && plusOn.classList.contains("on") && typeof relayCheck === "function") relayCheck();
   paintDevNote();
@@ -3167,14 +3175,16 @@ route();
   var booted = false;
 
   function dafeiyuOpts(){
+    /* 窄视口缩小一号：210 在 400 出头的窗口里会占掉半条街 */
+    var small = window.innerWidth < 700;
     var opt = {
       assetBase: "pet/assets/",
-      size: 210,
+      size: small ? 150 : 210,
       position: "bottom-left",
       zIndex: 61,
       name: "大肥鱼",
       whisperIntervalSec: 200,
-      /* 自动加载已经用 innerWidth<760 挡过一道；这里再关掉包自己的移动端判断，
+      /* 自动加载已经用 innerWidth 挡过一道；这里再关掉包自己的移动端判断，
          否则窄视口里拿到的是一句空 handle —— 用户主动点「叫回大肥鱼」时不该再拦他 */
       enabledOnMobile: true,
       lines: [
@@ -3318,7 +3328,8 @@ route();
 
   window.addEventListener("load", function(){
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.innerWidth < 760) return;
+    /* 门槛从 760 降到 420：手机和平板也该有鱼，尺寸在 dafeiyuOpts 里按视口缩 */
+    if (window.innerWidth < 420) return;
     setTimeout(loadPet, 2200);
   });
 })();
