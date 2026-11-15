@@ -173,8 +173,8 @@
       var dir = sh.base || base;
       if (sh.sprite) {
         var cols = sh.sprite.cols || 8, rows = sh.sprite.rows || 11, row = sh.sprite.row || 0;
-        var cw = sh.sprite.cw || 96, chh = sh.sprite.ch || 104;
-        var span = sh.sprite.span || 2;    /* 画到 canvas 的倍数，整数放大不糊 */
+        var cw = sh.sprite.cw || 144, chh = sh.sprite.ch || 156;
+        var span = sh.sprite.span || 1;    /* 144×156 直接 1:1 上屏，不放大 */
         var cv = document.createElement("canvas");
         cv.className = "pet cv";
         cv.width = cw * span;
