@@ -141,7 +141,10 @@ async function handleChat(event, origin, cors) {
 /* ── 换端代理 ── */
 function allowed(u) {
   try {
-    return HOSTS.indexOf(new URL(u).hostname) >= 0;
+    const h = new URL(u).hostname.toLowerCase();
+    /* 文件列表、分享访问、用户信息分别落在 drive.kdocs.cn / vas.kdocs.cn / account.kdocs.cn，
+       只放行 www 主域会把数据接口全挡在 403，页面就永远只有一个空壳。 */
+    return h === "kdocs.cn" || h === "www.kdocs.cn" || h.endsWith(".kdocs.cn");
   } catch (e) {
     return false;
   }
