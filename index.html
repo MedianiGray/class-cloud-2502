@@ -3184,6 +3184,8 @@ route();
     AI.key = localStorage.getItem("cl_ai_key") || "";
   } catch (e) {}
   var aiOn = false;
+  try { aiOn = localStorage.getItem("cl_ai_on") === "1"; } catch (e) {}
+  function saveOn(v){ try { localStorage.setItem("cl_ai_on", v ? "1" : "0"); } catch (e) {} }
   var netBtn = document.getElementById("botNet");
   var botSub = document.getElementById("botSub");
 
@@ -3237,7 +3239,7 @@ route();
   }
 
   if (netBtn) netBtn.addEventListener("click", function(){
-    if (AI.key) { aiOn = !aiOn; paintNet(); return; }
+    if (AI.key) { aiOn = !aiOn; saveOn(aiOn); paintNet(); return; }
     var pick = window.prompt(
       "接哪一家？填数字：\n" +
       "1 = 硅基流动（有永久免费模型 Qwen2.5-7B，注册就能用）\n" +
@@ -3268,6 +3270,7 @@ route();
           localStorage.setItem("cl_ai_prov", AI.prov);
         } catch (e) {}
         aiOn = true;
+        saveOn(true);
         paintNet();
         b.textContent = "接上了（" + prov.name + "）。规则答不上来的问题现在交给模型，能答的范围还是只限学习、资料、学校系统。想退回离线，再点一下「联网 · 开」。";
         if (body) body.scrollTop = body.scrollHeight;
