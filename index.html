@@ -998,7 +998,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
           <li><b>电脑 · Chrome、Edge 想看成手机版</b>：按 <span class="mono">F12</span>，再按 <span class="mono">Ctrl + Shift + M</span>，顶部会出现设备框，左边选 iPhone 或安卓机型，刷新一下。关掉开发者工具就恢复原样。</li>
           <li><b>电脑 · Firefox</b>：按 <span class="mono">Ctrl + Shift + M</span> 进响应式设计模式，顶部选机型即可。</li>
         </ul>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里那对「手机版 / 电脑版」现在标着<b>测试</b> —— <span class="mono">User-Agent</span> 是浏览器禁止脚本设置的请求头，页面内改不了，只能在服务端改。代理还没接上（见「部署与维护」第十一节），所以现在点它只会给说明。要看移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里那对按钮标着<b>未接通</b>：换端要在服务端改 <span class="mono">User-Agent</span>，而这四个免费平台在国内全不通（workers.dev 被污染、Deno 停注册、Netlify 站点带访问保护且控制台打不开、vercel.app 域名解析不出）。所以现在点它只会给说明，不会假装成功。要看移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版。</p>
       </div>
     </div>
   </div>
@@ -1139,7 +1139,12 @@ C:\Windows\system32\curl.exe -sS -X PUT "https://api.cloudflare.com/client/v4/ac
       <h3>十一、换端代理为什么默认关着</h3>
       <p>Worker 已经部署好了，地址是 <span class="mono">cl-wps-proxy.3534226279.workers.dev</span>。但实测这个域名在国内被 <b>DNS 污染</b>：解析到 <span class="mono">162.125.18.129</span>（Dropbox 的 IP），TCP 443 直接超时。<span class="mono">*.workers.dev</span> 在国内基本都这样，所以 <span class="mono">PROXY</span> 保持为空——填进去只会让预览窗口干等二十多秒再报错，比直接 ▣ 扫码还差。</p>
       <p>已选定第 ② 条，并且限定在<b>不产生任何费用</b>的平台：腾讯云开发的免费额度。同一套逻辑已经改写成云函数形态放在 <span class="mono">proxy/cloudbase-wps/index.js</span>，配套的 <span class="mono">README.md</span> 写了五步部署，以及哪几个按钮是真会扣钱的（升级套餐、绑支付方式、买独立域名、CDN 加速 —— 都不碰；实名要做，但实名不等于付费）。它的域名是 <span class="mono">*.tcloudbaseapp.com</span>，国内直连。额度真用尽时的表现是当天限流，不是扣钱。</p>
-      <p>部署完把入口地址填进 <span class="mono">PROXY</span>，预览窗口右上角那对「手机版 / 电脑版」就能真换壳了。验证标准只有一条：能翻目录、能开预览。做到了才把按钮里「测试」两个字摘掉 —— 在那之前它一直是测试状态，点了会如实说明，不会假装成功。</p>
+      <p>2026-11-16 实测四个免费平台，全部走不通，记在这里省得以后重复踩：<br>
+        · <span class="mono">*.workers.dev</span>：DNS 解析被污染（指到 118.184.78.78），443 直接超时。<br>
+        · <b>Deno Deploy</b>：官网公告 2027 年 4 月关停，已关闭新注册（New signups are closed）。<br>
+        · <b>Netlify</b>：能拖 zip 部署（<span class="mono">/drop</span> 页可用），但<b>新项目默认开访问保护</b>，站点直接 401 跳登录；而控制台前端在国内一直卡在 Loading，改不了设置。另注意 <span class="mono">netlify.toml</span> 写错会让整个部署失败在「Reading and parsing configuration files」——函数放默认目录 <span class="mono">netlify/functions</span> 就不需要那份文件。<br>
+        · <span class="mono">*.vercel.app</span>：连域名都解析不出来。<br>
+        所以要摘「未接通」，得先有一台国内能通的服务器（腾讯云开发要实名，是唯一还没试的正路）。验证标准只有一条：能翻目录、能开预览；做到了才改按钮文案，没做到就一直如实说明。</p>
     </div>
 
     <div class="maint-block">
@@ -1533,7 +1538,7 @@ function brwRender(){
       ? (brw.mode === "phone"
         ? "这是服务器用手机身份取回的<b>移动版</b>（mShareFolder），跟你本机的浏览器身份无关。「电脑」切回桌面壳。"
         : "这是<b>桌面版</b>（ShareFolder）。切「手机」时由服务器换移动 UA 去取那一套，跟本机身份无关。")
-      : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了，只能让服务器替你改。上面那对「手机版 / 电脑版」现在是<b>测试</b>状态：代理还没接上，点了会给你说明。临时办法是点 ▣ 扫码，手机打开就是真移动版；↗ 可在新标签看真页面。";
+      : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了，只能让服务器替你改。上面那对按钮标着<b>未接通</b>：不是没做，是四个免费平台全试过了都不通——Cloudflare 的 workers.dev 在国内被 DNS 污染、Deno Deploy 已停止新注册、Netlify 部署出来的站点默认带访问保护且控制台加载不出来、vercel.app 连域名都解析不出。所以现在点它只会给你说明，不假装成功。能用的办法还是这两个：点 ▣ 扫码，手机打开就是真移动版；↗ 在新标签看真页面。";
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
     b.classList.toggle("on", b.dataset.brwdev === brw.mode);
@@ -2758,8 +2763,8 @@ route();
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
     <div class="brw-dev" id="brwDev">
-      <button class="brw-dev-b" data-brwdev="phone" title="让服务器用手机身份取移动版">手机版<span class="dev-t">测试</span></button>
-      <button class="brw-dev-b" data-brwdev="desktop" title="桌面版">电脑版</button>
+      <button class="brw-dev-b" data-brwdev="phone" title="换端需要一台服务器，四个免费平台都走不通，点了会如实说明">手机版<span class="dev-t">未接通</span></button>
+      <button class="brw-dev-b" data-brwdev="desktop" title="换端需要一台服务器，四个免费平台都走不通，点了会如实说明">电脑版<span class="dev-t">未接通</span></button>
     </div>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
