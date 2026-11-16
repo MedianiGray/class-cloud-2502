@@ -30,6 +30,8 @@ const MODEL = "Qwen/Qwen2.5-7B-Instruct";
 const SF_BASE = "https://api.siliconflow.cn/v1";
 
 const HOSTS = ["www.kdocs.cn", "kdocs.cn"];
+const HTML_CACHE = new Map();   // 实例内存缓存：翻来翻去重复的页不必每次都撞 WPS
+const HTML_TTL = 45000;         // 45 秒，别设太长，WPS 内容会变、也容易被判成爬虫
 const UA = {
   phone: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
   desktop: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
@@ -201,6 +203,24 @@ async function handleWps(event, origin, cors, basePath) {
   const cookie = evHeaders.cookie || evHeaders.Cookie;
   if (cookie) headers.cookie = cookie;
 
+  // 同一个实例内缓存一会儿，翻来翻去重复的页不必每次都去撞 WPS（也降低被限流的概率）
+  const ckey = mode + " " + target;
+  const hit = HTML_CACHE.get(ckey);
+  if (hit && Date.now() - hit.t < HTML_TTL) {
+    return {
+      statusCode: 200,
+      headers: Object.assign({
+        "content-type": "text/html; charset=utf-8",
+        "content-disposition": "inline",
+        "cache-control": "public, max-age=30",
+        "x-proxy-cache": "hit"
+      }, cors),
+      body: hit.html,
+      isBase64Encoded: false
+    };
+  }
+  if (hit) HTML_CACHE.delete(ckey);
+
   let res;
   try {
     res = await fetch(target, {
@@ -223,11 +243,18 @@ async function handleWps(event, origin, cors, basePath) {
     };
   }
 
-  const html = await res.text();
+  const html = rewriteHtml(await res.text(), target, mode, basePath);
+  if (HTML_CACHE.size > 60) HTML_CACHE.clear();
+  HTML_CACHE.set(ckey, { t: Date.now(), html: html });
   return {
     statusCode: 200,
-    headers: Object.assign({ "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=30" }, cors),
-    body: rewriteHtml(html, target, mode, basePath),
+    headers: Object.assign({
+      "content-type": "text/html; charset=utf-8",
+      "content-disposition": "inline",
+      "cache-control": "public, max-age=30",
+      "x-proxy-cache": "miss"
+    }, cors),
+    body: html,
     isBase64Encoded: false
   };
 }
