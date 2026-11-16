@@ -52,6 +52,7 @@ function corsFor(origin) {
     "access-control-allow-origin": ok ? origin : ALLOWED_ORIGINS[0],
     "access-control-allow-headers": "content-type,authorization",
     "access-control-allow-methods": "GET,POST,OPTIONS",
+    "access-control-allow-credentials": "true",
     "vary": "origin"
   };
 }
@@ -171,9 +172,17 @@ function rewriteHtml(html, target, mode, base) {
   const hook =
     "<script>(function(){var P=" + JSON.stringify(base) +
     ",M=" + JSON.stringify(mode) +
-    ";function w(u){try{var s=String(u);if(/^https?:\\/\\/([^\\/]+\\.)?kdocs\\.cn\\//.test(s))return P+\"?u=\"+encodeURIComponent(s)+\"&mode=\"+M;}catch(e){}return u;}" +
-    "var f=window.fetch;window.fetch=function(i,o){try{if(typeof i===\"string\")i=w(i);else if(i&&i.url)i=w(i.url);}catch(e){}return f.call(window,i,o);};" +
-    "var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){var a=[].slice.call(arguments);a[1]=w(u);return x.apply(this,a);};" +
+    ",O=" + JSON.stringify(origin) +
+    ";function w(u){try{var s=String(u);" +
+    "if(!s||/^(data|blob|javascript|mailto|tel|about|#)/i.test(s))return u;" +
+    "var a=s;" +
+    "if(s.indexOf('//')===0)a='https:'+s;" +
+    "else if(s.charAt(0)==='/')a=O+s;" +
+    "else if(!/^(https?:)/i.test(s))a=O+'/'+s;" +
+    "if(/^(https?:)\\/\\/([^\\/]+\\.)?kdocs\\.cn\\//i.test(a))return P+'?u='+encodeURIComponent(a)+'&mode='+M;" +
+    "}catch(e){}return u;}" +
+    "var f=window.fetch;window.fetch=function(i,o){try{if(typeof i==='string')i=w(i);else if(i&&i.url)i=w(i.url);}catch(e){}return f.call(window,i,o);};" +
+    "var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){var a=[].slice.call(arguments);try{a[1]=w(u);}catch(e){}return x.apply(this,a);};" +
     "})();</script>";
   return html.replace(/<head([^>]*)>/i, "<head$1>" + hook);
 }
@@ -197,7 +206,10 @@ async function handleWps(event, origin, cors, basePath) {
   const headers = {
     "user-agent": UA[mode],
     "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    /* WPS 的业务接口会校验来源域名；不带 Referer 时分享页只给壳、不给目录数据 */
+    "referer": "https://www.kdocs.cn/",
+    "sec-fetch-site": "same-origin"
   };
   const evHeaders = event.headers || {};
   const cookie = evHeaders.cookie || evHeaders.Cookie;
@@ -233,11 +245,26 @@ async function handleWps(event, origin, cors, basePath) {
   }
 
   const ctype = res.headers.get("content-type") || "";
+  /* WPS 的匿名会话靠 Set-Cookie 维持；不透传回去，每个请求都会被当成新访客，
+     移动版就会一直显示「用户未登录」，目录列表也就出不来。 */
+  let setCookie = null;
+  try { setCookie = res.headers.getSetCookie ? res.headers.getSetCookie() : null; } catch (e) { setCookie = null; }
+  if (!setCookie || !setCookie.length) {
+    const one = res.headers.get("set-cookie");
+    if (one) setCookie = [one];
+  }
+  const withCookie = function (h) {
+    if (setCookie && setCookie.length) {
+      h["set-cookie"] = (setCookie.length === 1) ? setCookie[0] : setCookie;
+    }
+    return h;
+  };
+
   if (ctype.indexOf("text/html") < 0) {
     const buf = Buffer.from(await res.arrayBuffer());
     return {
       statusCode: res.status,
-      headers: Object.assign({ "content-type": ctype || "application/octet-stream" }, cors),
+      headers: withCookie(Object.assign({ "content-type": ctype || "application/octet-stream" }, cors)),
       body: buf.toString("base64"),
       isBase64Encoded: true
     };
@@ -248,12 +275,12 @@ async function handleWps(event, origin, cors, basePath) {
   HTML_CACHE.set(ckey, { t: Date.now(), html: html });
   return {
     statusCode: 200,
-    headers: Object.assign({
+    headers: withCookie(Object.assign({
       "content-type": "text/html; charset=utf-8",
       "content-disposition": "inline",
       "cache-control": "public, max-age=30",
       "x-proxy-cache": "miss"
-    }, cors),
+    }, cors)),
     body: html,
     isBase64Encoded: false
   };

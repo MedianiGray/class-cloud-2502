@@ -1544,7 +1544,8 @@ function brwRender(){
       ? (brw.mode === "phone"
         ? "这是服务器用手机身份取回的<b>移动版</b>（mShareFolder），跟你本机的浏览器身份无关。「电脑」切回桌面壳。"
         : "这是<b>桌面版</b>（ShareFolder）。切「手机」时由服务器换移动 UA 去取那一套，跟本机身份无关。") +
-        '<br><span style="color:var(--ink3)">第一次会先看到腾讯云的「页面访问提示」，点一下里面的<b>确定访问</b>就进去了，同一浏览器之后不再弹。嫌这里窄，点右上角 &#8599; 用整页打开更快。</span>'
+        '<br><span style="color:var(--ink3)">第一次会先看到腾讯云的「页面访问提示」，点一下里面的<b>确定访问</b>就进去了，同一浏览器之后不再弹。嫌这里窄，点右上角 &#8599; 用整页打开更快。</span>' +
+        '<br><span style="color:var(--warn,#a8621f)">另外：WPS 分享页要有登录态才肯给文件列表，而代理拿不到你浏览器里的 WPS 登录信息，所以这里通常只能看到顶部工具条、看不到文件。要看文件，点右上角 &#8599; 用浏览器直接打开原页面。</span>'
       : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了，只能让服务器替你改。上面那对按钮标着<b>未接通</b>：不是没做，是四个免费平台全试过了都不通——Cloudflare 的 workers.dev 在国内被 DNS 污染、Deno Deploy 已停止新注册、Netlify 部署出来的站点默认带访问保护且控制台加载不出来、vercel.app 连域名都解析不出。所以现在点它只会给你说明，不假装成功。能用的办法还是这两个：点 ▣ 扫码，手机打开就是真移动版；↗ 在新标签看真页面。";
   }
   Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
