@@ -557,27 +557,19 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 /* 云库小助手：右下角悬浮，纯前端规则应答，不联网、不存对话 */
 .bot-fab{position:fixed;right:18px;bottom:22px;width:54px;height:54px;border:0;border-radius:50%;
   background:linear-gradient(160deg,#4E8E6E,#2F5F49);color:#fff;font-size:15px;font-weight:700;letter-spacing:.02em;
-  box-shadow:0 10px 26px rgba(47,95,73,.30);cursor:pointer;z-index:62;
+  box-shadow:0 10px 26px rgba(47,95,73,.30);cursor:pointer;z-index:62;display:none;
   transition:transform .18s,box-shadow .18s}
+/* 鱼是唯一入口；只有鱼没能挂上时，这颗钮才顶上来当兜底 */
+.bot-fab.show{display:block}
 .bot-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.36)}
 .bot-fab.on{background:linear-gradient(160deg,#A87050,#8A5638)}
 
-/* 浮动导航：正常由大肥鱼本体承载（点鱼弹菜单），只在鱼没挂上时退化成这颗独立钮 */
-.nav-fab{position:fixed;right:18px;bottom:86px;width:54px;height:54px;border:0;border-radius:50%;
-  background:#FFFDFB;color:#2F5F49;box-shadow:0 10px 26px rgba(47,95,73,.22);cursor:pointer;z-index:62;
-  display:none;align-items:center;justify-content:center;transition:transform .18s,box-shadow .18s}
-.nav-fab.show{display:flex}
-.nav-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.30)}
-.nav-fab svg{width:19px;height:19px}
-.nav-fab.on{background:#2F5F49;color:#fff}
-.nav-dock{position:fixed;left:18px;right:auto;bottom:250px;z-index:62;display:none;flex-direction:column;gap:4px;
-  background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:14px;padding:7px;
-  box-shadow:0 18px 40px rgba(40,60,50,.18)}
-.nav-dock.open{display:flex}
-.nav-dock a{padding:9px 15px;font-size:13px;color:var(--ink2);border-radius:9px;text-decoration:none;white-space:nowrap}
-.nav-dock a:hover{background:var(--paper2);color:var(--ink)}
-.nav-dock a.on{background:#2F5F49;color:#fff}}
-.bot-panel{position:fixed;right:18px;bottom:88px;width:min(358px,calc(100vw - 32px));max-height:min(66vh,470px);
+/* 导航长在鱼弹出的这块面板里：点鱼就等于点「问问」，面板 = 导航 + 问答，一个东西齐全 */
+.bot-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px 7px;border-bottom:1px solid rgba(198,182,166,.30);background:#FFFDFB}
+.bot-nav a{flex:1 1 auto;text-align:center;padding:7px 9px;font-size:12.5px;color:var(--ink2);border-radius:9px;text-decoration:none;white-space:nowrap}
+.bot-nav a:hover{background:var(--paper2);color:var(--ink)}
+.bot-nav a.on{background:#2F5F49;color:#fff}
+.bot-panel{position:fixed;left:18px;bottom:88px;width:min(358px,calc(100vw - 32px));max-height:min(66vh,470px);
   display:flex;flex-direction:column;background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:18px;
   box-shadow:0 20px 50px rgba(120,90,60,.24);z-index:63;overflow:hidden}
 .bot-panel.off{display:none}
@@ -606,9 +598,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   background:linear-gradient(160deg,#4E8E6E,#2F5F49);cursor:pointer}
 @media (max-width:720px){
   .bot-fab{right:14px;bottom:78px;width:50px;height:50px}
-  .bot-panel{right:12px;bottom:136px;max-height:min(62vh,430px)}
-  .nav-fab{right:14px;bottom:136px;width:50px;height:50px}
-  .nav-dock{left:14px;bottom:186px}
+  .bot-panel{left:14px;bottom:136px;max-height:min(62vh,430px)}
 }
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:760px){ .nav{display:none} }
@@ -2861,10 +2851,6 @@ route();
 })();
 </script>
 
-<button class="nav-fab" id="navFab" aria-label="展开导航" title="导航">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
-</button>
-<div class="nav-dock" id="navDock"></div>
 <button class="bot-fab" id="botFab" aria-label="打开云库小助手" title="云库小助手">问问</button>
 
 <div class="bot-panel off" id="botPanel" role="dialog" aria-label="云库小助手">
@@ -2872,6 +2858,7 @@ route();
     <span class="bot-title">云库小助手<span class="bot-sub"> · 离线规则，不联网</span></span>
     <button class="bot-x" id="botClose" aria-label="关闭">×</button>
   </div>
+  <div class="bot-nav" id="botNav"></div>
   <div class="bot-body" id="botBody">
     <div class="bot-msg bot-bot">问一句就行。我只会答下面这几类，答不上来的，班群里问更快。</div>
   </div>
@@ -3370,22 +3357,22 @@ route();
   });
 })();
 
-/* 浮动导航：和桌宠、云库小助手同处右下角，点开列五个入口；窄屏靠它代替顶栏 */
+/* 导航长在鱼身上：点鱼 = 点「问问」，弹出来的是同一块面板，里面既有五个入口也有问答 */
 (function(){
-  var f = document.getElementById("navFab"), d = document.getElementById("navDock");
-  if (!f || !d) return;
+  var d = document.getElementById("botNav"),
+      panel = document.getElementById("botPanel"),
+      fab = document.getElementById("botFab");
+  if (!d || !panel) return;
   var items = [["#/main","概览","main"],["#/res","资料库","res"],
                ["#/library","成员索引","library"],["#/portal","学校信息","portal"],
                ["#/admin","高级与维护","admin"]];
   d.innerHTML = items.map(function(t){
     return '<a href="' + t[0] + '" data-k="' + t[2] + '">' + t[1] + '</a>';
   }).join("");
-  var fishHost = null;
 
-  /* 菜单挂在鱼头顶上方。鱼的位置写在宿主自己的 transform 里（translate(x, y)），
-     而它内部的 video / 容器 rect 读出来是 0，所以这里直接解 transform */
-  function placeDock(){
-    d.style.left = ""; d.style.right = ""; d.style.bottom = "";
+  var fishHost = null;
+  /* 面板贴在鱼头顶。鱼的位置只写在宿主的 transform 上，内部元素 rect 量出来是 0 */
+  function placePanel(){
     if (!fishHost) return;
     var tf = (fishHost.style.transform || "").match(/translate(?:3d)?\(([-\d.]+)px,\s*([-\d.]+)px/);
     var x, y;
@@ -3396,19 +3383,16 @@ route();
       x = r.left; y = r.top;
     }
     if (!isFinite(x) || !isFinite(y)) return;
-    d.style.left = Math.max(10, Math.min(x, window.innerWidth - 150)) + "px";
-    d.style.right = "auto";
-    d.style.bottom = Math.max(12, window.innerHeight - y + 10) + "px";
+    var pw = Math.min(358, window.innerWidth - 32);
+    panel.style.left = Math.max(10, Math.min(x, window.innerWidth - pw - 10)) + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = Math.max(12, window.innerHeight - y + 10) + "px";
   }
-  function openDock(){ placeDock(); d.classList.add("open"); f.classList.add("on"); }
-  function closeDock(){ d.classList.remove("open"); f.classList.remove("on"); }
 
-  /* 点鱼开菜单。用捕获阶段监听：鱼自己的内部逻辑就算 stopPropagation 也挡不住；
-     只认「轻点」，拖鱼、长按摸头都不会误触 */
+  /* 点鱼开面板：只认轻点，拖鱼、长按摸头都不会误触；用捕获阶段，内部 stopPropagation 也挡不住 */
   window.bindFishNav = function(host){
     if (!host || host === fishHost) return;
     fishHost = host;
-    f.classList.remove("show");
     var x0 = 0, y0 = 0, t0 = 0;
     host.addEventListener("pointerdown", function(e){
       x0 = e.clientX; y0 = e.clientY; t0 = Date.now();
@@ -3416,19 +3400,25 @@ route();
     host.addEventListener("pointerup", function(e){
       var dt = Date.now() - t0;
       var dd = Math.sqrt((e.clientX - x0) * (e.clientX - x0) + (e.clientY - y0) * (e.clientY - y0));
-      if (dt < 520 && dd < 12) { d.classList.contains("open") ? closeDock() : openDock(); }
+      if (dt < 520 && dd < 12) {
+        placePanel();
+        if (fab) fab.click();
+      }
     }, true);
   };
 
-  f.addEventListener("click", function(e){ e.stopPropagation(); openDock(); });
-  document.addEventListener("click", function(e){ if (!d.contains(e.target)) closeDock(); });
-  d.addEventListener("click", function(e){ if (e.target.closest("a")) closeDock(); });
-  /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），导航退化成右上那颗独立钮，不能没有入口 */
-  setTimeout(function(){ if (!fishHost) f.classList.add("show"); }, 6000);
+  /* 开与关仍旧走小助手原来那套逻辑，这里只在它打开那一刻摆位置 */
+  new MutationObserver(function(){
+    if (!panel.classList.contains("off")) placePanel();
+  }).observe(panel, { attributes: true, attributeFilter: ["class"] });
+
+  /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），把这颗钮放出来兜底，入口不能没有 */
+  setTimeout(function(){ if (!fishHost && fab) fab.classList.add("show"); }, 6000);
+
   window.syncNavDock = function(){
     var raw = (location.hash || "#/main").replace(/^#\//, "").split("?")[0];
     var group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
-    /* res / library / portal 是 main 组里的具体页，不是组名；组内的 plus、maint 没有独立浮层项，回退到它的组 */
+    /* res / library / portal 是 main 组里的具体页；plus、maint 没有独立项，回退到它的组 */
     var page = GROUPS[raw] ? raw : (ALIAS[raw] ? raw : group);
     var keys = [];
     Array.prototype.forEach.call(d.querySelectorAll("a"), function(a){ keys.push(a.dataset.k); });
