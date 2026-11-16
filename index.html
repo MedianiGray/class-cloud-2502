@@ -573,8 +573,12 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   display:flex;flex-direction:column;background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:18px;
   box-shadow:0 20px 50px rgba(120,90,60,.24);z-index:63;overflow:hidden}
 .bot-panel.off{display:none}
-.bot-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;
+.bot-head{display:flex;align-items:center;gap:8px;padding:12px 14px;
   border-bottom:1px solid rgba(198,182,166,.32);background:rgba(250,246,241,.7)}
+.bot-net{margin-left:auto;border:1px solid rgba(198,182,166,.62);background:#fff;color:var(--ink2);
+  font-size:11.5px;line-height:1;padding:5px 9px;border-radius:99px;cursor:pointer;white-space:nowrap}
+.bot-net:hover{border-color:#2F5F49;color:#2F5F49}
+.bot-net.on{background:#2F5F49;border-color:#2F5F49;color:#fff}
 .bot-title{font-size:13.5px;font-weight:700;letter-spacing:.02em}
 .bot-head .bot-sub{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.08em}
 .bot-x{border:0;background:transparent;font-size:18px;line-height:1;color:var(--ink3);cursor:pointer;padding:2px 4px}
@@ -2855,7 +2859,8 @@ route();
 
 <div class="bot-panel off" id="botPanel" role="dialog" aria-label="云库小助手">
   <div class="bot-head">
-    <span class="bot-title">云库小助手<span class="bot-sub"> · 离线规则，不联网</span></span>
+    <span class="bot-title">云库小助手<span class="bot-sub" id="botSub"> · 离线规则，不联网</span></span>
+    <button class="bot-net" id="botNet" type="button" title="接模型后，规则答不上来的问题也能答">联网</button>
     <button class="bot-x" id="botClose" aria-label="关闭">×</button>
   </div>
   <div class="bot-nav" id="botNav"></div>
@@ -3158,8 +3163,99 @@ route();
       return;
     }
 
+    /* 规则和站内目录都没答上来。只有你自己开了「联网」才交给模型；
+       没开就还是原来那句 —— 不替任何人偷着联网、白烧额度 */
+    if (aiReady()) { askAI(q); return; }
     bubble(NONE, false);
   }
+
+  /* ── 可选的联网问答 ────────────────────────────────────────────
+     key 只存在这台浏览器（localStorage），页面源码和 GitHub 仓库里都没有它。
+     走阿里云百炼的兼容端点：实测 CORS 是 *，浏览器能直连 —— 不用代理、不用开服务器，
+     这也是「不开服务器也能接 agent」唯一走通的一条（六家实测见 proxy/pet-ai.js）。 */
+  var AI_PROV = {
+    silicon: { name: "硅基流动", base: "https://api.siliconflow.cn/v1", model: "Qwen/Qwen2.5-7B-Instruct" },
+    bailian: { name: "阿里云百炼", base: "https://dashscope.aliyuncs.com/compatible-mode/v1", model: "qwen-plus" }
+  };
+  var AI = { prov: "silicon", key: "" };
+  try {
+    AI.prov = localStorage.getItem("cl_ai_prov") || "silicon";
+    AI.key = localStorage.getItem("cl_ai_key") || "";
+  } catch (e) {}
+  var aiOn = false;
+  var netBtn = document.getElementById("botNet");
+  var botSub = document.getElementById("botSub");
+
+  function aiReady(){ return aiOn && !!AI.key; }
+  function paintNet(){
+    if (netBtn) {
+      netBtn.textContent = aiReady() ? "联网 · 开" : "联网";
+      netBtn.classList.toggle("on", aiReady());
+    }
+    if (botSub) botSub.textContent = aiReady() ? " · 已接模型" : " · 离线规则，不联网";
+  }
+  paintNet();
+
+  var AI_SYS = [
+    "你是「大肥鱼」，广西农职大网络工程技术（本）2502 班云库首页上的一只蓝色小鲸。",
+    "说话像班里那个懂点技术、话不多但靠得住的同学，不是客服，不是老师。",
+    "规矩：",
+    "1. 一次最多两句话，总共不超过 45 个字，能短就短。",
+    "2. 不编。不知道就说「这个我不清楚，问学委去」。",
+    "3. 只有页面里确实有地址的东西才能提：首页三张卡是专业学习资料、校内资源站、学校信息入口；",
+    "   成员索引是 45 个格子按学号后三位；共享库是首页下面那一行。别自己造链接。",
+    "4. 只答学习、资料、学校系统这类事。不聊政治，不评价老师和同学，不替人写作业。",
+    "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼。"
+  ].join("\n");
+
+  function askAI(q){
+    var P = AI_PROV[AI.prov] || AI_PROV.silicon;
+    var wait = bubble("我想想。", false);
+    fetch(P.base + "/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", "authorization": "Bearer " + AI.key },
+      body: JSON.stringify({
+        model: P.model, temperature: 0.3, max_tokens: 240,
+        messages: [
+          { role: "system", content: AI_SYS },
+          { role: "user", content: String(q).slice(0, 240) }
+        ]
+      })
+    }).then(function(r){
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    }).then(function(d){
+      var c = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+      if (!c) throw new Error("空回复");
+      wait.textContent = String(c).trim().slice(0, 220);
+      body.scrollTop = body.scrollHeight;
+    }).catch(function(err){
+      wait.textContent = "模型没连上（" + (err.message || "网络") + "）。先按原来的答：" + NONE;
+      body.scrollTop = body.scrollHeight;
+    });
+  }
+
+  if (netBtn) netBtn.addEventListener("click", function(){
+    if (AI.key) { aiOn = !aiOn; paintNet(); return; }
+    var pick = window.prompt(
+      "接哪一家？填数字：\n" +
+      "1 = 硅基流动（有永久免费模型 Qwen2.5-7B，注册就能用）\n" +
+      "2 = 阿里云百炼（新用户有免费额度，qwen-plus）", "1");
+    if (!pick) return;
+    AI.prov = (String(pick).trim() === "2") ? "bailian" : "silicon";
+    var k = window.prompt(
+      "粘 " + AI_PROV[AI.prov].name + " 的 API key。\n" +
+      "只存在这台设备，页面源码和 GitHub 仓库里都不会有它。", "");
+    if (!k) return;
+    AI.key = k.trim();
+    try {
+      localStorage.setItem("cl_ai_key", AI.key);
+      localStorage.setItem("cl_ai_prov", AI.prov);
+    } catch (e) {}
+    aiOn = true;
+    paintNet();
+    bubble("接上了（" + AI_PROV[AI.prov].name + "）。规则答不上来的问题现在交给模型，能答的范围还是只限学习、资料、学校系统。想退回离线，再点一下「联网 · 开」。", false);
+  });
   if (form) form.addEventListener("submit", function(e){
     e.preventDefault();
     var v = txt ? txt.value : "";
