@@ -1069,7 +1069,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">01</span><div><b>代码仓库</b>　<span class="mono">github.com/MedianiGray/class-cloud-2502</span>（公开）。主文件只有 <span class="mono">index.html</span> 一个，样式、数据、逻辑全在里面；<span class="mono">manifest.json</span>、<span class="mono">sw.js</span>、三个图标是「装到主屏」用的附件，改页面不用碰它们。</div></div>
         <div class="step"><span class="step-n">02</span><div><b>对外地址</b>　<span class="mono">medianigray.github.io/class-cloud-2502/</span>。push 到 <span class="mono">main</span> 后自动发布，链接永远不变，二维码印错了才需要重做。</div></div>
         <div class="step"><span class="step-n">03</span><div><b>文档库</b>　班级 WPS 共享文件夹。成员链接收在脚本里的 <span class="mono">MEMBERS</span>，只存尾号，不存姓名与完整学号；文件本身始终在 WPS，权限由 WPS 把关。</div></div>
-        <div class="step"><span class="step-n">04</span><div><b>换端代理</b>　Cloudflare Worker <span class="mono">cl-wps-proxy</span>（account id <span class="mono">9b541232809822d0a0af2a7150310e47</span>），在班级 Cloudflare 账号里，<b>已部署但默认未启用</b>，原因见第十一节。</div></div>
+        <div class="step"><span class="step-n">04</span><div><b>换端（电脑看手机版 / 手机看电脑版）</b>　<b>不走服务器</b>。WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，而 UA 只有浏览器自己能改：电脑上按 <span class="mono">Ctrl+Shift+M</span> 开设备模拟、选 iPhone 再刷新；手机上在浏览器菜单勾「请求桌面版网站」再刷新。两边用的都是你本机身份，文件列表齐全。判断依据：同一台机器同一出口 IP，浏览器请求返回 200 且有列表，服务器把同一套 cookie（362 字符）和整套浏览器头原样发过去，WPS 一律回 <span class="mono">{"result":"linkClosed"}</span>——它校验的是链路指纹，服务端模拟不了。</div></div>
         <div class="step"><span class="step-n">05</span><div><b>账号归属</b>　GitHub 与 Cloudflare 都用班级公共账号。登录邮箱、密码、两步验证由现任管理员保管，换届时当面移交并书面记一笔。别落在个人号上——人一走，站就断。</div></div>
       </div>
     </div>
@@ -1083,8 +1083,8 @@ const MEMBERS = [
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
         <div class="step"><span class="step-n">05</span><div><b>图标</b>　重新生成 <span class="mono">icon-192.png</span> / <span class="mono">icon-512.png</span> / <span class="mono">icon-180.png</span>，同尺寸同名覆盖，<span class="mono">manifest.json</span> 不用改。</div></div>
-        <div class="step"><span class="step-n">06</span><div><b>换端代理地址</b>　脚本里的 <span class="mono">let PROXY = ""</span>。留空 = 预览右上角那对按钮带「测试」、点了只给说明；填上云函数入口地址 = 真换 HTML 壳，验证通过再去掉「测试」。代码在 <span class="mono">proxy/cloudbase-wps/</span>。</div></div>
-        <div class="step"><span class="step-n">07</span><div><b>代理本身</b>　<span class="mono">proxy/wps-proxy.js</span>，改完按第九节用一条命令推上去，别在网页编辑器里手贴。</div></div>
+        <div class="step"><span class="step-n">06</span><div><b>代理（已撤，代码留档）</b>　腾讯云云函数能取到 WPS 的 HTML 壳，但取文件列表的接口（<span class="mono">drive.kdocs.cn</span>）对服务端请求一律回 <span class="mono">linkClosed</span>，所以页面里那套代理已经拆掉，不再加载任何代理地址。代码留在 <span class="mono">proxy/tcb/</span> 备查，不影响站点。</div></div>
+        <div class="step"><span class="step-n">07</span><div><b>预览右上角「手机版 / 电脑版」</b>　只弹一句操作提示（Ctrl+Shift+M / 勾请求桌面版网站），不加载任何代理页、也不假装切换。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
         <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 四颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
@@ -1505,24 +1505,12 @@ function brwName(url){
   try { return new URL(url).host; } catch (e) { return "新标签页"; }
 }
 
-/* 端切换走代理：WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，
-   网页改不了 UA，就让服务器替你改。线上实际跑的是腾讯云开发云函数 proxy
-   （代码见 proxy/tcb/index.js），下面 PROXY 指向它的 HTTP 访问服务路径。 */
-let PROXY = "https://class-cloud-d0gpmd6vg58eab7aa-1533844902.ap-shanghai.app.tcloudbase.com/proxy/wps";   /* 换端代理地址。留空 = 退回扫码；
-                     填上并验证能翻目录、能开预览之后，按钮里不再带「测试」 */
-
-function proxyFor(u, mode){
-  if (!PROXY) return u;
-  try { if (!/kdocs\.cn$/i.test(new URL(u).hostname)) return u; } catch (e) { return u; }
-  return PROXY + "?u=" + encodeURIComponent(u) + "&mode=" + mode;
-}
-
+/* 换端不用服务器。WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，
+   而 UA 只有浏览器自己能改：电脑上 Ctrl+Shift+M 开设备模拟（选 iPhone）刷新，
+   手机上在浏览器菜单勾「请求桌面版网站」刷新。本页只负责把这两句话摆出来。 */
 function brwSrc(cur){
   if (!cur || !cur.url) return "about:blank";
-  /* 要的这套壳和本机身份一致就直接连；不一致才让代理换 UA 去取另外那一套 */
-  const wantPhone = brw.mode === "phone";
-  if (wantPhone === IS_MOBILE) return cur.url;
-  return proxyFor(cur.url, brw.mode);
+  return cur.url;
 }
 
 function brwRender(){
@@ -1540,17 +1528,8 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    hint.innerHTML = PROXY
-      ? (brw.mode === "phone"
-        ? "这是服务器用手机身份取回的<b>移动版</b>（mShareFolder），跟你本机的浏览器身份无关。「电脑」切回桌面壳。"
-        : "这是<b>桌面版</b>（ShareFolder）。切「手机」时由服务器换移动 UA 去取那一套，跟本机身份无关。") +
-        '<br><span style="color:var(--ink3)">第一次会先看到腾讯云的「页面访问提示」，点一下里面的<b>确定访问</b>就进去了，同一浏览器之后不再弹。嫌这里窄，点右上角 &#8599; 用整页打开更快。</span>' +
-        '<br><span style="color:var(--warn,#a8621f)">另外：WPS 分享页要有登录态才肯给文件列表，而代理拿不到你浏览器里的 WPS 登录信息，所以这里通常只能看到顶部工具条、看不到文件。要看文件，点右上角 &#8599; 用浏览器直接打开原页面。</span>'
-      : "WPS 在服务端按 UA 分两套界面（mShareFolder / ShareFolder），网页自己改不了，只能让服务器替你改。上面那对按钮标着<b>未接通</b>：不是没做，是四个免费平台全试过了都不通——Cloudflare 的 workers.dev 在国内被 DNS 污染、Deno Deploy 已停止新注册、Netlify 部署出来的站点默认带访问保护且控制台加载不出来、vercel.app 连域名都解析不出。所以现在点它只会给你说明，不假装成功。能用的办法还是这两个：点 ▣ 扫码，手机打开就是真移动版；↗ 在新标签看真页面。";
+    hint.innerHTML = '想看另一套界面：<b>电脑看手机版</b>按 Ctrl+Shift+M 切到设备模拟选 iPhone 再刷新；<b>手机看电脑版</b>在浏览器菜单勾「请求桌面版网站」再刷新。文件都在，身份没变。';
   }
-  Array.prototype.forEach.call(document.querySelectorAll("[data-brwdev]"), function(b){
-    b.classList.toggle("on", b.dataset.brwdev === brw.mode);
-  });
 }
 
 function brwPush(url){
@@ -1643,18 +1622,9 @@ function brwInit(){
     const dev = e.target.closest("[data-brwdev]");
     if (dev) {
       const mode = dev.dataset.brwdev;
-      if (mode === brw.mode) return;
-      const cur = brw.tabs[brw.i];
-      if (!PROXY) {
-        if (cur && cur.url) brwQrPanel(cur.url);
-        toast(mode === "phone"
-          ? "这一项还在测试：只有代理接上才能在这儿换出移动版。现在点 ▣ 扫码用手机打开，手机上就是 WPS 给的移动版"
-          : "电脑上直接看就是桌面版；手机上想看桌面版，用浏览器菜单勾「请求桌面版网站」");
-        return;
-      }
-      brw.mode = mode;
-      brwRender();
-      toast(mode === "phone" ? "已切到移动版界面" : "已切到电脑版界面");
+      toast(mode === "phone"
+        ? "看手机版：按 Ctrl+Shift+M 切设备模拟、选 iPhone，再刷新页面。文件列表照样在。"
+        : "看电脑版：打开浏览器菜单勾「请求桌面版网站」，再刷新页面。");
       return;
     }
   });
@@ -2771,8 +2741,8 @@ route();
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
     <div class="brw-dev" id="brwDev">
-      <button class="brw-dev-b" data-brwdev="phone" title="用服务器的手机身份重新取 WPS，拿到移动版">手机版</button>
-      <button class="brw-dev-b" data-brwdev="desktop" title="用服务器的电脑身份重新取 WPS，拿到桌面版">电脑版</button>
+      <button class="brw-dev-b" data-brwdev="phone" title="怎么看手机版（浏览器设备模拟）">手机版</button>
+      <button class="brw-dev-b" data-brwdev="desktop" title="怎么看电脑版（请求桌面版网站）">电脑版</button>
     </div>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
