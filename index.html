@@ -3284,11 +3284,13 @@ route();
   var booted = false;
 
   function dafeiyuOpts(){
-    /* 窄视口缩小一号：210 在 400 出头的窗口里会占掉半条街 */
-    var small = window.innerWidth < 700;
+    /* 按视口分三档：手机上一百来像素才不挡内容，平板上小一号，宽屏才是全尺寸。
+       原来只有 150 / 210 两档，420-700 之间勉强能用，再窄就没见过鱼 */
+    var w = window.innerWidth;
+    var size = w < 480 ? 96 : (w < 700 ? 132 : 210);
     var opt = {
       assetBase: "pet/assets/",
-      size: small ? 150 : 210,
+      size: size,
       position: "bottom-left",
       zIndex: 61,
       name: "大肥鱼",
@@ -3448,8 +3450,9 @@ route();
 
   window.addEventListener("load", function(){
     if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    /* 门槛从 760 降到 420：手机和平板也该有鱼，尺寸在 dafeiyuOpts 里按视口缩 */
-    if (window.innerWidth < 420) return;
+    /* 门槛降到 300：手机上也见得到鱼，尺寸在 dafeiyuOpts 里按视口分三档缩。
+       只留 300 是为了挡住那些窄到连鱼都放不下的极端窗口，不是不给手机用 */
+    if (window.innerWidth < 300) return;
     setTimeout(loadPet, 2200);
   });
 })();
