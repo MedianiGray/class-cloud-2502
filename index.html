@@ -1506,10 +1506,10 @@ function brwName(url){
 }
 
 /* 端切换走代理：WPS 在服务端按 UA 分发 mShareFolder / ShareFolder 两套壳，
-   网页改不了 UA，就让 Worker 替你改（代码见 proxy/wps-proxy.js）。 */
-let PROXY = "";   /* 换端代理地址。空 = 按钮带「测试」且点了只给说明；
-                     填上腾讯云开发那个 HTTP 地址（proxy/cloudbase-wps，免费额度），
-                     验证能翻目录能开预览之后，把按钮里「测试」两个字去掉 */
+   网页改不了 UA，就让服务器替你改。线上实际跑的是腾讯云开发云函数 proxy
+   （代码见 proxy/tcb/index.js），下面 PROXY 指向它的 HTTP 访问服务路径。 */
+let PROXY = "https://class-cloud-d0gpmd6vg58eab7aa-1533844902.ap-shanghai.app.tcloudbase.com/proxy/wps";   /* 换端代理地址。留空 = 退回扫码；
+                     填上并验证能翻目录、能开预览之后，按钮里不再带「测试」 */
 
 function proxyFor(u, mode){
   if (!PROXY) return u;
@@ -2769,8 +2769,8 @@ route();
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
     <div class="brw-dev" id="brwDev">
-      <button class="brw-dev-b" data-brwdev="phone" title="换端需要一台服务器，四个免费平台都走不通，点了会如实说明">手机版<span class="dev-t">未接通</span></button>
-      <button class="brw-dev-b" data-brwdev="desktop" title="换端需要一台服务器，四个免费平台都走不通，点了会如实说明">电脑版<span class="dev-t">未接通</span></button>
+      <button class="brw-dev-b" data-brwdev="phone" title="用服务器的手机身份重新取 WPS，拿到移动版">手机版</button>
+      <button class="brw-dev-b" data-brwdev="desktop" title="用服务器的电脑身份重新取 WPS，拿到桌面版">电脑版</button>
     </div>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>

@@ -244,7 +244,9 @@ exports.main = async function (event, context) {
   const p = rawPath.toLowerCase();
   // 云函数返回的重写地址必须是完整 URL，否则浏览器拿到的 base 是相对路径
   const host = (event.headers && (event.headers.host || event.headers.Host)) || "";
-  const baseUrl = (host ? "https://" + host : "") + rawPath;
+  // 访问服务挂载在 /proxy 下，事件里的 path 只剩函数内路径，重写时必须把挂载前缀补回去
+  const mountPrefix = "/proxy";
+  const baseUrl = (host ? "https://" + host + mountPrefix : "") + rawPath;
 
   if (p.indexOf("/chat") >= 0) return handleChat(event, origin, cors);
   return handleWps(event, origin, cors, baseUrl);
