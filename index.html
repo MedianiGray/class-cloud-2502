@@ -3495,7 +3495,7 @@ route();
   if (!d || !panel) return;
   var items = [["#/main","概览","main"],["#/res","资料库","res"],
                ["#/library","成员索引","library"],["#/portal","学校信息","portal"],
-               ["#/admin","高级与维护","admin"]];
+               ["#/admin","高级与维护","admin"],["ref-index.html","整页索引","idx"]];
   d.innerHTML = items.map(function(t){
     return '<a href="' + t[0] + '" data-k="' + t[2] + '">' + t[1] + '</a>';
   }).join("");

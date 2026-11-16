@@ -106,6 +106,7 @@ tbody td:last-child{padding-right:0;text-align:right}
 
   <nav class="toc" id="toc">
     <a href="#s-res" data-to="s-res">资源</a>
+    <a href="#s-site" data-to="s-site">校内站</a>
     <a href="#s-sys" data-to="s-sys">系统</a>
     <a href="#s-mem" data-to="s-mem">成员</a>
     <a href="#s-note" data-to="s-note">对照</a>
@@ -214,6 +215,16 @@ tbody td:last-child{padding-right:0;text-align:right}
     </table>
   </section>
 
+  <section id="s-site">
+    <h2>校内资源站</h2>
+    <p class="sub">资源访问控制系统里那 23 个站。地址是 <span style="font-variant-numeric:tabular-nums">172.16</span> 或 <span style="font-variant-numeric:tabular-nums">10.0</span> 开头的、以及域名带 gxnzd 的，都要先连校园网或走 VPN；标「公网可达」的在外面也能开。</p>
+    <table>
+      <colgroup><col class="c1"><col><col class="c3"></colgroup>
+      <thead><tr><th>序号</th><th>站点与分类</th><th>动作</th></tr></thead>
+      <tbody id="siteBody"></tbody>
+    </table>
+  </section>
+
   <section id="s-mem">
     <h2>成员</h2>
     <p class="sub">四十五格，点一格进你自己的 WPS 文件夹。格子里上面是序号、下面是学号尾号。</p>
@@ -243,6 +254,50 @@ tbody td:last-child{padding-right:0;text-align:right}
 var MEMBERS = [{"no":"312","slug":"coPIh8Gpsej1"},{"no":"201","slug":"ctWvsvDFbsPW"},{"no":"202","slug":"cnz1JZHoHLro"},{"no":"203","slug":"caPs8g8EntZf"},{"no":"204","slug":"ckngLXqMCDWT"},{"no":"205","slug":"csS511YwbGwB"},{"no":"206","slug":"clDRxERyyNSp"},{"no":"207","slug":"ci5Bc9RuR3ju"},{"no":"208","slug":"caRisTWLrJUs"},{"no":"209","slug":"cuoQIVlYn1ML"},{"no":"210","slug":"cqlaWryabkWl"},{"no":"211","slug":"cimfiV3s6ujY"},{"no":"212","slug":"csb3w0NPH4tE"},{"no":"213","slug":"chLoXcHp8CRt"},{"no":"214","slug":"ceeqTnq6PCYI"},{"no":"215","slug":"cuzgdcQfUXfJ"},{"no":"216","slug":"cdtfWXAEaT42"},{"no":"217","slug":"csphjmHCUD0y"},{"no":"218","slug":"cf6pbKoI8gc2"},{"no":"219","slug":"cezEo2BPznco"},{"no":"220","slug":"ckmzQdQnLYiW"},{"no":"221","slug":"celyolXSHzxN"},{"no":"223","slug":"ct4edqOHe6WU"},{"no":"224","slug":"caR9ZMnn0bIe"},{"no":"225","slug":"cgssOMlobSZu"},{"no":"226","slug":"cqriafeaFoa4"},{"no":"227","slug":"crDSdWfN3h4u"},{"no":"228","slug":"cutSzuWv28Yh"},{"no":"229","slug":"cklDmbods1qn"},{"no":"230","slug":"ccwldHqBQJxt"},{"no":"231","slug":"cuqwnGBNSRal"},{"no":"232","slug":"cixUZF8G4Bfq"},{"no":"233","slug":"chvv6EbZgWEu"},{"no":"234","slug":"caTSZAAV1BCP"},{"no":"235","slug":"cepwUGQkHqVQ"},{"no":"236","slug":"clwi4hb6kd5W"},{"no":"237","slug":"ckzKCB7EHMIL"},{"no":"238","slug":"cqsFDJATdIeT"},{"no":"239","slug":"ctkSEyS6oty5"},{"no":"240","slug":"cbMLm40ktQqy"},{"no":"241","slug":"chNCXDw52DZ2"},{"no":"242","slug":"cpaBJlArFcrc"},{"no":"243","slug":"cg3ObUBOo2mJ"},{"no":"244","slug":"crWiHIzHNRXx"},{"no":"245","slug":"cuy6qjnhLmJ0"}];
 
 function pad2(n){ return (n < 10 ? "0" : "") + n; }
+
+var SITES = [
+  { t:"统一身份认证", h:"sso.gxnzd.com.cn", c:"业务" },
+  { t:"教务系统", h:"jwxt.gxnzd.com.cn", c:"业务" },
+  { t:"心理健康教育大数据", h:"xlzx.gxnzd.com.cn", c:"业务" },
+  { t:"财务管理平台", h:"cwc.gxnzd.com.cn", c:"财务" },
+  { t:"中国共产党思想理论资源库", h:"data.lilun.cn", c:"图书" },
+  { t:"中国知网", h:"www.cnki.net", c:"图书" },
+  { t:"百度文库", h:"eduai.baidu.com", c:"图书" },
+  { t:"泛研科研项目数据库", h:"www.funresearch.cn", c:"图书" },
+  { t:"高校图书馆考研阅览", h:"www.51yantu.cn", c:"图书" },
+  { t:"中华数字书苑", h:"www.apabi.com", c:"图书" },
+  { t:"图书馆集群管理系统", h:"172.16.4.8", c:"图书" },
+  { t:"可知电子书", h:"www.kededge.com", c:"图书" },
+  { t:"行知电子书", h:"172.16.4.15", c:"图书" },
+  { t:"方正阿帕比数字资源", h:"172.16.4.28", c:"图书" },
+  { t:"中文在线", h:"172.16.4.56", c:"图书" },
+  { t:"新道财务数字化训赛", h:"10.0.6.39", c:"实训" },
+  { t:"数字营销实训", h:"172.16.5.70", c:"实训" },
+  { t:"IMC 理实一体化课程", h:"10.0.100.24", c:"实训" },
+  { t:"跨境电商 B2C 沙盘", h:"10.0.100.33", c:"实训" },
+  { t:"互联网+国际贸易竞赛", h:"10.0.100.33", c:"实训" },
+  { t:"理实一体化课程平台", h:"172.16.5.70", c:"实训" },
+  { t:"ICMT 市场营销综合实训", h:"10.0.116.98", c:"实训" },
+  { t:"数智沙盘世界", h:"10.0.116.115", c:"实训" }
+];
+
+/* 只有这几个是真走公网的，其余都是校内地址，校外打不开 */
+var PUBLIC_HOSTS = ["data.lilun.cn", "www.cnki.net", "eduai.baidu.com",
+                    "www.funresearch.cn", "www.51yantu.cn", "www.apabi.com", "www.kededge.com"];
+
+(function buildSites(){
+  var tb = document.getElementById("siteBody");
+  if (!tb) return;
+  tb.innerHTML = SITES.map(function(s, i){
+    var url = /^https?:/i.test(s.h) ? s.h : ("http://" + s.h);
+    var pub = PUBLIC_HOSTS.indexOf(s.h) >= 0;
+    return '<tr><td>' + pad2(i + 1) + '</td>'
+      + '<td><span class="nm"><a href="' + url + '" target="_blank" rel="noopener">' + s.t + '</a></span>'
+      + '<span class="ds">' + s.c + ' · ' + s.h + '</span>'
+      + '<span class="reach' + (pub ? ' ok' : ' warn') + '">' + (pub ? '公网可达' : '需校内网') + '</span></td>'
+      + '<td><a class="act" href="' + url + '" target="_blank" rel="noopener">打开</a></td></tr>';
+  }).join("");
+})();
 
 (function buildMem(){
   var grid = document.getElementById("memGrid");
