@@ -550,6 +550,12 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   transition:background .15s,border-color .15s,color .15s}
 .mini-nav a:hover,.mini-nav button:hover{background:#fff;color:var(--ink);border-color:rgba(62,125,95,.4)}
 .mini-nav .mn-d{color:var(--ink3);font-size:11.5px}
+/* 手机：四颗胶囊只留主标题，副标题藏掉，否则一段字占 190px 挤成三行 */
+@media (max-width:600px){
+  .mini-nav{gap:6px}
+  .mini-nav .mn-d{display:none}
+  .mini-nav a,.mini-nav button{padding:8px 12px;font-size:12.5px}
+}
 
 /* 首页动态小字：一行会换的活话 */
 .live-line{margin-top:12px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;min-height:18px;line-height:1.6}
