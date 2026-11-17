@@ -26,12 +26,101 @@
  */
 const SF_KEY_FALLBACK = ""; // 想直接写死就填 sk-…，留空则读环境变量 AI_KEY / SF_KEY
 
-/* 模型厂商做成环境变量，换一家只改云端配置、不动代码：
-     AI_BASE  + AI_MODEL  + AI_KEY
-   默认走智谱 GLM-4-Flash —— 官方长期免费、国内直连、不限量（有并发限制）。
-   硅基流动那把 key 实测已余额耗尽（30001），所以不再作为默认。 */
-const AI_BASE = (process.env.AI_BASE || "https://open.bigmodel.cn/api/paas/v4").trim();
-const AI_MODEL = (process.env.AI_MODEL || "glm-4-flash").trim();
+/* ── 免费额度池：多家厂商排队，谁还能用就用谁 ──────────────────────
+ * 为什么要池子：单家免费额度总会用完（硅基流动余额耗尽 → 30001），
+ * 一家挂了整站就哑。这里按顺序逐个试，某家返回 401/402/403/429
+ * 就判定「这家的额度今天用完了」，拉黑一段时间，自动跳到下一家。
+ *
+ * 排在前面的先用（免费额度更耐用的放前面）：
+ *   1. 硅基流动  SF_KEY   Qwen2.5-7B-Instruct   —— 有额度时优先，模型质量好
+ *   2. 智谱 GLM  AI_KEY   glm-4-flash           —— 长期免费兜底，最稳
+ *
+ * 想加一家：在 AI_POOL 环境变量里写 JSON 数组，形如
+ *   [{"name":"某某","base":"https://…/v1","model":"…","keys":["XX_KEY"]}]
+ * 环境变量 AI_POOL 一旦存在就完全覆盖下面的默认池，不用改代码。
+ *
+ * 兼容旧配置：只设了 AI_BASE / AI_MODEL / AI_KEY 的老部署照样能跑，
+ * 会被当成池子里唯一的一家。 */
+const COOL_MS = 20 * 60 * 1000;   // 某家额度用完后，冷却 20 分钟再回来试
+const poolState = new Map();      // name -> { until, why, fails }
+
+function envPool() {
+  const raw = (process.env.AI_POOL || "").trim();
+  if (raw) {
+    try {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length) {
+        return arr.filter(function (p) {
+          return p && p.base && p.model;
+        }).map(function (p) {
+          return {
+            name: String(p.name || p.base),
+            base: String(p.base).replace(/\/+$/, ""),
+            model: String(p.model),
+            keys: Array.isArray(p.keys) ? p.keys : (p.key ? ["AI_KEY"] : ["AI_KEY"])
+          };
+        });
+      }
+    } catch (e) {}
+  }
+  const list = [];
+  list.push({ name: "硅基流动", base: "https://api.siliconflow.cn/v1", model: "Qwen/Qwen2.5-7B-Instruct", keys: ["SF_KEY", "SF_KEY_FALLBACK"] });
+  list.push({ name: "智谱 GLM", base: "https://open.bigmodel.cn/api/paas/v4", model: "glm-4-flash", keys: ["AI_KEY"] });
+  /* 老部署：只配了 AI_BASE/AI_MODEL，就把这一条顶到最前面 */
+  if (process.env.AI_BASE || process.env.AI_MODEL) {
+    list.unshift({
+      name: "自定义",
+      base: (process.env.AI_BASE || "https://open.bigmodel.cn/api/paas/v4").trim().replace(/\/+$/, ""),
+      model: (process.env.AI_MODEL || "glm-4-flash").trim(),
+      keys: ["AI_KEY", "SF_KEY"]
+    });
+  }
+  return list;
+}
+
+function keyOf(p) {
+  for (let i = 0; i < p.keys.length; i++) {
+    const v = (process.env[p.keys[i]] || (p.keys[i] === "SF_KEY_FALLBACK" ? SF_KEY_FALLBACK : "") || "").trim();
+    if (v) return v;
+  }
+  return "";
+}
+
+function coolDown(p, why) {
+  const old = poolState.get(p.name) || { fails: 0 };
+  poolState.set(p.name, { until: Date.now() + COOL_MS, why: why, fails: (old.fails || 0) + 1 });
+}
+
+/* 返回池子里还能用的一家（跳过冷却中的、没 key 的） */
+function pickPool() {
+  const all = envPool();
+  const now = Date.now();
+  const ready = [];
+  for (let i = 0; i < all.length; i++) {
+    const p = all[i];
+    if (!keyOf(p)) continue;
+    const st = poolState.get(p.name);
+    if (st && st.until > now) continue;
+    ready.push(p);
+  }
+  return { all: all, ready: ready };
+}
+
+function poolStatus() {
+  const now = Date.now();
+  return envPool().map(function (p) {
+    const st = poolState.get(p.name) || {};
+    return {
+      name: p.name,
+      model: p.model,
+      hasKey: !!keyOf(p),
+      usable: !!keyOf(p) && !(st.until > now),
+      cooledUntil: st.until > now ? new Date(st.until).toISOString() : null,
+      why: st.why || null,
+      fails: st.fails || 0
+    };
+  });
+}
 
 const HOSTS = ["www.kdocs.cn", "kdocs.cn"];
 const HTML_CACHE = new Map();   // 实例内存缓存：翻来翻去重复的页不必每次都撞 WPS
@@ -110,41 +199,64 @@ async function handleChat(event, origin, cors) {
     return out(400, { e: "没有 messages" }, cors);
   }
 
-  const key = (process.env.AI_KEY || process.env.SF_KEY || SF_KEY_FALLBACK || "").trim();
-  if (!key) {
-    return out(500, { e: "服务器上没配 key，去云函数的环境变量里加一条 AI_KEY" }, cors);
+  const picked = pickPool();
+  if (!picked.all.some(keyOf)) {
+    return out(500, { e: "服务器上没配任何模型 key，去云函数环境变量里加 AI_KEY 或 SF_KEY" }, cors);
+  }
+  if (!picked.ready.length) {
+    const st = poolStatus();
+    const why = st.map(function (x) { return x.name + "：" + (x.why || (x.hasKey ? "冷却中" : "没 key")); }).join("；");
+    return out(503, { e: "所有免费额度暂时都不可用（" + why + "），冷却 20 分钟后会自动恢复。" }, cors);
   }
 
-  let r;
-  try {
-    r = await fetch(AI_BASE + "/chat/completions", {
-      method: "POST",
-      headers: { "content-type": "application/json", "authorization": "Bearer " + key },
-      body: JSON.stringify({ model: AI_MODEL, temperature: 0.3, max_tokens: 240, messages: clean })
-    });
-  } catch (e) {
-    return out(502, { e: "连不上模型服务：" + e.message }, cors);
+  const errs = [];
+  for (let i = 0; i < picked.ready.length; i++) {
+    const p = picked.ready[i];
+    const key = keyOf(p);
+    let r;
+    try {
+      r = await fetch(p.base + "/chat/completions", {
+        method: "POST",
+        headers: { "content-type": "application/json", "authorization": "Bearer " + key },
+        body: JSON.stringify({ model: p.model, temperature: 0.3, max_tokens: 240, messages: clean }),
+        signal: AbortSignal.timeout(12000)
+      });
+    } catch (e) {
+      errs.push(p.name + " 连不上");
+      continue;                            // 超时/网络问题：不拉黑，直接换下一家
+    }
+
+    if (!r.ok) {
+      let t = "";
+      try { t = (await r.text()).slice(0, 120); } catch (e) {}
+      /* 额度/权限类错误 → 这家这段时间别再用，冷却后自动回来 */
+      if (r.status === 401 || r.status === 402 || r.status === 403 || r.status === 429) {
+        const why = r.status === 402 || /insufficient|30001/i.test(t)
+          ? "免费额度已用完"
+          : (r.status === 429 ? "被限流" : "key 或模型不可用");
+        coolDown(p, why);
+      }
+      errs.push(p.name + "(" + r.status + ")");
+      continue;
+    }
+
+    let d = {};
+    try { d = await r.json(); } catch (e) {}
+    const c = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+    if (!c) {
+      /* 有的模型（推理型）在小 max_tokens 下会返回空 content，换下一家 */
+      errs.push(p.name + " 空回复");
+      continue;
+    }
+    return out(200, {
+      d: String(c).trim().slice(0, 400),
+      p: p.name                      // 告诉前端这句是谁答的，方便排查额度
+    }, Object.assign({ "cache-control": "no-store" }, cors));
   }
 
-  if (!r.ok) {
-    let t = "";
-    try { t = (await r.text()).slice(0, 160); } catch (e) {}
-    const tip = r.status === 402 || /balance is insufficient/i.test(t)
-      ? "模型账户余额/额度不足，换一把免费 key 配到 AI_KEY"
-      : "模型返回 HTTP " + r.status;
-    return out(502, { e: tip + (t ? " · " + t : "") }, cors);
-  }
-
-  let d = {};
-  try {
-    d = await r.json();
-  } catch (e) {}
-  const c = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
-  if (!c) {
-    return out(502, { e: "空回复" }, cors);
-  }
-
-  return out(200, { d: String(c).trim().slice(0, 400) }, Object.assign({ "cache-control": "no-store" }, cors));
+  return out(502, {
+    e: "免费额度池里的几家都没答上来：" + errs.join("；") + "。过 20 分钟会自动重试，或先用离线规则。"
+  }, cors);
 }
 
 /* ── 换端代理 ── */
@@ -315,5 +427,9 @@ exports.main = async function (event, context) {
   const baseUrl = (host ? "https://" + host + mountPrefix : "") + rawPath;
 
   if (p.indexOf("/chat") >= 0) return handleChat(event, origin, cors);
+  /* 只读自查：浏览器直接打开 /proxy/pool 就能看到每家额度还在不在、是不是被冷却了（不暴露 key） */
+  if (p.indexOf("/pool") >= 0) {
+    return out(200, { pool: poolStatus() }, Object.assign({ "cache-control": "no-store" }, cors));
+  }
   return handleWps(event, origin, cors, baseUrl);
 };
