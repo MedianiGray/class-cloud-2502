@@ -606,19 +606,40 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-input input:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,125,95,.13)}
 .bot-input button{flex:none;height:38px;padding:0 15px;border:0;border-radius:12px;color:#fff;font-size:13px;font-weight:600;
   background:linear-gradient(160deg,#4E8E6E,#2F5F49);cursor:pointer}
-/* 手机：小助手改成底部抽屉，通铺一格，不再浮在页面中间压住内容 */
+/* 手机：小助手走整屏对话，像微信点开一个会话，不再浮在页面中间压住内容 */
 .bot-scrim{position:fixed;inset:0;background:rgba(34,28,22,.34);z-index:62;display:none}
 @media (max-width:720px){
   .bot-fab{right:14px;bottom:calc(78px + env(safe-area-inset-bottom));width:50px;height:50px}
-  .bot-panel{left:0;right:0;bottom:0;width:auto;max-height:min(84vh,660px);border-radius:18px 18px 0 0;
-    border-left:0;border-right:0;border-bottom:0;z-index:66;padding-bottom:env(safe-area-inset-bottom)}
-  .bot-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .bot-panel{left:0;right:0;top:0;bottom:0;width:auto;max-height:none;height:100dvh;border:0;border-radius:0;
+    z-index:66;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .bot-head{padding:14px 16px;background:linear-gradient(160deg,#FFFDFB,#FAF3EA)}
+  .bot-title{font-size:15px}
+  .bot-x{font-size:22px;padding:4px 8px}
+  .bot-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:10px 12px}
   .bot-nav::-webkit-scrollbar{height:0}
-  .bot-nav a{flex:none;padding:8px 12px}
-  .bot-scrim.on{display:block}
-  .bot-chips{padding-bottom:12px}
-  .bot-chips button{padding:8px 13px;font-size:12.5px}
+  .bot-nav a{flex:none;padding:9px 13px;font-size:13px}
+  .bot-body{padding:16px 16px 8px;gap:10px}
+  .bot-msg{font-size:14px}
+  .bot-chips{padding:4px 14px 12px}
+  .bot-chips button{padding:9px 13px;font-size:13px}
+  .bot-input{padding:10px 14px 14px}
+  .bot-input input{height:42px;font-size:16px}
+  .bot-input button{height:42px;font-size:14px}
+  .bot-scrim{display:none!important}
 }
+/* 桌宠动作卡：手机专用，替代包里那块改不动的原生菜单 */
+.pet-sheet{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,10px);
+  width:min(286px,calc(100vw - 28px));background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:16px;
+  box-shadow:0 18px 44px rgba(120,90,60,.22),0 2px 6px rgba(120,90,60,.08);z-index:70;padding:8px;
+  opacity:0;pointer-events:none;transition:opacity .16s,transform .16s}
+.pet-sheet.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.pet-sheet .ps-head{font-size:12px;color:#8A735F;padding:5px 4px 8px;margin-bottom:6px;border-bottom:1px solid rgba(198,182,166,.42)}
+.pet-sheet .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.pet-sheet .ps-grid button{height:42px;border:1px solid rgba(198,182,166,.48);background:#FFFDFB;border-radius:10px;
+  font-size:13px;color:#2B2118;text-align:left;padding:0 10px;cursor:pointer;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pet-sheet .ps-grid button:active{background:#F4EBE1}
+@media (min-width:721px){ .pet-sheet{display:none} }
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:760px){ .nav{display:none} }
 
@@ -3332,31 +3353,61 @@ route();
     st.setAttribute("data-fish-fix", "1");
     st.textContent =
       "video{touch-action:none;-webkit-user-select:none;user-select:none;}" +
-      /* 手机上菜单原来只有一百多像素宽、行高也很挤，手指按不准；放大成好点的尺寸 */
-      "@media (max-width:720px){" +
-      ".dfy-menu{max-height:56vh;overflow:auto;border-radius:14px;}" +
-      ".dfy-menu button{min-height:42px;font-size:14px;padding:10px 12px;}" +
-      ".dfy-menu-head{font-size:13px;padding:10px 12px;}" +
-      "}";
+      /* 桌面沿用原生菜单，只把配色对齐站内纸色 */
+      ".dfy-menu{background:#FFFDFB!important;color:#2B2118!important;border:1px solid rgba(198,182,166,.55)!important;" +
+      "border-radius:16px!important;box-shadow:0 14px 38px rgba(120,90,60,.20),0 2px 6px rgba(120,90,60,.10)!important;}" +
+      ".dfy-menu-head{color:#8A735F!important;}" +
+      ".dfy-menu button{color:#2B2118!important;border-radius:10px!important;background:transparent!important;text-align:left!important;}" +
+      ".dfy-menu button:hover{background:#F7F1EA!important;}" +
+      /* 手机上原生菜单的排版被包内样式锁死（行距、宽度都改不动），把它挪出画面，
+         改用站内那套卡片复刻同样的按钮，点一下再转交给原按钮，功能一模一样 */
+      "@media (max-width:720px){.dfy-menu.dfy-open{left:-10000px!important;top:0!important;opacity:0!important;pointer-events:none!important;}}";
     sr.appendChild(st);
-    /* 菜单在宿主坐标系里定位（宿主带 transform），手机上把它挪到视口中间偏下、左右留边，
-       这样不会一半落在屏幕外、也不会盖住页面正中的内容 */
-    function placeFishMenu(){
-      if (window.innerWidth >= 720) return;
-      var m = sr.querySelector(".dfy-menu");
-      if (!m || !/dfy-open/.test(m.className || "")) return;
-      var tf = (dyHost.style.transform || "").match(/translate(?:3d)?\(([-\d.]+)px,\s*([-\d.]+)px/);
-      var tx = tf ? parseFloat(tf[1]) : 0, ty = tf ? parseFloat(tf[2]) : 0;
-      var vw = window.innerWidth, vh = window.innerHeight;
-      var w = Math.min(252, vw - 24);
-      m.style.setProperty("width", w + "px", "important");
-      var h = m.offsetHeight || 300;
-      var vx = Math.max(12, (vw - w) / 2);
-      var vy = Math.max(80, vh - Math.min(h, vh * 0.56) - 110);
-      m.style.left = (vx - tx) + "px";
-      m.style.top  = (vy - ty) + "px";
+
+    function hideSheet(){
+      var s = document.getElementById("petSheet");
+      if (s) s.classList.remove("on");
     }
-    new MutationObserver(function(){ placeFishMenu(); setTimeout(placeFishMenu, 120); })
+    function ensureSheet(){
+      var s = document.getElementById("petSheet");
+      if (s) return s;
+      s = document.createElement("div");
+      s.id = "petSheet";
+      s.className = "pet-sheet";
+      document.body.appendChild(s);
+      s.addEventListener("click", function(e){
+        var b = e.target.closest ? e.target.closest("[data-pi]") : null;
+        if (!b) { if (e.target === s) hideSheet(); return; }
+        var src = sr.querySelectorAll(".dfy-menu button")[+b.dataset.pi];
+        if (src) src.click();
+        hideSheet();
+      });
+      document.addEventListener("pointerdown", function(e){
+        var el = document.getElementById("petSheet");
+        if (el && el.classList.contains("on") && !el.contains(e.target)) hideSheet();
+      }, true);
+      return s;
+    }
+    function showSheet(){
+      var m = sr.querySelector(".dfy-menu");
+      if (!m || !/dfy-open/.test(m.className || "") || window.innerWidth >= 720) { hideSheet(); return; }
+      var s = ensureSheet();
+      var head = m.querySelector(".dfy-menu-head");
+      s.innerHTML = '<div class="ps-head">' + (head ? head.textContent.trim() : "桌宠") + '</div>';
+      var grid = document.createElement("div");
+      grid.className = "ps-grid";
+      Array.prototype.forEach.call(m.querySelectorAll("button"), function(b, i){
+        if (getComputedStyle(b).display === "none") return;
+        var el = document.createElement("button");
+        el.type = "button";
+        el.dataset.pi = i;
+        el.textContent = (b.textContent || "").replace(/\s+/g, " ").trim();
+        grid.appendChild(el);
+      });
+      s.appendChild(grid);
+      s.classList.add("on");
+    }
+    new MutationObserver(showSheet)
       .observe(sr, { attributes: true, attributeFilter: ["class"], subtree: true });
     return true;
   }
