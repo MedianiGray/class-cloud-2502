@@ -1004,7 +1004,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
           <li><b>电脑 · Chrome、Edge 想看成手机版</b>：按 <span class="mono">F12</span>，再按 <span class="mono">Ctrl + Shift + M</span>，顶部会出现设备框，左边选 iPhone 或安卓机型，刷新一下。关掉开发者工具就恢复原样。</li>
           <li><b>电脑 · Firefox</b>：按 <span class="mono">Ctrl + Shift + M</span> 进响应式设计模式，顶部选机型即可。</li>
         </ul>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里那对按钮标着<b>未接通</b>：换端要在服务端改 <span class="mono">User-Agent</span>，而这四个免费平台在国内全不通（workers.dev 被污染、Deno 停注册、Netlify 站点带访问保护且控制台打不开、vercel.app 域名解析不出）。所以现在点它只会给说明，不会假装成功。要看移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里那颗<b>「换端」</b>只按你当前设备给对应做法，不会假装切换——换端要在服务端改 <span class="mono">User-Agent</span>，我们试过用云端代取，能拿到手机版的壳但文件列表是空的，所以没启用。想看真移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版。</p>
       </div>
     </div>
   </div>
@@ -1083,8 +1083,8 @@ const MEMBERS = [
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
         <div class="step"><span class="step-n">05</span><div><b>图标</b>　重新生成 <span class="mono">icon-192.png</span> / <span class="mono">icon-512.png</span> / <span class="mono">icon-180.png</span>，同尺寸同名覆盖，<span class="mono">manifest.json</span> 不用改。</div></div>
-        <div class="step"><span class="step-n">06</span><div><b>代理（已撤，代码留档）</b>　腾讯云云函数能取到 WPS 的 HTML 壳，但取文件列表的接口（<span class="mono">drive.kdocs.cn</span>）对服务端请求一律回 <span class="mono">linkClosed</span>，所以页面里那套代理已经拆掉，不再加载任何代理地址。代码留在 <span class="mono">proxy/tcb/</span> 备查，不影响站点。</div></div>
-        <div class="step"><span class="step-n">07</span><div><b>预览右上角「手机版 / 电脑版」</b>　只弹一句操作提示（Ctrl+Shift+M / 勾请求桌面版网站），不加载任何代理页、也不假装切换。</div></div>
+        <div class="step"><span class="step-n">06</span><div><b>换端（已收口到浏览器本地）</b>　WPS 按请求头 UA 分两套壳，UA 只有浏览器能改，所以换端不做代理、不做服务器。手机：浏览器菜单勾「请求桌面版网站」；电脑：<span class="mono">Ctrl+Shift+M</span> 选 iPhone。云函数里 <span class="mono">/proxy/wps</span> 那条路由留着没删，但页面不再调用。</div></div>
+        <div class="step"><span class="step-n">07</span><div><b>预览右上角的「换端」</b>　只有一颗钮，点了按当前设备给一句对应做法，不加载代理页、也不假装切换。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
         <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 四颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
@@ -1142,15 +1142,9 @@ C:\Windows\system32\curl.exe -sS -X PUT "https://api.cloudflare.com/client/v4/ac
     </div>
 
     <div class="maint-block">
-      <h3>十一、换端代理为什么默认关着</h3>
-      <p>Worker 已经部署好了，地址是 <span class="mono">cl-wps-proxy.3534226279.workers.dev</span>。但实测这个域名在国内被 <b>DNS 污染</b>：解析到 <span class="mono">162.125.18.129</span>（Dropbox 的 IP），TCP 443 直接超时。<span class="mono">*.workers.dev</span> 在国内基本都这样，所以 <span class="mono">PROXY</span> 保持为空——填进去只会让预览窗口干等二十多秒再报错，比直接 ▣ 扫码还差。</p>
-      <p>已选定第 ② 条，并且限定在<b>不产生任何费用</b>的平台：腾讯云开发的免费额度。同一套逻辑已经改写成云函数形态放在 <span class="mono">proxy/cloudbase-wps/index.js</span>，配套的 <span class="mono">README.md</span> 写了五步部署，以及哪几个按钮是真会扣钱的（升级套餐、绑支付方式、买独立域名、CDN 加速 —— 都不碰；实名要做，但实名不等于付费）。它的域名是 <span class="mono">*.tcloudbaseapp.com</span>，国内直连。额度真用尽时的表现是当天限流，不是扣钱。</p>
-      <p>2026-11-16 实测四个免费平台，全部走不通，记在这里省得以后重复踩：<br>
-        · <span class="mono">*.workers.dev</span>：DNS 解析被污染（指到 118.184.78.78），443 直接超时。<br>
-        · <b>Deno Deploy</b>：官网公告 2027 年 4 月关停，已关闭新注册（New signups are closed）。<br>
-        · <b>Netlify</b>：能拖 zip 部署（<span class="mono">/drop</span> 页可用），但<b>新项目默认开访问保护</b>，站点直接 401 跳登录；而控制台前端在国内一直卡在 Loading，改不了设置。另注意 <span class="mono">netlify.toml</span> 写错会让整个部署失败在「Reading and parsing configuration files」——函数放默认目录 <span class="mono">netlify/functions</span> 就不需要那份文件。<br>
-        · <span class="mono">*.vercel.app</span>：连域名都解析不出来。<br>
-        所以要摘「未接通」，得先有一台国内能通的服务器（腾讯云开发要实名，是唯一还没试的正路）。验证标准只有一条：能翻目录、能开预览；做到了才改按钮文案，没做到就一直如实说明。</p>
+      <h3>十一、换端不用服务器</h3>
+      <p>结论已经定下来：WPS 按请求头 UA 分两套壳，而 UA 只有浏览器自己能改，所以换端是<b>浏览器的本地功能</b>，本站不掺和。预览窗口右上角那颗<b>「换端」</b>只按当前设备给一句对应做法，不加载任何代理页、也不假装切换。</p>
+      <p>代理这条线试过并已停用：云函数能取到手机版的 HTML 壳，但取文件列表的接口对服务端请求回空，页面里翻不出东西；<span class="mono">*.workers.dev</span> 在国内被 DNS 污染；Deno 停注册；Netlify 新站带访问保护；<span class="mono">*.vercel.app</span> 解析不出。页面已不再调用 <span class="mono">/proxy/wps</span>，那条路由留在云函数里也不产生流量和费用。</p>
     </div>
 
     <div class="maint-block">
@@ -1528,7 +1522,7 @@ function brwRender(){
   const hint = document.getElementById("brwHint");
   if (hint) {
     hint.style.display = "block";
-    hint.innerHTML = '想看另一套界面：<b>电脑看手机版</b>按 Ctrl+Shift+M 切到设备模拟选 iPhone 再刷新；<b>手机看电脑版</b>在浏览器菜单勾「请求桌面版网站」再刷新。文件都在，身份没变。';
+    hint.innerHTML = '想看另一套界面：点地址栏右边那颗 <b>「换端」</b>，会告诉你当前设备该怎么切。文件都在，身份没变。';
   }
 }
 
@@ -1621,10 +1615,11 @@ function brwInit(){
     if (bw) { brwGoto(bw.dataset.bwurl); return; }
     const dev = e.target.closest("[data-brwdev]");
     if (dev) {
-      const mode = dev.dataset.brwdev;
-      toast(mode === "phone"
-        ? "看手机版：按 Ctrl+Shift+M 切设备模拟、选 iPhone，再刷新页面。文件列表照样在。"
-        : "看电脑版：打开浏览器菜单勾「请求桌面版网站」，再刷新页面。");
+      if (IS_MOBILE) {
+        toast("看电脑版：点浏览器菜单（Chrome 是右上 ⋮）→ 勾「请求桌面版网站」→ 刷新。想回手机版就取消勾选。");
+      } else {
+        toast("看手机版：按 Ctrl+Shift+M 开设备模拟 → 选 iPhone → 刷新。想回电脑版就关掉设备模拟。");
+      }
       return;
     }
   });
@@ -2741,8 +2736,7 @@ route();
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
     <div class="brw-dev" id="brwDev">
-      <button class="brw-dev-b" data-brwdev="phone" title="怎么看手机版（浏览器设备模拟）">手机版</button>
-      <button class="brw-dev-b" data-brwdev="desktop" title="怎么看电脑版（请求桌面版网站）">电脑版</button>
+      <button class="brw-dev-b" data-brwdev="swap" title="换端：电脑看手机版 / 手机看电脑版">换端</button>
     </div>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
@@ -3252,7 +3246,7 @@ route();
     /* 按视口分三档：手机上一百来像素才不挡内容，平板上小一号，宽屏才是全尺寸。
        原来只有 150 / 210 两档，420-700 之间勉强能用，再窄就没见过鱼 */
     var w = window.innerWidth;
-    var size = w < 480 ? 96 : (w < 700 ? 132 : 210);
+    var size = w < 480 ? 118 : (w < 700 ? 146 : 210);
     var opt = {
       assetBase: "pet/assets/",
       size: size,
@@ -3309,7 +3303,22 @@ route();
     return null;
   }
 
+  /* 触摸端最关键的一条：视频上没有 touch-action:none 时，手指一压浏览器就先当成滚动，
+     拖动会被 pointercancel 打断 —— 表现就是「一挪就闪、松手位置乱跳、点一下还点空」。
+     宿主是 shadow root，改不了包里的 CSS，只能挂上去之后补一条，靠后覆盖同优先级。 */
+  function tuneFish(){
+    if (!dyHost || !dyHost.shadowRoot) return false;
+    var sr = dyHost.shadowRoot;
+    if (sr.querySelector("style[data-fish-fix]")) return true;
+    var st = document.createElement("style");
+    st.setAttribute("data-fish-fix", "1");
+    st.textContent = "video{touch-action:none;-webkit-user-select:none;user-select:none;}";
+    sr.appendChild(st);
+    return true;
+  }
+
   function wireFishNav(){
+    tuneFish();
     if (dyHost && window.bindFishNav) { window.bindFishNav(dyHost); return true; }
     if (dyHost) { setTimeout(wireFishNav, 300); return false; }
     return false;
@@ -3472,9 +3481,13 @@ route();
     }, true);
   };
 
-  /* 开与关仍旧走小助手原来那套逻辑，这里只在它打开那一刻摆位置 */
+  /* 开与关仍旧走小助手原来那套逻辑，这里只在它打开那一刻摆位置。
+     手机上小助手面板铺在左下，正好压住鱼：面板开着时把鱼藏起来（visibility 连点击一起挡掉），
+     关掉再放回来。这样两块不会叠着抢同一片手指，也不会出现「想点鱼结果点到面板」。 */
   new MutationObserver(function(){
-    if (!panel.classList.contains("off")) placePanel();
+    var open = !panel.classList.contains("off");
+    if (open) placePanel();
+    if (fishHost) fishHost.style.visibility = open ? "hidden" : "";
   }).observe(panel, { attributes: true, attributeFilter: ["class"] });
 
   /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），把这颗钮放出来兜底，入口不能没有 */
