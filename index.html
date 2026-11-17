@@ -2173,7 +2173,16 @@ function aiSend(){
     headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + k.value.trim() },
     body:JSON.stringify({ model:m.value.trim(), messages:aiMsgs, temperature:0.7 })
   }).then(r => r.json()).then(d => {
-    const txt = d && d.choices && d.choices[0] && d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d).slice(0, 400);
+    if (!d || !d.choices || !d.choices.length) {
+      const raw = (d && (d.message || (d.error && (d.error.message || d.error.code)) || d.code)) || "没有返回内容";
+      const s = String(raw);
+      const bad = /401|403|invalid|unauthor|permission|30014|30001/i.test(s);
+      aiSay("失败", s + (bad
+        ? "　→　多半是 Key 不对、或模型名写错、或账户余额不够。Key 建议只填自己新申请的，别用公用那把。"
+        : "　→　服务端没按标准格式回，先确认接口地址是不是以 /v1 结尾。"));
+      return;
+    }
+    const txt = d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d).slice(0, 400);
     aiMsgs.push({ role:"assistant", content:txt });
     aiSay("回复", txt);
   }).catch(err => {
