@@ -4,3 +4,6 @@ desktop.ini
 *.tmp
 *.log
 _work/
+# 云函数密钥之类的本地配置，不进公开仓库
+proxy/tcb/config.json
+proxy/**/config.json
