@@ -3154,31 +3154,23 @@ route();
   }
 
   /* ── 可选的联网问答 ────────────────────────────────────────────
-     key 只存在这台浏览器（localStorage），页面源码和 GitHub 仓库里都没有它。
-     走阿里云百炼的兼容端点：实测 CORS 是 *，浏览器能直连 —— 不用代理、不用开服务器，
-     这也是「不开服务器也能接 agent」唯一走通的一条（六家实测见 proxy/pet-ai.js）。 */
-  var AI_PROV = {
-    silicon: { name: "硅基流动", base: "https://api.siliconflow.cn/v1", model: "Qwen/Qwen2.5-7B-Instruct" },
-    bailian: { name: "阿里云百炼", base: "https://dashscope.aliyuncs.com/compatible-mode/v1", model: "qwen-plus" }
-  };
-  var AI = { prov: "silicon", key: "" };
-  try {
-    AI.prov = localStorage.getItem("cl_ai_prov") || "silicon";
-    AI.key = localStorage.getItem("cl_ai_key") || "";
-  } catch (e) {}
+     问句发给班级自己的后端（腾讯云云函数 /proxy/chat），模型 key 存在服务器环境变量里，
+     页面源码和公开仓库里都没有它，谁也不能拿去烧额度。
+     后端没通时静默退回离线规则，不弹窗、不问 key。 */
+  var AI_BACKEND = "https://class-cloud-d0gpmd6vg58eab7aa-1533844902.ap-shanghai.app.tcloudbase.com/proxy/chat";
   var aiOn = false;
   try { aiOn = localStorage.getItem("cl_ai_on") === "1"; } catch (e) {}
   function saveOn(v){ try { localStorage.setItem("cl_ai_on", v ? "1" : "0"); } catch (e) {} }
   var netBtn = document.getElementById("botNet");
   var botSub = document.getElementById("botSub");
 
-  function aiReady(){ return aiOn && !!AI.key; }
+  function aiReady(){ return aiOn; }
   function paintNet(){
     if (netBtn) {
       netBtn.textContent = aiReady() ? "联网 · 开" : "联网";
       netBtn.classList.toggle("on", aiReady());
     }
-    if (botSub) botSub.textContent = aiReady() ? " · 已接模型" : " · 离线规则，不联网";
+    if (botSub) botSub.textContent = aiReady() ? " · 已接班级服务器" : " · 离线规则，不联网";
   }
   paintNet();
 
@@ -3195,69 +3187,36 @@ route();
   ].join("\n");
 
   function askAI(q){
-    var P = AI_PROV[AI.prov] || AI_PROV.silicon;
     var wait = bubble("我想想。", false);
-    fetch(P.base + "/chat/completions", {
+    fetch(AI_BACKEND, {
       method: "POST",
-      headers: { "content-type": "application/json", "authorization": "Bearer " + AI.key },
+      headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        model: P.model, temperature: 0.3, max_tokens: 240,
         messages: [
           { role: "system", content: AI_SYS },
           { role: "user", content: String(q).slice(0, 240) }
         ]
       })
     }).then(function(r){
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
+      return r.json().catch(function(){ return {}; });
     }).then(function(d){
-      var c = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
-      if (!c) throw new Error("空回复");
-      wait.textContent = String(c).trim().slice(0, 220);
+      if (d && d.d) { wait.textContent = String(d.d).trim().slice(0, 220); }
+      else { throw new Error((d && d.e) || "服务器没回答"); }
       body.scrollTop = body.scrollHeight;
     }).catch(function(err){
-      wait.textContent = "模型没连上（" + (err.message || "网络") + "）。先按原来的答：" + NONE;
+      wait.textContent = "联网没接上（" + (err.message || "网络") + "）。先按原来的答：" + NONE;
       body.scrollTop = body.scrollHeight;
     });
   }
 
   if (netBtn) netBtn.addEventListener("click", function(){
-    if (AI.key) { aiOn = !aiOn; saveOn(aiOn); paintNet(); return; }
-    var pick = window.prompt(
-      "接哪一家？填数字：\n" +
-      "1 = 硅基流动（有永久免费模型 Qwen2.5-7B，注册就能用）\n" +
-      "2 = 阿里云百炼（新用户有免费额度，qwen-plus）", "1");
-    if (!pick) return;
-    AI.prov = (String(pick).trim() === "2") ? "bailian" : "silicon";
-    var k = window.prompt(
-      "粘 " + AI_PROV[AI.prov].name + " 的 API key。\n" +
-      "只存在这台设备，页面源码和 GitHub 仓库里都不会有它。", "");
-    if (!k) return;
-    AI.key = k.trim();
-    var prov = AI_PROV[AI.prov];
-    var b = bubble("正在核对 key…", false);
-    /* 先拿一个最便宜的请求试一下，省得粘错了还显示「接上了」。
-       /models 不耗额度；有的家没有这个端点会回 404，那也算通，只有 401/403 才是 key 不对 */
-    fetch(prov.base + "/models", { headers: { "authorization": "Bearer " + AI.key } })
-      .then(function(r){ return r.ok || r.status === 404; })
-      .catch(function(){ return false; })
-      .then(function(ok){
-        if (!ok) {
-          AI.key = "";
-          b.textContent = "这个 key 没过核对：可能粘错、多了空格，或者这家的 key 不归这台服务管。没存，重新点「联网」再来一次。";
-          if (body) body.scrollTop = body.scrollHeight;
-          return;
-        }
-        try {
-          localStorage.setItem("cl_ai_key", AI.key);
-          localStorage.setItem("cl_ai_prov", AI.prov);
-        } catch (e) {}
-        aiOn = true;
-        saveOn(true);
-        paintNet();
-        b.textContent = "接上了（" + prov.name + "）。规则答不上来的问题现在交给模型，能答的范围还是只限学习、资料、学校系统。想退回离线，再点一下「联网 · 开」。";
-        if (body) body.scrollTop = body.scrollHeight;
-      });
+    aiOn = !aiOn;
+    saveOn(aiOn);
+    paintNet();
+    var b = bubble(aiOn
+      ? "联网开了。规则答不上来的问题交给班级自己的服务器，能答的范围还是只限学习、资料、学校系统。"
+      : "已退回离线，只按本地规则答。", false);
+    if (body) body.scrollTop = body.scrollHeight;
   });
   if (form) form.addEventListener("submit", function(e){
     e.preventDefault();

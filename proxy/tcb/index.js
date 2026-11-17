@@ -19,15 +19,19 @@
  * 6. 回 index.html：PROXY 填 .../api/wps，AI_PROXY 填 .../api/chat
  *
  * ── 这个 AI 代理为什么不会花钱 ──────────────────────────────
- * · 模型写死成 Qwen/Qwen2.5-7B-Instruct（硅基流动的免费模型），请求里带的 model 一律被忽略
+ * · 模型由 AI_BASE / AI_MODEL 决定（默认 glm-4-flash），请求里带的 model 一律被忽略
  * · 余额不足只会返回错误，不会静默转成付费模型
  * · 每来源每天 40 次、单条 400 字上限，防刷
  * · 只放行本站和本机，别的站拿去当免费接口会被 CORS + Origin 检查挡掉
  */
-const SF_KEY_FALLBACK = ""; // 想直接写死就填 sk-…，留空则读环境变量 SF_KEY
+const SF_KEY_FALLBACK = ""; // 想直接写死就填 sk-…，留空则读环境变量 AI_KEY / SF_KEY
 
-const MODEL = "Qwen/Qwen2.5-7B-Instruct";
-const SF_BASE = "https://api.siliconflow.cn/v1";
+/* 模型厂商做成环境变量，换一家只改云端配置、不动代码：
+     AI_BASE  + AI_MODEL  + AI_KEY
+   默认走智谱 GLM-4-Flash —— 官方长期免费、国内直连、不限量（有并发限制）。
+   硅基流动那把 key 实测已余额耗尽（30001），所以不再作为默认。 */
+const AI_BASE = (process.env.AI_BASE || "https://open.bigmodel.cn/api/paas/v4").trim();
+const AI_MODEL = (process.env.AI_MODEL || "glm-4-flash").trim();
 
 const HOSTS = ["www.kdocs.cn", "kdocs.cn"];
 const HTML_CACHE = new Map();   // 实例内存缓存：翻来翻去重复的页不必每次都撞 WPS
@@ -106,24 +110,29 @@ async function handleChat(event, origin, cors) {
     return out(400, { e: "没有 messages" }, cors);
   }
 
-  const key = (process.env.SF_KEY || SF_KEY_FALLBACK || "").trim();
+  const key = (process.env.AI_KEY || process.env.SF_KEY || SF_KEY_FALLBACK || "").trim();
   if (!key) {
-    return out(500, { e: "服务器上没配 key，去云函数的环境变量里加一条 SF_KEY" }, cors);
+    return out(500, { e: "服务器上没配 key，去云函数的环境变量里加一条 AI_KEY" }, cors);
   }
 
   let r;
   try {
-    r = await fetch(SF_BASE + "/chat/completions", {
+    r = await fetch(AI_BASE + "/chat/completions", {
       method: "POST",
       headers: { "content-type": "application/json", "authorization": "Bearer " + key },
-      body: JSON.stringify({ model: MODEL, temperature: 0.3, max_tokens: 240, messages: clean })
+      body: JSON.stringify({ model: AI_MODEL, temperature: 0.3, max_tokens: 240, messages: clean })
     });
   } catch (e) {
     return out(502, { e: "连不上模型服务：" + e.message }, cors);
   }
 
   if (!r.ok) {
-    return out(502, { e: "模型返回 HTTP " + r.status }, cors);
+    let t = "";
+    try { t = (await r.text()).slice(0, 160); } catch (e) {}
+    const tip = r.status === 402 || /balance is insufficient/i.test(t)
+      ? "模型账户余额/额度不足，换一把免费 key 配到 AI_KEY"
+      : "模型返回 HTTP " + r.status;
+    return out(502, { e: tip + (t ? " · " + t : "") }, cors);
   }
 
   let d = {};
