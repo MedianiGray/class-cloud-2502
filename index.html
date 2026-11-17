@@ -606,40 +606,42 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-input input:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,125,95,.13)}
 .bot-input button{flex:none;height:38px;padding:0 15px;border:0;border-radius:12px;color:#fff;font-size:13px;font-weight:600;
   background:linear-gradient(160deg,#4E8E6E,#2F5F49);cursor:pointer}
-/* 手机：小助手走整屏对话，像微信点开一个会话，不再浮在页面中间压住内容 */
+/* 手机：小助手不再整屏，改回悬浮卡；桌宠的动作直接长在卡里，一件事只用一个界面 */
 .bot-scrim{position:fixed;inset:0;background:rgba(34,28,22,.34);z-index:62;display:none}
 @media (max-width:720px){
   .bot-fab{right:14px;bottom:calc(78px + env(safe-area-inset-bottom));width:50px;height:50px}
-  .bot-panel{left:0;right:0;top:0;bottom:0;width:auto;max-height:none;height:100dvh;border:0;border-radius:0;
-    z-index:66;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-  .bot-head{padding:14px 16px;background:linear-gradient(160deg,#FFFDFB,#FAF3EA)}
+  .bot-panel{left:10px;right:10px;top:auto;bottom:calc(74px + env(safe-area-inset-bottom));width:auto;
+    height:min(72vh,540px);max-height:none;border-radius:18px;z-index:66;display:flex;flex-direction:column;
+    overflow:hidden;box-shadow:0 22px 56px rgba(60,42,28,.26),0 2px 8px rgba(60,42,28,.10)}
+  .bot-panel.off{display:none}
+  .bot-head{padding:12px 14px 10px;background:linear-gradient(160deg,#FFFDFB,#FAF3EA);flex:none}
   .bot-title{font-size:15px}
   .bot-x{font-size:22px;padding:4px 8px}
-  .bot-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:10px 12px}
+  .bot-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:8px 12px 0;flex:none}
   .bot-nav::-webkit-scrollbar{height:0}
-  .bot-nav a{flex:none;padding:9px 13px;font-size:13px}
-  .bot-body{padding:16px 16px 8px;gap:10px}
+  .bot-nav a{flex:none;padding:8px 12px;font-size:13px}
+  .bot-body{flex:1;overflow-y:auto;padding:14px 14px 8px;gap:10px}
   .bot-msg{font-size:14px}
-  .bot-chips{padding:4px 14px 12px}
+  .bot-chips{padding:4px 12px 10px}
   .bot-chips button{padding:9px 13px;font-size:13px}
-  .bot-input{padding:10px 14px 14px}
+  .bot-input{padding:10px 12px calc(12px + env(safe-area-inset-bottom));flex:none}
   .bot-input input{height:42px;font-size:16px}
   .bot-input button{height:42px;font-size:14px}
   .bot-scrim{display:none!important}
 }
-/* 桌宠动作卡：手机专用，替代包里那块改不动的原生菜单 */
-.pet-sheet{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translate(-50%,10px);
-  width:min(286px,calc(100vw - 28px));background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:16px;
-  box-shadow:0 18px 44px rgba(120,90,60,.22),0 2px 6px rgba(120,90,60,.08);z-index:70;padding:8px;
-  opacity:0;pointer-events:none;transition:opacity .16s,transform .16s}
-.pet-sheet.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
-.pet-sheet .ps-head{font-size:12px;color:#8A735F;padding:5px 4px 8px;margin-bottom:6px;border-bottom:1px solid rgba(198,182,166,.42)}
-.pet-sheet .ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.pet-sheet .ps-grid button{height:42px;border:1px solid rgba(198,182,166,.48);background:#FFFDFB;border-radius:10px;
-  font-size:13px;color:#2B2118;text-align:left;padding:0 10px;cursor:pointer;
+/* 桌宠动作条：嵌在小助手卡里，横着排一行，点一下就等于点大肥鱼自己的菜单 */
+.pet-strip{display:none}
+.pet-strip .ps-label{flex:none;font-size:12px;color:#8A735F;padding:0 2px 0 4px;align-self:center;max-width:96px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pet-sheet .ps-grid button:active{background:#F4EBE1}
-@media (min-width:721px){ .pet-sheet{display:none} }
+.pet-strip button{flex:none;height:34px;padding:0 12px;border:1px solid rgba(198,182,166,.5);background:#FFFDFB;
+  border-radius:10px;font-size:12.5px;color:#2B2118;cursor:pointer;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.pet-strip button:active{background:#F4EBE1}
+@media (max-width:720px){
+  .pet-strip{display:flex;align-items:center;gap:6px;padding:2px 12px 8px;overflow-x:auto;flex:none;
+    scrollbar-width:none;border-bottom:1px solid rgba(198,182,166,.4);margin-bottom:6px}
+  .pet-strip::-webkit-scrollbar{height:0;display:none}
+}
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:760px){ .nav{display:none} }
 
@@ -2878,9 +2880,11 @@ route();
   <div class="bot-head">
     <span class="bot-title">云库小助手<span class="bot-sub" id="botSub"> · 离线规则，不联网</span></span>
     <button class="bot-net" id="botNet" type="button" title="接模型后，规则答不上来的问题也能答">联网</button>
+    <button class="bot-net bot-model" id="botModel" type="button" title="换模型 / 接自己的 API">模型</button>
     <button class="bot-x" id="botClose" aria-label="关闭">×</button>
   </div>
   <div class="bot-nav" id="botNav"></div>
+  <div class="pet-strip" id="petStrip"></div>
   <div class="bot-body" id="botBody">
     <div class="bot-msg bot-bot">问一句就行。我只会答下面这几类，答不上来的，班群里问更快。</div>
   </div>
@@ -3089,6 +3093,17 @@ route();
   }
   fab.addEventListener("click", function(){ toggle(); });
   if (x) x.addEventListener("click", function(){ toggle(false); });
+  /* 「模型」这颗钮把人直接送到 AI 工具台，并把手风琴展开——那块的字段一直藏在 details 里，
+     手机上根本翻不到，等于没做 */
+  var modelBtn = document.getElementById("botModel");
+  if (modelBtn) modelBtn.addEventListener("click", function(){
+    toggle(false);
+    location.hash = "#/plus";
+    setTimeout(function(){
+      var d = document.querySelector("#view-plus details");
+      if (d) { d.open = true; d.scrollIntoView({ block: "nearest" }); }
+    }, 360);
+  });
   document.addEventListener("keydown", function(e){ if (e.key === "Escape" && open) toggle(false); });
 
   function bubble(text, me){
@@ -3364,51 +3379,39 @@ route();
       "@media (max-width:720px){.dfy-menu.dfy-open{left:-10000px!important;top:0!important;opacity:0!important;pointer-events:none!important;}}";
     sr.appendChild(st);
 
-    function hideSheet(){
-      var s = document.getElementById("petSheet");
-      if (s) s.classList.remove("on");
-    }
-    function ensureSheet(){
-      var s = document.getElementById("petSheet");
-      if (s) return s;
-      s = document.createElement("div");
-      s.id = "petSheet";
-      s.className = "pet-sheet";
-      document.body.appendChild(s);
-      s.addEventListener("click", function(e){
-        var b = e.target.closest ? e.target.closest("[data-pi]") : null;
-        if (!b) { if (e.target === s) hideSheet(); return; }
-        var src = sr.querySelectorAll(".dfy-menu button")[+b.dataset.pi];
-        if (src) src.click();
-        hideSheet();
-      });
-      document.addEventListener("pointerdown", function(e){
-        var el = document.getElementById("petSheet");
-        if (el && el.classList.contains("on") && !el.contains(e.target)) hideSheet();
-      }, true);
-      return s;
-    }
-    function showSheet(){
+    /* 手机：原生菜单挪出画面，把它的按钮在同一个地方备一份给站内动作条用，
+       点动作条上的按钮 = 点它的原按钮，喂食/睡觉/五子棋/回原位都还是原逻辑 */
+    window.renderPetStrip = function(){
+      var bar = document.getElementById("petStrip");
+      if (!bar) return;
       var m = sr.querySelector(".dfy-menu");
-      if (!m || !/dfy-open/.test(m.className || "") || window.innerWidth >= 720) { hideSheet(); return; }
-      var s = ensureSheet();
+      bar.innerHTML = "";
+      if (!m) return;
       var head = m.querySelector(".dfy-menu-head");
-      s.innerHTML = '<div class="ps-head">' + (head ? head.textContent.trim() : "桌宠") + '</div>';
-      var grid = document.createElement("div");
-      grid.className = "ps-grid";
-      Array.prototype.forEach.call(m.querySelectorAll("button"), function(b, i){
-        if (getComputedStyle(b).display === "none") return;
+      var lb = document.createElement("span");
+      lb.className = "ps-label";
+      lb.textContent = head ? head.textContent.trim() : "大肥鱼";
+      bar.appendChild(lb);
+      Array.prototype.forEach.call(m.querySelectorAll("button"), function(b){
+        var ds = (b.getAttribute("style") || "").replace(/\s/g, "");
+        if (b.hidden || /display:none/.test(ds) || getComputedStyle(b).display === "none") return;
+        /* 包里那个「💬 聊天」跟「说句话」是同一件事，平时被它自己藏起来，这里也跳过 */
+        if (/聊天/.test(b.textContent || "")) return;
         var el = document.createElement("button");
         el.type = "button";
-        el.dataset.pi = i;
         el.textContent = (b.textContent || "").replace(/\s+/g, " ").trim();
-        grid.appendChild(el);
+        el.addEventListener("click", function(){
+          b.click();
+          setTimeout(window.renderPetStrip, 80);
+        });
+        bar.appendChild(el);
       });
-      s.appendChild(grid);
-      s.classList.add("on");
-    }
-    new MutationObserver(showSheet)
-      .observe(sr, { attributes: true, attributeFilter: ["class"], subtree: true });
+    };
+    new MutationObserver(function(){
+      var m = sr.querySelector(".dfy-menu");
+      if (m && /dfy-open/.test(m.className || "")) hideOwnMenu(m);
+    }).observe(sr, { attributes: true, attributeFilter: ["class"], subtree: true });
+    function hideOwnMenu(){ /* 由上面的 CSS 负责藏，这里只保证动作条是最新文案 */ if (window.renderPetStrip) window.renderPetStrip(); }
     return true;
   }
 
@@ -3574,6 +3577,7 @@ route();
       if (dt < 520 && dd < 12) {
         placePanel();
         if (fab) fab.click();
+        setTimeout(function(){ if (window.renderPetStrip) window.renderPetStrip(); }, 120);
       }
     }, true);
   };
@@ -3592,8 +3596,10 @@ route();
     var mobile = window.innerWidth < 720;
     if (open && !mobile) placePanel();
     if (fishHost) fishHost.style.visibility = open ? "hidden" : "";
-    scrim.classList.toggle("on", open && mobile);
-    if (fab) fab.style.display = (open && mobile) ? "none" : "";
+    /* 已经不铺遮罩了：卡是浮着的，点旁边照样能操作页面 */
+    scrim.classList.remove("on");
+    if (fab) fab.style.display = "";
+    if (open) setTimeout(function(){ if (window.renderPetStrip) window.renderPetStrip(); }, 60);
   }).observe(panel, { attributes: true, attributeFilter: ["class"] });
 
   /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），把这颗钮放出来兜底，入口不能没有 */
