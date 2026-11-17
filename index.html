@@ -3200,7 +3200,11 @@ route();
     }).then(function(r){
       return r.json().catch(function(){ return {}; });
     }).then(function(d){
-      if (d && d.d) { wait.textContent = String(d.d).trim().slice(0, 220); }
+      if (d && d.d) {
+        wait.textContent = String(d.d).trim().slice(0, 220);
+        /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
+        if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
+      }
       else { throw new Error((d && d.e) || "服务器没回答"); }
       body.scrollTop = body.scrollHeight;
     }).catch(function(err){
