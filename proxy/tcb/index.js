@@ -65,6 +65,9 @@ function envPool() {
   }
   const list = [];
   list.push({ name: "硅基流动", base: "https://api.siliconflow.cn/v1", model: "Qwen/Qwen2.5-7B-Instruct", keys: ["SF_KEY", "SF_KEY_FALLBACK"] });
+  list.push({ name: "阿里百炼", base: "https://dashscope.aliyuncs.com/compatible-mode/v1", model: "qwen-flash", keys: ["BL_KEY"] });
+  list.push({ name: "百度千帆", base: "https://qianfan.baidubce.com/v2", model: "ernie-5.5-flash-preview", keys: ["QF_KEY"] });
+  list.push({ name: "魔搭 ModelScope", base: "https://api-inference.modelscope.cn/v1", model: "Qwen/Qwen3.5-27B", keys: ["MS_KEY"] });
   list.push({ name: "智谱 GLM", base: "https://open.bigmodel.cn/api/paas/v4", model: "glm-4-flash", keys: ["AI_KEY"] });
   /* 老部署：只配了 AI_BASE/AI_MODEL，就把这一条顶到最前面 */
   if (process.env.AI_BASE || process.env.AI_MODEL) {
