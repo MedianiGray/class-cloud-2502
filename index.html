@@ -222,6 +222,12 @@ html.is-embed .envbar{display:none}
 .brw-tab.on i{color:var(--ink2)}
 .brw-new{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#F4F4EE;border-radius:6px;font-size:13px;color:var(--ink3);margin-bottom:4px}
 .brw-bar{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#F4F4EE;border-bottom:1px solid var(--line2);flex:none;flex-wrap:wrap}
+.brw-tip{display:none;align-items:flex-start;gap:10px;padding:9px 14px;background:#F7F1EA;
+  border-bottom:1px solid rgba(198,182,166,.42);font-size:12.5px;line-height:1.65;color:var(--ink2);flex:none}
+.brw-tip.on{display:flex}
+.brw-tip span{flex:1;min-width:0}
+.brw-tip button{flex:none;border:1px solid rgba(198,182,166,.6);background:#fff;border-radius:99px;
+  font-size:12px;padding:4px 10px;cursor:pointer;color:var(--ink2)}
 .brw-ico{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#fff;border-radius:6px;font-size:12px;color:var(--ink2)}
 .brw-dev{display:flex;flex:none;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
 .brw-dev-b{border:0;background:transparent;font-size:11.5px;padding:4px 7px;color:var(--ink3);line-height:1.2;white-space:nowrap}
@@ -614,7 +620,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     height:min(72vh,540px);max-height:none;border-radius:18px;z-index:66;display:flex;flex-direction:column;
     overflow:hidden;box-shadow:0 22px 56px rgba(60,42,28,.26),0 2px 8px rgba(60,42,28,.10)}
   .bot-panel.off{display:none}
-  .bot-head{padding:12px 14px 10px;background:linear-gradient(160deg,#FFFDFB,#FAF3EA);flex:none}
+  .bot-head{padding:12px 14px 10px;background:linear-gradient(160deg,#FFFDFB,#FAF3EA);flex:none;
+    cursor:grab;touch-action:none;user-select:none}
+  .bot-head:active{cursor:grabbing}
   .bot-title{font-size:15px}
   .bot-x{font-size:22px;padding:4px 8px}
   .bot-nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:8px 12px 0;flex:none}
@@ -2777,12 +2785,13 @@ route();
     <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
     <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
     <div class="brw-dev" id="brwDev">
-      <button class="brw-dev-b" data-brwdev="swap" title="换端：电脑看手机版 / 手机看电脑版">换端</button>
+      <button class="brw-dev-b" id="brwDevSwap" data-brwdev="swap" title="换端：电脑看手机版 / 手机看电脑版">换端</button>
     </div>
     <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
   </div>
+  <div class="brw-tip" id="brwTip"><span id="brwTipTxt"></span><button type="button" id="brwTipX">知道了</button></div>
   <div class="brw-book" id="brwBook"></div>
   <div class="brw-stage" id="brwStage">
     <div class="brw-body" id="brwBody">
@@ -2791,6 +2800,27 @@ route();
     <div class="brw-hint" id="brwHint">若这里一片空白，是对方禁止被外部页面嵌套；点右上角 ↗ 用系统浏览器打开。</div>
   </div>
 </div>
+<script>
+/* 换端：单独绑一次，不依赖预览初始化是否走完。
+   提示也不再用一闪而过的 toast，改成工具栏下面一行常驻说明，看完点「知道了」才收起 */
+(function(){
+  var b = document.getElementById("brwDevSwap");
+  var tip = document.getElementById("brwTip");
+  var ttx = document.getElementById("brwTipTxt");
+  var tx = document.getElementById("brwTipX");
+  if (!b) return;
+  b.addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    var t = IS_MOBILE
+      ? "看电脑版：点浏览器菜单（Chrome 是右上 ⋮，iPhone 是左下 aA）→「请求桌面网站」→ 刷新；想回手机版就关掉这个开关。"
+      : "看手机版：按 Ctrl+Shift+M 开设备模拟 → 选 iPhone → 刷新；想回电脑版就关掉设备模拟。";
+    if (ttx) ttx.textContent = t;
+    if (tip) tip.classList.add("on");
+  });
+  if (tx) tx.addEventListener("click", function(){ if (tip) tip.classList.remove("on"); });
+})();
+</script>
+
 <script>
 /* ==================== 环境提示 / 装到主屏 / 离线壳 ==================== */
 (function(){
@@ -3402,6 +3432,21 @@ route();
         el.textContent = (b.textContent || "").replace(/\s+/g, " ").trim();
         el.addEventListener("click", function(){
           b.click();
+          /* 下棋要整块棋盘，卡片先让开，不然永远被压在下面 */
+          if (/五子棋/.test(el.textContent || "")) {
+            setTimeout(function(){ var c = document.getElementById("botClose"); if (c) c.click(); }, 260);
+            /* 棋盘比屏高时会被切掉下沿，顺手把它往上顶进可视区 */
+            setTimeout(function(){
+              var g = sr.querySelector(".dfy-game");
+              if (!g) return;
+              var gr = g.getBoundingClientRect();
+              var over = gr.bottom - (window.innerHeight - 8);
+              if (over > 0) {
+                var cur = parseFloat(getComputedStyle(g).top) || 0;
+                g.style.top = (cur - over) + "px";
+              }
+            }, 460);
+          }
           setTimeout(window.renderPetStrip, 80);
         });
         bar.appendChild(el);
@@ -3601,6 +3646,27 @@ route();
     if (fab) fab.style.display = "";
     if (open) setTimeout(function(){ if (window.renderPetStrip) window.renderPetStrip(); }, 60);
   }).observe(panel, { attributes: true, attributeFilter: ["class"] });
+
+  /* 手机上一屏要同时放对话、鱼、棋盘，谁都嫌挤；卡片改成按住标题栏就能拖走 */
+  var head = panel.querySelector(".bot-head");
+  if (head) {
+    var dragging = false, sx = 0, sy = 0, sl = 0, st = 0;
+    head.addEventListener("pointerdown", function(e){
+      if (window.innerWidth >= 720) return;
+      if (e.target.closest("button,a,input")) return;
+      var r = panel.getBoundingClientRect();
+      sx = e.clientX; sy = e.clientY; sl = r.left; st = r.top; dragging = true;
+    });
+    window.addEventListener("pointermove", function(e){
+      if (!dragging) return;
+      var l = Math.max(4, Math.min(sl + e.clientX - sx, window.innerWidth - panel.offsetWidth - 4));
+      var t = Math.max(4, Math.min(st + e.clientY - sy, window.innerHeight - 60));
+      panel.style.left = l + "px"; panel.style.right = "auto";
+      panel.style.top = t + "px"; panel.style.bottom = "auto";
+    });
+    window.addEventListener("pointerup", function(){ dragging = false; });
+    window.addEventListener("pointercancel", function(){ dragging = false; });
+  }
 
   /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），把这颗钮放出来兜底，入口不能没有 */
   setTimeout(function(){ if (!fishHost && fab) fab.classList.add("show"); }, 6000);
