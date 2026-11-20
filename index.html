@@ -942,6 +942,14 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
               <label>模型<input id="aiModel" class="p-in" placeholder="gpt-4o-mini / deepseek-chat"></label>
               <label>API Key<input id="aiKey" class="p-in" type="password" placeholder="sk-..."></label>
             </div>
+            <div style="margin:-4px 0 12px">
+              <div style="font-size:12px;color:var(--ink3);margin-bottom:6px">常见服务一键填地址和模型名（Key 仍要自己填）</div>
+              <div id="aiPreset" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+            </div>
+            <label style="display:block;margin-bottom:12px">推理强度 <span id="aiTempVal" style="font-family:var(--mono);color:var(--ink3)">0.7</span>
+              <input id="aiTemp" type="range" min="0" max="1" step="0.1" value="0.7" style="width:100%">
+              <span style="display:block;font-size:11.5px;color:var(--ink3);line-height:1.6">低（0.2）答得更稳、更死板；高（1.0）更发散。答题、查资料用 0.2~0.4，头脑风暴用 0.8 以上。</span>
+            </label>
             <label>你的问题<textarea id="aiQ" class="p-in p-ta" placeholder="例如：把我这段自我介绍改得口语一点"></textarea></label>
             <div class="link-acts">
               <button class="btn btn-sm" id="aiSend">发送</button>
@@ -2094,11 +2102,11 @@ document.getElementById("lockBtn").onclick = () => {
 
 /* ==================== 高级功能 ==================== */
 const AI_SERVICES = [
-  { n:"Google Gemini", d:"免费额度，对话与图片生成，官方有 OpenAI 兼容层", u:"https://aistudio.google.com/apikey", b:"https://generativelanguage.googleapis.com/v1beta/openai" },
-  { n:"Groq", d:"免费额度，响应速度最快，主打对话", u:"https://console.groq.com/keys", b:"https://api.groq.com/openai/v1" },
-  { n:"OpenRouter", d:"聚合多家模型，含免费模型，适合试手", u:"https://openrouter.ai/keys", b:"https://openrouter.ai/api/v1" },
-  { n:"硅基流动 SiliconFlow", d:"国内可直连，注册送额度，对话与生图都有", u:"https://cloud.siliconflow.cn/account/ak", b:"https://api.siliconflow.cn/v1" },
-  { n:"智谱 GLM", d:"国内，有免费模型，含图片生成", u:"https://open.bigmodel.cn/usercenter/apikeys", b:"https://open.bigmodel.cn/api/paas/v4" },
+  { n:"Google Gemini", d:"免费额度，对话与图片生成，官方有 OpenAI 兼容层", u:"https://aistudio.google.com/apikey", b:"https://generativelanguage.googleapis.com/v1beta/openai", m:"gemini-2.0-flash" },
+  { n:"Groq", d:"免费额度，响应速度最快，主打对话", u:"https://console.groq.com/keys", b:"https://api.groq.com/openai/v1", m:"llama-3.1-8b-instant" },
+  { n:"OpenRouter", d:"聚合多家模型，含免费模型，适合试手", u:"https://openrouter.ai/keys", b:"https://openrouter.ai/api/v1", m:"openai/gpt-4o-mini" },
+  { n:"硅基流动 SiliconFlow", d:"国内可直连，注册送额度，对话与生图都有", u:"https://cloud.siliconflow.cn/account/ak", b:"https://api.siliconflow.cn/v1", m:"Qwen/Qwen2.5-7B-Instruct" },
+  { n:"智谱 GLM", d:"国内，有免费模型，含图片生成", u:"https://open.bigmodel.cn/usercenter/apikeys", b:"https://open.bigmodel.cn/api/paas/v4", m:"glm-4-flash" },
   { n:"ModelScope 魔搭", d:"国内免费额度，图与视频模型较多", u:"https://modelscope.cn/my/myaccesstoken", b:"" },
   { n:"Hugging Face", d:"Inference API，免费额度较小", u:"https://huggingface.co/settings/tokens", b:"" },
   { n:"Cloudflare Workers AI", d:"每天免费额度，需开通 Workers", u:"https://dash.cloudflare.com/", b:"" }
@@ -2193,6 +2201,14 @@ function renderAiList(){
     '<div style="display:flex;gap:8px"><button class="btn btn-sm ghost" data-ai-fill="' + i + '">填入地址</button>' +
     '<button class="btn btn-sm ghost" data-ai-go="' + i + '">申请</button></div></div>'
   )).join("");
+
+  /* 一键填「地址 + 模型名」：只填这两个能预判的，Key 一定要本人填 */
+  const pre = document.getElementById("aiPreset");
+  if (pre) {
+    pre.innerHTML = AI_SERVICES.filter(a => a.b && a.m).map((a) => (
+      '<button class="btn btn-sm ghost" data-ai-pm data-b="' + a.b + '" data-m="' + a.m + '">' + a.n.replace(" SiliconFlow", "") + '</button>'
+    )).join("");
+  }
 }
 
 function aiCfgLoad(){
@@ -2229,11 +2245,14 @@ function aiSend(){
   aiSay("你", text);
   q.value = "";
   const url = b.value.replace(/\s/g, "").replace(/\/+$/, "") + "/chat/completions";
-  aiSay("系统", "请求中…");
+  /* 推理强度就是 temperature：0.2 稳、1.0 发散。滑杆值存在本机，下次打开还在 */
+  const tempEl = document.getElementById("aiTemp");
+  const temp = tempEl ? Math.max(0, Math.min(1, parseFloat(tempEl.value) || 0)) : 0.7;
+  aiSay("系统", "请求中…（推理强度 " + temp + "）");
   fetch(url, {
     method:"POST",
     headers:{ "Content-Type":"application/json", "Authorization":"Bearer " + k.value.trim() },
-    body:JSON.stringify({ model:m.value.trim(), messages:aiMsgs, temperature:0.7 })
+    body:JSON.stringify({ model:m.value.trim(), messages:aiMsgs, temperature:temp })
   }).then(r => r.json()).then(d => {
     if (!d || !d.choices || !d.choices.length) {
       const raw = (d && (d.message || (d.error && (d.error.message || d.error.code)) || d.code)) || "没有返回内容";
@@ -2251,6 +2270,20 @@ function aiSend(){
     aiSay("失败", "请求没发出去或被 CORS 拦了：" + err.message + "。换一家服务，或用它提供的 OpenAI 兼容地址。");
   });
 }
+
+/* 推理强度滑杆：只影响自定义 API 那条路（temperature 真会随它变），记在本机 */
+(function(){
+  var t = document.getElementById("aiTemp"), v = document.getElementById("aiTempVal");
+  if (!t) return;
+  var KEY = "cl_ai_temp";
+  try { var s = localStorage.getItem(KEY); if (s !== null) t.value = s; } catch (e) {}
+  function paint(){
+    if (v) v.textContent = Number(t.value).toFixed(1);
+    try { localStorage.setItem(KEY, t.value); } catch (e) {}
+  }
+  t.addEventListener("input", paint);
+  paint();
+})();
 
 /* 同网快传：内容压进 hash，不经过任何服务器 */
 function b64enc(str){ return btoa(unescape(encodeURIComponent(str))); }
@@ -2372,6 +2405,15 @@ document.addEventListener("click", e => {
     if (!a.b) { toast("这家没有 OpenAI 兼容地址，用「申请」去官网看文档"); return; }
     document.getElementById("aiBase").value = a.b;
     toast("已填入 " + a.n + " 的地址，再补模型名和 Key");
+    return;
+  }
+  const pm = e.target.closest("[data-ai-pm]");
+  if (pm) {
+    const bEl = document.getElementById("aiBase"), mEl = document.getElementById("aiModel");
+    if (bEl) bEl.value = pm.dataset.b;
+    if (mEl) mEl.value = pm.dataset.m;
+    aiCfgSave();
+    toast("地址和模型名已填好，补上自己的 Key 就能发");
     return;
   }
   const g = e.target.closest("[data-ai-go]");
