@@ -2813,7 +2813,7 @@ route();
     <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
     <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
   </div>
-  <div class="brw-tip" id="brwTip"><span id="brwTipTxt"></span><button type="button" id="brwTipX">知道了</button></div>
+  <div class="brw-tip" id="brwTip"><span id="brwTipTxt"></span><button type="button" id="brwTipCopy" hidden>复制网址</button><button type="button" id="brwTipX">知道了</button></div>
   <div class="brw-book" id="brwBook"></div>
   <div class="brw-stage" id="brwStage">
     <div class="brw-body" id="brwBody">
@@ -2830,15 +2830,40 @@ route();
   var tip = document.getElementById("brwTip");
   var ttx = document.getElementById("brwTipTxt");
   var tx = document.getElementById("brwTipX");
+  var cp = document.getElementById("brwTipCopy");
   if (!b) return;
+  /* 微信 / QQ / 微博这类内置浏览器，网页没有权限把自己弹到系统浏览器去，
+     唯一的路是用户点右上角菜单「在浏览器打开」；所以这里给话术 + 一键复制网址 */
+  function inApp(){ return /MicroMessenger|QQ\/|Weibo|AlipayClient|DingTalk/i.test(navigator.userAgent); }
+  function copyUrl(){
+    var u = location.href;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(u); return true; }
+    } catch (e) {}
+    var t = document.createElement("textarea");
+    t.value = u; t.style.position = "fixed"; t.style.opacity = "0";
+    document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(t);
+    return true;
+  }
   b.addEventListener("click", function(e){
     e.preventDefault(); e.stopPropagation();
-    var t = IS_MOBILE
-      ? "看电脑版：点浏览器菜单（Chrome 是右上 ⋮，iPhone 是左下 aA）→「请求桌面网站」→ 刷新；想回手机版就关掉这个开关。"
-      : "看手机版：按 Ctrl+Shift+M 开设备模拟 → 选 iPhone → 刷新；想回电脑版就关掉设备模拟。";
+    var t;
+    if (inApp()) {
+      t = "现在在微信/QQ 的内置浏览器里，网页没法自己跳出去。先点右边「复制网址」，再点右上角 ⋯（iPhone 是左下 aA）→「在浏览器打开」，粘到系统浏览器里打开；到了系统浏览器里再看电脑版。";
+      if (cp) cp.hidden = false;
+    } else if (IS_MOBILE) {
+      t = "看电脑版：点浏览器菜单（Chrome 是右上 ⋮，iPhone 是左下 aA）→「请求桌面网站」→ 刷新；想回手机版就关掉这个开关。";
+      if (cp) cp.hidden = true;
+    } else {
+      t = "看手机版：按 Ctrl+Shift+M 开设备模拟 → 选 iPhone → 刷新；想回电脑版就关掉设备模拟。";
+      if (cp) cp.hidden = true;
+    }
     if (ttx) ttx.textContent = t;
     if (tip) tip.classList.add("on");
   });
+  if (cp) cp.addEventListener("click", function(){ copyUrl(); cp.textContent = "已复制"; setTimeout(function(){ cp.textContent = "复制网址"; }, 1600); });
   if (tx) tx.addEventListener("click", function(){ if (tip) tip.classList.remove("on"); });
 })();
 </script>
@@ -3720,14 +3745,27 @@ route();
   document.body.appendChild(scrim);
   scrim.addEventListener("click", function(){ if (fab) fab.click(); });
 
+  /* 桌宠可能不止一个宿主（鱼、图片版），逐个找出来，别只认第一次挂上的那个 */
+  function petHosts(){
+    var out = [], all = document.querySelectorAll("div"), i;
+    for (i = 0; i < all.length; i++) {
+      var sr = all[i].shadowRoot;
+      if (sr && (sr.querySelector(".dfy-menu") || sr.querySelector("img.pet"))) out.push(all[i]);
+    }
+    return out;
+  }
+
   new MutationObserver(function(){
     var open = !panel.classList.contains("off");
     var mobile = window.innerWidth < 720;
     if (open && !mobile) placePanel();
-    /* 对话卡开着就把鱼和它的功能条一起收起来，免得同一片手指抢两次；
-       关掉卡片鱼自己回来，功能条要用就再点一下鱼 */
-    if (fishHost) fishHost.style.visibility = open ? "hidden" : "";
+    /* 对话卡开着就把桌宠整个收起来（连点击一起挡掉），关掉再放回来：
+       这样卡片不会压着鱼，想摸鱼就先把卡片关掉 */
+    var hosts = petHosts(), i;
+    if (fishHost) hosts.push(fishHost);
+    for (i = 0; i < hosts.length; i++) hosts[i].style.visibility = open ? "hidden" : "";
     if (open && window.__PET_BAR) window.__PET_BAR(false);
+    if (open && window.__clampPanel) setTimeout(window.__clampPanel, 30);
     /* 已经不铺遮罩了：卡是浮着的，点旁边照样能操作页面 */
     scrim.classList.remove("on");
     if (fab) fab.style.display = "";
@@ -3738,20 +3776,56 @@ route();
   if (head) {
     var dragging = false, sx = 0, sy = 0, sl = 0, st = 0;
     head.addEventListener("pointerdown", function(e){
-      if (window.innerWidth >= 720) return;
+      /* 电脑和手机都能拖：以前只在手机上生效，电脑上按着标题也没反应 */
       if (e.target.closest("button,a,input")) return;
       var r = panel.getBoundingClientRect();
-      sx = e.clientX; sy = e.clientY; sl = r.left; st = r.top; dragging = true;
+      sx = e.clientX; sy = e.clientY; sl = r.left; st = r.top;
+      dragging = true;
+      try { head.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
     });
     window.addEventListener("pointermove", function(e){
       if (!dragging) return;
-      var l = Math.max(4, Math.min(sl + e.clientX - sx, window.innerWidth - panel.offsetWidth - 4));
-      var t = Math.max(4, Math.min(st + e.clientY - sy, window.innerHeight - 60));
+      var w = panel.offsetWidth, h = panel.offsetHeight;
+      var l = Math.max(4, Math.min(sl + e.clientX - sx, window.innerWidth - w - 4));
+      var t = Math.max(4, Math.min(st + e.clientY - sy, Math.max(4, window.innerHeight - 60)));
       panel.style.left = l + "px"; panel.style.right = "auto";
       panel.style.top = t + "px"; panel.style.bottom = "auto";
+      panel.dataset.dragged = "1";
+      if (head) head.style.cursor = "grabbing";
     });
-    window.addEventListener("pointerup", function(){ dragging = false; });
-    window.addEventListener("pointercancel", function(){ dragging = false; });
+    window.addEventListener("pointerup", function(){
+      if (!dragging) return;
+      dragging = false;
+      if (head) head.style.cursor = "";
+      try { clampPanel(); } catch (err) {}
+    });
+    window.addEventListener("pointercancel", function(){ dragging = false; if (head) head.style.cursor = ""; });
+
+    /* 窗口尺寸一变（手机地址栏收起、转到横屏、切到桌面宽度）就把卡片拉回屏内，
+       免得上一次拖到的坐标把半张卡顶到屏幕外 */
+    function clampPanel(){
+      var w = panel.offsetWidth, h = panel.offsetHeight;
+      if (!w) return;
+      /* 手机上如果没被手动拖过，就别留桌面那套坐标，交回给 CSS 的底部位置 */
+      if (window.innerWidth < 720 && panel.dataset.dragged !== "1") {
+        panel.style.left = ""; panel.style.right = ""; panel.style.top = ""; panel.style.bottom = "";
+        return;
+      }
+      if (panel.style.left) {
+        var l = parseFloat(panel.style.left) || 0;
+        var nl = Math.max(4, Math.min(l, Math.max(4, window.innerWidth - w - 4)));
+        if (nl !== l) panel.style.left = nl + "px";
+      }
+      if (panel.style.top) {
+        var t = parseFloat(panel.style.top) || 0;
+        var nt = Math.max(4, Math.min(t, Math.max(4, window.innerHeight - 120)));
+        if (nt !== t) panel.style.top = nt + "px";
+      }
+    }
+    window.addEventListener("resize", clampPanel);
+    window.__clampPanel = clampPanel;
+    setTimeout(clampPanel, 300);
   }
 
   /* 鱼六秒还没挂上（极窄屏或系统要求减少动效），把这颗钮放出来兜底，入口不能没有 */
