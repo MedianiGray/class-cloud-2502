@@ -573,9 +573,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 /* 云库小助手：右下角悬浮，纯前端规则应答，不联网、不存对话 */
 .bot-fab{position:fixed;right:18px;bottom:22px;width:54px;height:54px;border:0;border-radius:50%;
   background:linear-gradient(160deg,#4E8E6E,#2F5F49);color:#fff;font-size:15px;font-weight:700;letter-spacing:.02em;
-  box-shadow:0 10px 26px rgba(47,95,73,.30);cursor:pointer;z-index:62;display:none;
+  box-shadow:0 10px 26px rgba(47,95,73,.30);cursor:pointer;z-index:62;display:block;
   transition:transform .18s,box-shadow .18s}
-/* 鱼是唯一入口；只有鱼没能挂上时，这颗钮才顶上来当兜底 */
+/* 鱼只干宠物的事，这颗「问问」才是对话入口 —— 两个入口分开站，谁都不抢谁的点击 */
 .bot-fab.show{display:block}
 .bot-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.36)}
 .bot-fab.on{background:linear-gradient(160deg,#A87050,#8A5638)}
@@ -659,17 +659,18 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   .bot-input button{height:42px;font-size:14px}
   .bot-scrim{display:none!important}
 }
-/* 桌宠动作条：只放图标，一行 7 个，像聊天软件输入框上那一排 —— 不写字就不占地方 */
-.pet-strip{display:none}
-.pet-strip .ps-label{display:none}
-.pet-strip button{flex:none;width:34px;height:34px;padding:0;border:0;background:transparent;border-radius:9px;
+/* 大肥鱼自己的功能条：贴在鱼身边，一排图标，点一下就等于点它原来的菜单。
+   跟云库小助手的对话卡彻底分开 —— 那边只说话，这边只干宠物的事 */
+.pet-bar{position:fixed;z-index:70;display:none;align-items:center;gap:2px;padding:5px;
+  background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:14px;
+  box-shadow:0 14px 34px rgba(60,42,28,.18),0 2px 6px rgba(60,42,28,.06);
+  max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none;
+  left:12px;bottom:96px;top:auto}
+.pet-bar::-webkit-scrollbar{height:0;display:none}
+.pet-bar.on{display:flex}
+.pet-bar button{flex:none;width:34px;height:34px;border:0;border-radius:9px;background:transparent;
   display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#2B2118;cursor:pointer}
-.pet-strip button:active{background:#F4EBE1}
-@media (max-width:720px){
-  .pet-strip{display:flex;align-items:center;gap:2px;padding:3px 10px 7px;overflow-x:auto;flex:none;
-    scrollbar-width:none;border-bottom:1px solid rgba(198,182,166,.4);margin-bottom:6px}
-  .pet-strip::-webkit-scrollbar{height:0;display:none}
-}
+.pet-bar button:active{background:#F4EBE1}
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:720px){ body{overflow-x:hidden} }
 @media (max-width:760px){ .nav{display:none} }
@@ -2935,7 +2936,6 @@ route();
     <button class="bot-x" id="botClose" aria-label="关闭">×</button>
   </div>
   <div class="bot-nav" id="botNav"></div>
-  <div class="pet-strip" id="petStrip"></div>
   <div class="bot-body" id="botBody">
     <div class="bot-msg bot-bot">问一句就行。我只会答下面这几类，答不上来的，班群里问更快。</div>
   </div>
@@ -2955,6 +2955,9 @@ route();
   <div class="bot-menu" id="botMenu" aria-label="功能菜单"></div>
   <input type="file" id="botFile" multiple hidden>
 </div>
+
+<!-- 大肥鱼自己的功能条：挂在小助手外面，点鱼才出来，跟对话卡互不打扰 -->
+<div class="pet-bar" id="petBar" aria-label="大肥鱼的功能"></div>
 
 <script>
 /* 首页那行会换的活话（系统开了「减少动效」就停在第一句） */
@@ -3430,13 +3433,15 @@ route();
       ".dfy-menu button:hover{background:#F7F1EA!important;}" +
       /* 手机上原生菜单的排版被包内样式锁死（行距、宽度都改不动），把它挪出画面，
          改用站内那套卡片复刻同样的按钮，点一下再转交给原按钮，功能一模一样 */
-      "@media (max-width:720px){.dfy-menu.dfy-open{left:-10000px!important;top:0!important;opacity:0!important;pointer-events:none!important;}}";
+      "@media (max-width:720px){.dfy-menu.dfy-open{left:-10000px!important;top:0!important;opacity:0!important;pointer-events:none!important;}}" +
+      /* 桌面也一样：原生菜单挪出去，改成鱼身边那排图标，风格统一 */
+      ".dfy-menu.dfy-open{left:-10000px!important;top:-10000px!important;opacity:0!important;pointer-events:none!important;}";
     sr.appendChild(st);
 
-    /* 手机：原生菜单挪出画面，把它的按钮在同一个地方备一份给站内动作条用，
-       点动作条上的按钮 = 点它的原按钮，喂食/睡觉/五子棋/回原位都还是原逻辑 */
+    /* 原菜单挪出画面，把它的按钮在鱼身边备一份 —— 点图标就等于点它原来的按钮，
+       喂食/睡觉/五子棋/回原位都还是原逻辑 */
     window.renderPetStrip = function(){
-      var bar = document.getElementById("petStrip");
+      var bar = document.getElementById("petBar");
       if (!bar) return;
       var m = sr.querySelector(".dfy-menu");
       bar.innerHTML = "";
@@ -3476,13 +3481,49 @@ route();
               }
             }, 460);
           }
-          setTimeout(window.renderPetStrip, 80);
         });
         bar.appendChild(el);
       });
-      /* 一个动作都没拷到（桌宠还没挂上）就别留一条空壳占着卡片高度 */
-      bar.style.display = bar.children.length ? "" : "none";
+      if (bar.classList.contains("on")) placePetBar();
     };
+
+    /* 把功能条摆在鱼头顶上，左右不出屏 */
+    function placePetBar(){
+      var bar = document.getElementById("petBar");
+      if (!bar || !dyHost) return;
+      var x, y, w = 150, h = 150;
+      var tf = (dyHost.style.transform || "").match(/translate(?:3d)?\(([-\d.]+)px,\s*([-\d.]+)px/);
+      if (tf) { x = parseFloat(tf[1]); y = parseFloat(tf[2]); }
+      else {
+        var r = dyHost.getBoundingClientRect();
+        if (r.width || r.height) { x = r.left; y = r.top; w = r.width || w; h = r.height || h; }
+        else { x = 12; y = window.innerHeight - 160; }
+      }
+      var bw = bar.offsetWidth || 260, bh = bar.offsetHeight || 44;
+      var left = Math.max(8, Math.min(x + w / 2 - bw / 2, window.innerWidth - bw - 8));
+      var top = y - bh - 8;
+      if (top < 8) top = Math.min(window.innerHeight - bh - 8, y + h + 8);
+      bar.style.left = left + "px";
+      bar.style.top = top + "px";
+      bar.style.bottom = "auto";
+    }
+    window.__PET_BAR = function(show){
+      var bar = document.getElementById("petBar");
+      if (!bar) return;
+      if (show === undefined) show = !bar.classList.contains("on");
+      window.__PET_BAR_TS = Date.now();
+      bar.classList.toggle("on", !!show);
+      if (show) { window.renderPetStrip(); placePetBar(); }
+    };
+    /* 点空白处收起功能条；点鱼自己不算（那是开关），刚点的 0.32 秒内也不收，避免刚开就关 */
+    document.addEventListener("click", function(e){
+      var bar = document.getElementById("petBar");
+      if (!bar || !bar.classList.contains("on")) return;
+      if (bar.contains(e.target)) return;
+      if (dyHost && dyHost.contains(e.target)) return;
+      if (Date.now() - (window.__PET_BAR_TS || 0) < 320) return;
+      bar.classList.remove("on");
+    });
     /* 挂上就立刻备一份，免得用户先开卡片、动作条还是空的 */
     try { window.renderPetStrip(); } catch (e) {}
     new MutationObserver(function(){
@@ -3663,9 +3704,9 @@ route();
       var dt = Date.now() - t0;
       var dd = Math.sqrt((e.clientX - x0) * (e.clientX - x0) + (e.clientY - y0) * (e.clientY - y0));
       if (dt < 520 && dd < 12) {
-        placePanel();
-        if (fab) fab.click();
-        setTimeout(function(){ if (window.renderPetStrip) window.renderPetStrip(); }, 120);
+        /* 点鱼只开它自己的功能条，不再顺手把对话卡也拉出来 —— 两块分开了 */
+        if (window.__PET_BAR) { window.__PET_BAR(); }
+        else { placePanel(); if (fab) fab.click(); }
       }
     }, true);
   };
@@ -3683,11 +3724,13 @@ route();
     var open = !panel.classList.contains("off");
     var mobile = window.innerWidth < 720;
     if (open && !mobile) placePanel();
+    /* 对话卡开着就把鱼和它的功能条一起收起来，免得同一片手指抢两次；
+       关掉卡片鱼自己回来，功能条要用就再点一下鱼 */
     if (fishHost) fishHost.style.visibility = open ? "hidden" : "";
+    if (open && window.__PET_BAR) window.__PET_BAR(false);
     /* 已经不铺遮罩了：卡是浮着的，点旁边照样能操作页面 */
     scrim.classList.remove("on");
     if (fab) fab.style.display = "";
-    if (open) setTimeout(function(){ if (window.renderPetStrip) window.renderPetStrip(); }, 60);
   }).observe(panel, { attributes: true, attributeFilter: ["class"] });
 
   /* 手机上一屏要同时放对话、鱼、棋盘，谁都嫌挤；卡片改成按住标题栏就能拖走 */
@@ -3792,6 +3835,11 @@ route();
     menu.innerHTML = "";
     menu.appendChild(head("插件：都是这页本来就会做的事"));
     menu.appendChild(row("▤", "打开预览窗口", "WPS 文档直接看", function(){ close(); clickBtn("预览"); }));
+    menu.appendChild(row("🐟", "大肥鱼的功能条", "喂食 / 下棋 / 睡觉", function(){
+      close();
+      if (window.__PET_BAR) window.__PET_BAR(true);
+      else if (window.toast) toast("桌宠还没挂上，等两秒再点");
+    }));
     menu.appendChild(row("🐟", "把桌宠收起来", "", function(){ close(); if (window.__PET_HIDE) window.__PET_HIDE(); }));
     menu.appendChild(row("↺", "叫桌宠出来", "", function(){
       close();
