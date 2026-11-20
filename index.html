@@ -607,6 +607,23 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-act:hover{background:rgba(62,125,95,.07);transform:translateY(-1px)}
 .bot-chips{display:flex;gap:7px;overflow-x:auto;padding:0 12px 10px;flex-wrap:nowrap}
 .bot-chips::-webkit-scrollbar{height:0}
+/* 输入框左边那颗「＋」和它拉出来的菜单：抄的是聊天软件的惯例，
+   图标一行一个、右边带一句说明，不再做成大黑框 */
+.bot-plus{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(198,182,166,.62);
+  background:#fff;color:#2F5F49;font-size:18px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .15s}
+.bot-plus.on{background:#2F5F49;border-color:#2F5F49;color:#fff}
+.bot-menu{position:absolute;left:8px;right:8px;bottom:64px;z-index:6;display:none;
+  background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:14px;padding:6px;
+  box-shadow:0 18px 44px rgba(60,42,28,.20),0 2px 6px rgba(60,42,28,.06);max-height:58%;overflow-y:auto}
+.bot-menu.on{display:block}
+.bot-menu .mh{font-size:11px;color:var(--ink3);letter-spacing:.06em;padding:6px 10px 4px}
+.bot-menu button{display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:0;background:transparent;
+  font:inherit;font-size:13px;color:var(--ink);text-align:left;border-radius:10px;cursor:pointer}
+.bot-menu button:hover,.bot-menu button:active{background:#F7F1EA}
+.bot-menu button i{font-style:normal;font-size:15px;width:20px;flex:none;text-align:center;opacity:.85}
+.bot-menu button em{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--ink3);flex:none}
+.bot-menu .msep{height:1px;background:rgba(198,182,166,.30);margin:5px 4px}
 .bot-chips button{flex:none;border:1px solid rgba(198,182,166,.5);background:#FFFDFB;color:var(--ink2);
   font-size:12px;padding:6px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .bot-chips button:hover{border-color:rgba(62,125,95,.45);color:#2F5F49}
@@ -642,16 +659,14 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   .bot-input button{height:42px;font-size:14px}
   .bot-scrim{display:none!important}
 }
-/* 桌宠动作条：嵌在小助手卡里，横着排一行，点一下就等于点大肥鱼自己的菜单 */
+/* 桌宠动作条：只放图标，一行 7 个，像聊天软件输入框上那一排 —— 不写字就不占地方 */
 .pet-strip{display:none}
-.pet-strip .ps-label{flex:none;font-size:12px;color:#8A735F;padding:0 2px 0 4px;align-self:center;max-width:96px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pet-strip button{flex:none;height:34px;padding:0 12px;border:1px solid rgba(198,182,166,.5);background:#FFFDFB;
-  border-radius:10px;font-size:12.5px;color:#2B2118;cursor:pointer;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.pet-strip .ps-label{display:none}
+.pet-strip button{flex:none;width:34px;height:34px;padding:0;border:0;background:transparent;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#2B2118;cursor:pointer}
 .pet-strip button:active{background:#F4EBE1}
 @media (max-width:720px){
-  .pet-strip{display:flex;align-items:center;gap:6px;padding:2px 12px 8px;overflow-x:auto;flex:none;
+  .pet-strip{display:flex;align-items:center;gap:2px;padding:3px 10px 7px;overflow-x:auto;flex:none;
     scrollbar-width:none;border-bottom:1px solid rgba(198,182,166,.4);margin-bottom:6px}
   .pet-strip::-webkit-scrollbar{height:0;display:none}
 }
@@ -2933,9 +2948,12 @@ route();
     <button data-q="我第一次来，从哪开始">我第一次来，从哪开始</button>
   </div>
   <form class="bot-input" id="botForm" autocomplete="off">
+    <button type="button" class="bot-plus" id="botPlus" aria-label="更多功能" title="上传、技能、插件、目标">＋</button>
     <input id="botText" placeholder="打一句，比如：课表在哪" aria-label="输入问题">
     <button type="submit">发</button>
   </form>
+  <div class="bot-menu" id="botMenu" aria-label="功能菜单"></div>
+  <input type="file" id="botFile" multiple hidden>
 </div>
 
 <script>
@@ -3423,23 +3441,28 @@ route();
       var m = sr.querySelector(".dfy-menu");
       bar.innerHTML = "";
       if (!m) return;
-      var head = m.querySelector(".dfy-menu-head");
-      var lb = document.createElement("span");
-      lb.className = "ps-label";
-      lb.textContent = head ? head.textContent.trim() : "大肥鱼";
-      bar.appendChild(lb);
       Array.prototype.forEach.call(m.querySelectorAll("button"), function(b){
         var ds = (b.getAttribute("style") || "").replace(/\s/g, "");
         if (b.hidden || /display:none/.test(ds) || getComputedStyle(b).display === "none") return;
         /* 包里那个「💬 聊天」跟「说句话」是同一件事，平时被它自己藏起来，这里也跳过 */
         if (/聊天/.test(b.textContent || "")) return;
+        var full = (b.textContent || "").replace(/\s+/g, " ").trim();
+        /* 只留开头那个表情当图标，整句放进 title，长按或悬停才看得到 */
+        var chars = Array.from(full);
+        var icon = chars[0] || "·";
+        if (!/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/u.test(icon)) {
+          icon = full.slice(0, 1) || "·";
+        }
         var el = document.createElement("button");
         el.type = "button";
-        el.textContent = (b.textContent || "").replace(/\s+/g, " ").trim();
+        el.title = full;
+        el.setAttribute("aria-label", full);
+        el.textContent = icon;
         el.addEventListener("click", function(){
+          if (window.toast) toast(full);
           b.click();
           /* 下棋要整块棋盘，卡片先让开，不然永远被压在下面 */
-          if (/五子棋/.test(el.textContent || "")) {
+          if (/五子棋/.test(full)) {
             setTimeout(function(){ var c = document.getElementById("botClose"); if (c) c.click(); }, 260);
             /* 棋盘比屏高时会被切掉下沿，顺手把它往上顶进可视区 */
             setTimeout(function(){
@@ -3458,7 +3481,7 @@ route();
         bar.appendChild(el);
       });
       /* 一个动作都没拷到（桌宠还没挂上）就别留一条空壳占着卡片高度 */
-      bar.style.display = bar.children.length > 1 ? "" : "none";
+      bar.style.display = bar.children.length ? "" : "none";
     };
     /* 挂上就立刻备一份，免得用户先开卡片、动作条还是空的 */
     try { window.renderPetStrip(); } catch (e) {}
@@ -3704,6 +3727,142 @@ route();
     });
   };
   window.syncNavDock();
+})();
+</script>
+<script>
+/* 输入框左边那颗「＋」：抄聊天软件的惯例，一行一个图标加一句说明。
+   每一项都落到真动作上 —— 要么往输入框放一句现成的话，要么真跳转、真调用，
+   没有只摆着好看的空按钮 */
+(function(){
+  var plus = document.getElementById("botPlus"),
+      menu = document.getElementById("botMenu"),
+      file = document.getElementById("botFile"),
+      txt  = document.getElementById("botText");
+  if (!plus || !menu || !txt) return;
+
+  var BACKEND = "https://class-cloud-d0gpmd6vg58eab7aa-1533844902.ap-shanghai.app.tcloudbase.com/proxy";
+
+  function close(){ menu.classList.remove("on"); plus.classList.remove("on"); }
+  function open(){ menu.classList.add("on"); plus.classList.add("on"); }
+  function put(s){
+    txt.value = s; close(); txt.focus();
+    try { txt.setSelectionRange(s.length, s.length); } catch (e) {}
+  }
+  function row(icon, label, note, fn){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = "<i>" + icon + "</i><span>" + label + "</span>" + (note ? "<em>" + note + "</em>" : "");
+    b.addEventListener("click", fn);
+    return b;
+  }
+  function sep(){ var d = document.createElement("div"); d.className = "msep"; return d; }
+  function head(t){ var d = document.createElement("div"); d.className = "mh"; d.textContent = t; return d; }
+  function clickBtn(text){
+    var bs = document.querySelectorAll("button"), i;
+    for (i = 0; i < bs.length; i++) if ((bs[i].textContent || "").trim() === text) { bs[i].click(); return true; }
+    return false;
+  }
+
+  function pageMain(){
+    menu.innerHTML = "";
+    menu.appendChild(row("⬆", "上传文件或图片", "", function(){ file.click(); }));
+    menu.appendChild(row("☁", "选择云盘文件", "资料库", function(){ close(); location.hash = "#/res"; }));
+    menu.appendChild(row("✦", "技能", "", pageSkills));
+    menu.appendChild(row("◈", "插件", "", pagePlugins));
+    menu.appendChild(sep());
+    menu.appendChild(row("◎", "目标", "一句话说清要点", function(){ put("这次我想做："); }));
+    menu.appendChild(row("☰", "计划", "先拆步骤再动手", function(){ put("先列步骤，再一步步做。"); }));
+    menu.appendChild(sep());
+    menu.appendChild(row("⚙", "模型与接口", "看这次谁在答", pageModel));
+  }
+
+  function pageSkills(){
+    menu.innerHTML = "";
+    menu.appendChild(head("技能：点一下就填好话，改两个字就能发"));
+    menu.appendChild(row("⌕", "找资料", "按文件名和来源找", function(){ put("帮我找："); }));
+    menu.appendChild(row("✎", "写通知", "班级通知的写法", function(){ put("写一条班级通知，事情是："); }));
+    menu.appendChild(row("⇄", "翻译", "中英互译", function(){ put("把下面这段翻成英文："); }));
+    menu.appendChild(row("≡", "压成三条", "长文变要点", function(){ put("把下面这段压成三条要点，每条不超过 20 字："); }));
+    menu.appendChild(row("?", "解释名词", "一句话讲清", function(){ put("用一句话解释这个名词："); }));
+    menu.appendChild(sep());
+    menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
+  }
+
+  function pagePlugins(){
+    menu.innerHTML = "";
+    menu.appendChild(head("插件：都是这页本来就会做的事"));
+    menu.appendChild(row("▤", "打开预览窗口", "WPS 文档直接看", function(){ close(); clickBtn("预览"); }));
+    menu.appendChild(row("🐟", "把桌宠收起来", "", function(){ close(); if (window.__PET_HIDE) window.__PET_HIDE(); }));
+    menu.appendChild(row("↺", "叫桌宠出来", "", function(){
+      close();
+      var id = null; try { id = localStorage.getItem("cl_pet_shape_v2"); } catch (e) {}
+      if (window.__PET_SWITCH) window.__PET_SWITCH(id || "dafeiyu");
+    }));
+    menu.appendChild(row("⇄", "换端怎么看", "电脑版 / 手机版", function(){
+      close(); location.hash = "#/main";
+      if (clickBtn("预览")) setTimeout(function(){ var d = document.getElementById("brwDevSwap"); if (d) d.click(); }, 900);
+    }));
+    menu.appendChild(row("▦", "整页索引", "一页看全", function(){ close(); location.href = "ref-index.html"; }));
+    menu.appendChild(row("⌫", "清空这段对话", "", function(){
+      var b = document.getElementById("botBody"); if (b) b.innerHTML = ""; close();
+    }));
+    menu.appendChild(sep());
+    menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
+  }
+
+  function pageModel(){
+    menu.innerHTML = "";
+    menu.appendChild(head("谁在答：云端五家免费额度，哪家还有额度就用哪家"));
+    var box = document.createElement("div");
+    box.style.cssText = "padding:4px 10px 8px;font-size:12px;color:var(--ink3);line-height:1.8";
+    box.textContent = "正在查…";
+    menu.appendChild(box);
+    menu.appendChild(sep());
+    menu.appendChild(row("✎", "接我自己的 API", "地址 / 模型 / Key", function(){
+      close(); location.hash = "#/plus";
+      setTimeout(function(){
+        var d = document.querySelector("#view-plus details");
+        if (d) { d.open = true; d.scrollIntoView({ block: "center" }); }
+      }, 420);
+    }));
+    menu.appendChild(row("↻", "重新查一次", "", pageModel));
+    menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
+
+    fetch(BACKEND + "/pool", { cache: "no-store" }).then(function(r){ return r.json(); }).then(function(d){
+      var list = (d && d.list) || (d && d.pool) || [];
+      if (!list.length) throw new Error("没回列表");
+      box.innerHTML = "";
+      list.forEach(function(it){
+        var n = it.name || it.vendor || it.p || "一家";
+        var ok = it.usable === true || it.fails === 0;
+        var line = document.createElement("div");
+        line.style.cssText = "display:flex;gap:6px;align-items:center";
+        line.innerHTML = '<span style="color:' + (ok ? "#2F5F49" : "#B4543E") + '">' + (ok ? "●" : "○") + "</span>" +
+                         "<span>" + n + "</span>" +
+                         '<span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:#8C7F70">' +
+                         (it.fails ? "失败 " + it.fails + " 次" : "可用") + "</span>";
+        box.appendChild(line);
+      });
+    }).catch(function(){
+      box.textContent = "查不到云端状态（没网或云函数在睡）。不填 Key 也能用离线规则。";
+    });
+  }
+
+  plus.addEventListener("click", function(e){
+    e.stopPropagation();
+    if (menu.classList.contains("on")) close(); else { pageMain(); open(); }
+  });
+  menu.addEventListener("click", function(e){ e.stopPropagation(); });
+  document.addEventListener("click", function(){ if (menu.classList.contains("on")) close(); });
+
+  file.addEventListener("change", function(){
+    var names = [], i;
+    for (i = 0; i < file.files.length; i++) names.push(file.files[i].name);
+    if (!names.length) return;
+    txt.value = "【附件：" + names.join("、") + "】" + txt.value;
+    close(); txt.focus();
+    if (window.toast) toast("记下 " + names.length + " 个文件名，文件本身不上传");
+  });
 })();
 </script>
 </body>
