@@ -3460,6 +3460,8 @@ route();
       /* 一个动作都没拷到（桌宠还没挂上）就别留一条空壳占着卡片高度 */
       bar.style.display = bar.children.length > 1 ? "" : "none";
     };
+    /* 挂上就立刻备一份，免得用户先开卡片、动作条还是空的 */
+    try { window.renderPetStrip(); } catch (e) {}
     new MutationObserver(function(){
       var m = sr.querySelector(".dfy-menu");
       if (m && /dfy-open/.test(m.className || "")) hideOwnMenu(m);
