@@ -254,6 +254,10 @@ html.is-embed .envbar{display:none}
   .brw-new{width:34px;height:32px;margin-bottom:2px;font-size:15px}
   .brw-bar{padding:6px 8px;gap:5px}
   .brw-ico,.brw-close{width:34px;height:34px;font-size:13px}
+  /* 手机上扫码/外部打开这两颗本来就多余（人已经在手机里），先收起来，
+     不然一排挤不下会折成第二行，地址栏还被截掉半截 */
+  #brwQr,#brwExt{display:none}
+  .brw-addr{min-width:0}
   .brw-addr input{height:34px;font-size:12px;padding:0 10px;border-radius:17px}
   .brw-book{padding:5px 8px;gap:5px}
   .brw-book button{height:30px;font-size:12px;padding:0 9px}
@@ -616,7 +620,8 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-scrim{position:fixed;inset:0;background:rgba(34,28,22,.34);z-index:62;display:none}
 @media (max-width:720px){
   .bot-fab{right:14px;bottom:calc(78px + env(safe-area-inset-bottom));width:50px;height:50px}
-  .bot-panel{left:10px;right:10px;top:auto;bottom:calc(74px + env(safe-area-inset-bottom));width:auto;
+  .bot-panel{left:10px;right:auto;top:auto;bottom:calc(74px + env(safe-area-inset-bottom));
+    width:calc(100vw - 20px);max-width:calc(100vw - 20px);
     height:min(72vh,540px);max-height:none;border-radius:18px;z-index:66;display:flex;flex-direction:column;
     overflow:hidden;box-shadow:0 22px 56px rgba(60,42,28,.26),0 2px 8px rgba(60,42,28,.10)}
   .bot-panel.off{display:none}
@@ -651,6 +656,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   .pet-strip::-webkit-scrollbar{height:0;display:none}
 }
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
+@media (max-width:720px){ body{overflow-x:hidden} }
 @media (max-width:760px){ .nav{display:none} }
 
 </style>
@@ -3451,10 +3457,22 @@ route();
         });
         bar.appendChild(el);
       });
+      /* 一个动作都没拷到（桌宠还没挂上）就别留一条空壳占着卡片高度 */
+      bar.style.display = bar.children.length > 1 ? "" : "none";
     };
     new MutationObserver(function(){
       var m = sr.querySelector(".dfy-menu");
       if (m && /dfy-open/.test(m.className || "")) hideOwnMenu(m);
+      /* 棋盘跟小助手卡片同屏时会互相压：卡片 z 比桌宠宿主高，棋盘就永远在下面、点不到。
+         棋盘一开就把宿主抬到卡片之上，关掉再落回来，这样两边都不用手动挪也能下棋 */
+      var g = sr.querySelector(".dfy-game");
+      var on = !!(g && /dfy-open/.test(g.className || ""));
+      var want = on ? "71" : "61";
+      if (dyHost.style.zIndex !== want) dyHost.style.zIndex = want;
+      if (on && window.__botCloseForGame !== false) {
+        var c = document.getElementById("botClose");
+        if (c && document.getElementById("botPanel") && /on/.test(document.getElementById("botPanel").className || "")) c.click();
+      }
     }).observe(sr, { attributes: true, attributeFilter: ["class"], subtree: true });
     function hideOwnMenu(){ /* 由上面的 CSS 负责藏，这里只保证动作条是最新文案 */ if (window.renderPetStrip) window.renderPetStrip(); }
     return true;
