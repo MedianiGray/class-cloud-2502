@@ -1,15 +1,21 @@
 # 班级云库 · 网络工程技术（本）2502班
 
-广西农业职业技术大学网络工程技术（本）2502 班的班级资源门户。纯静态、单文件、无后端，上传到 GitHub 开 Pages 就能用。
+广西农业职业技术大学网络工程技术（本）2502 班的**班级工作协助门户**。页面壳是 GitHub Pages 上的静态站，文件仍在学校 WPS 云文档；只有「问问」的联网兜底另挂了一个云端函数代理。
+
+> 定位口径：**资料归集只是最早落地的卖点，门户的根本是为所有会遇到的班级工作需求提供协助。** 场景全景、取舍原则和分期路线见 `BLUEPRINT.md`，待办与状态见 `ROADMAP.md`。
 
 ## 它是什么
 
-一个「索引」，不是「仓库」。
+一个跟着班级工作真实需求长的协助入口，不是资料仓库，也不是 AI 聊天玩具。当前已上线的能力按档位分：
 
-- 45 位同学的 WPS 独立文件夹 + 1 个班级共享云库，按姓名、学号后三位、端口序号检索
-- 学校 7 个官方入口（智慧学工、资源访问控制、SSL VPN、官网、两个 FTP 节点等）
-- 从学校资源访问控制系统抄录的 22 个校内资源系统目录
-- 一页「课程」清单：Python、网络、Linux 三科从 0 到 60 分该抓哪几块、该放弃什么
+- **资料沉淀**：3 个 WPS 源库（专业学习、学校事宜、共享社区）+ 23 个校内资源站索引，只给入口和指引，不复制文档正文。
+- **联络找人**：45 格成员索引，按学号后三位或端口序号定位自己那一格；名册只存后三位学号与文件夹地址，不放姓名。
+- **事务咨询**：右下角「问问」——本地规则库先匹配，带路、开格、复制地址；规则答不上来且联网开关打开后，交云端额度池（或自己填的 API）兜底，可接着上一句追问。对话历史只存本机，可清空、可导出。
+- **办事入口**：智慧学工、资源访问控制系统、SSL VPN、官网、bgty、FTP 主备；校外先走 VPN。
+- **效率辅助**：传输助手（清点文件、按尾号念谁没交、出清单）、34 个免 Key 的 AI 工具入口、v86 虚拟机、远程协助与换端做法指引。
+- **陪伴与可达性**：大肥鱼桌宠（台词可在设置里按行改）、9 个强调色 + 三档底色 + 三档字号、回复朗读与音色选择。
+
+**边界**：门户只做归集、索引、指引、模板、记录和引导；正式通知、成绩、学籍、财务仍以学校官方渠道为准。**协助不等于包办**——做不做、怎么定、对外发什么，责任在班委和同学；助手和桌宠答不上来会明确转真人，不编链接。
 
 页面里没有任何文档正文、附件、成绩数据。文件全部仍在学校 WPS 云文档里，谁能打开由 WPS 的分享权限决定。班委调权限不用改代码，WPS 里点几下即时生效。
 
@@ -19,24 +25,33 @@
 
 ```
 .
-├── index.html        # 页面、样式、数据、逻辑（单文件，约 140 KB）
+├── index.html        # 页面、样式、数据、逻辑（主单文件）
+├── more.html         # 「这个站能做的十件事」子页
+├── ref-index.html    # 整页索引：WPS 库 / 校内站 / 系统 / 成员 / 对照
+├── 404.html          # 路径不存在时回首页
 ├── manifest.json     # PWA 清单：装到主屏后的名字、图标、启动参数
 ├── sw.js             # Service Worker：网络优先，断网回落到上一版
-├── icon-192.png      # PWA 图标 192
-├── icon-512.png      # PWA 图标 512
-├── icon-180.png      # iOS 添加到主屏幕用的图标
-├── proxy/
-│   └── wps-proxy.js  # Cloudflare Worker（已部署，但 workers.dev 在国内不可达，故未启用）
-├── 404.html          # 路径不存在时回首页
+├── icon-180/192/512.png  # PWA 与 iOS 主屏图标
+├── qrcode.min.js     # 换端 / 共享库二维码生成
 ├── robots.txt        # 禁止搜索引擎收录
-├── .nojekyll         # 关闭 Jekyll，保证文件原样发布
-├── .gitignore        # 排除系统残留文件，对本项目没有实际作用，留着无害
+├── pet/
+│   ├── dafeiyu.iife.js   # 大肥鱼主体（动画物理、台词句柄）
+│   ├── shapes.js         # 静态形象休眠外壳（列表已撤下，文件保留）
+│   ├── assets/          # 20 段真动画 webm
+│   └── shapes/           # 已撤下的静态 PNG，文件保留未删
+├── proxy/
+│   ├── tcb/index.js      # 现行：腾讯云开发云函数（/proxy/chat 对话兜底，/proxy/wps 换端代取）
+│   ├── wps-proxy.js      # 历史试错：Cloudflare Worker，未启用
+│   ├── pet-ai.js         # 历史试错：桌宠对话后端，未启用
+│   ├── deno/             # 历史试错：Deno Deploy，停注册，未启用
+│   ├── netlify/          # 历史试错：Netlify Functions，访问保护受限，未启用
+│   └── cloudbase-wps/    # 历史试错：早期 Cloudbase 换端方案
 └── README.md
 ```
 
-`index.html` 自包含，单独把这个文件发给别人也能双击打开用，不依赖 `assets/` 或任何外部 CDN。PWA 相关的那几个文件只在 `https` 下生效，`file://` 双击打开时会被浏览器忽略，不影响页面本身。
+`index.html` 自包含，单独把这个文件发给别人也能双击打开用。PWA 相关文件只在 `https` 下生效，`file://` 双击打开时会被浏览器忽略，不影响页面本身。
 
-## 部署到 GitHub Pages
+## 部署到 GitHub Pages（静态壳）
 
 1. 新建仓库，命名 `class-cloud-2502`（公开仓库才能免费用 Pages）。
 2. 把本文件夹推上去。网页上传会卡在以点开头的文件（提示 `This file is hidden.`），所以用命令行：
@@ -55,9 +70,20 @@
 
 仓库名必须小写、用连字符。用户名或仓库名改了，访问地址也会跟着变，届时需要重发二维码。
 
+## 云端函数（可选，助手联网兜底）
+
+不部署也能用：离线规则在本地匹配，不联网照常答。要开云端兜底，再把 `proxy/tcb/index.js` 部署到腾讯云开发（环境开通、函数新建、环境变量放 Key、配 HTTP 路径），步骤见该文件头部注释。要点：
+
+- `/proxy/chat`：代理 AI 请求，Key 留在函数环境变量里，前端碰不到；前端 `AI_BACKEND` 填这个地址。
+- `/proxy/wps`：换端代取路径，**当前未启用**——WPS 服务端按整套指纹校验，云端代取只能拿到手机版的壳、文件列表为空。
+- 额度池多家免费模型轮换，某家用完冷却 20 分钟自动跳下一家；每来源每天 40 次、单条 400 字、输出 240 tokens；CORS + Origin 只放行本站和本机。
+- **Key 绝不能写进页面**：这是公开仓库，写进来等于谁都能拿去烧额度。
+
+早期试过 Cloudflare Workers、Deno Deploy、Netlify Functions、Vercel，分别卡在 `workers.dev` DNS 污染、Deno 停注册、Netlify 新站访问保护、`vercel.app` 解析失败；`proxy/` 下对应文件保留作记录，均未启用。
+
 ## 日常维护
 
-改动都在 `index.html` 末尾的脚本区，两处：
+改动主要在 `index.html` 末尾的脚本区：
 
 ```js
 // 1) 访问口令
@@ -71,12 +97,12 @@ const MEMBERS = [
 ```
 
 - **学号只写后三位**：`no` 字段填 `"201"` 这样的三位，不填完整学号。排序、检索、计数都会自动适应。
-- **加人**：照抄一行，改后三位学号、姓名、`slug`。`slug` 取自 WPS 文件夹链接 `https://www.kdocs.cn/folder/xxxx` 里的 `xxxx` 那段。顶部刻度条会自动重算。
+- **加人**：照抄一行，改后三位学号、姓名、`slug`。`slug` 取自 WPS 文件夹链接 `https://www.kdocs.cn/folder/xxxx` 里的 `xxxx` 那段。
 - **删人**：删掉对应一行即可。
 - **换口令**：改 `GATE_CODE`。它写在源码里，只能挡住随手点开的人，不是真正的鉴权。
-- **改学校入口**：`PORTALS`（官方入口）与 `RESOURCES`（校内资源目录）两个数组，格式照现有条目。
+- **改学校入口 / 资源站**：`PORTALS`（办事入口、官网、FTP）与 `RESOURCES`（校内资源目录）两个数组，格式照现有条目。
 - `RESOURCES` 里带 `…` 的系统名，是原页面显示不全的截断，没有补全，不要凭猜改全名。
-- **改课程清单**：`#/lessons` 那一段 HTML，三科各一张卡片，按「必得分块 + 放弃项 + 练习量」写。
+- **换 WPS 库**：`SHARED.slug`、`REPOS` 和首页/索引里的硬编码 slug 要一起改，漏一处就会出现「卡片进旧库、索引进新库」。
 
 ## 先说清楚的三件事
 
@@ -89,13 +115,13 @@ const MEMBERS = [
 
 文档本身不因网页公开而泄露，因为点开链接后 WPS 还会校验账号权限。
 
-**二、内嵌预览大概率是空白，且「电脑 / 手机」要接代理才真生效。** WPS 和校内系统普遍设置了禁止外部页面嵌套（`X-Frame-Options` / `frame-ancestors`），这是对方的安全策略，无法绕过。另外，实测确认 WPS 是**在服务端按 UA 分发两套完全不同的页面**（桌面 `ShareFolder`、移动 `mShareFolder`，同一链接按 Windows UA 返回 2130 B、按 iPhone UA 返回 5070 B），而在网页里改不了 UA（`User-Agent` 属于 forbidden header，脚本设置会被静默丢弃）。所以预览窗那两个按钮只有在部署了 `proxy/wps-proxy.js`、并且把 `PROXY` 填成代理地址之后才真正换端（这个 Worker 已经部署好了，但 `workers.dev` 在国内被 DNS 污染、连不上，所以地址仍留空，详见下面的「电脑 / 手机 切换」）——那时是让 Worker 用手机 UA 去取移动版。没启用时点「手机」会直接弹二维码：用手机扫，WPS 本来就给移动版。真正的阅览与编辑始终在 WPS 里完成，权限也始终由 WPS 把关。
+**二、内嵌预览大概率是空白，「电脑 / 手机」换端不能在网页里真切。** WPS 和校内系统普遍设置了禁止外部页面嵌套（`X-Frame-Options` / `frame-ancestors`），这是对方的安全策略，无法绕过。WPS 在服务端按 UA 分发两套页面，而 `User-Agent` 属于浏览器 forbidden header，网页脚本改不了；云端代取又被整套指纹校验挡回，只拿到壳、拿不到文件列表。所以预览窗的「换端」只按当前设备给对应做法，不假装切换：电脑看移动版走浏览器开发者工具设备模拟，手机看桌面版勾浏览器菜单里的「请求桌面版网站」；没启用代理时点「手机」直接弹二维码，手机扫码打开就是 WPS 给的移动版。真正的阅览与编辑始终在 WPS 里完成，权限也始终由 WPS 把关。
 
 **三、FTP 不能用浏览器打开。** Chrome、Edge、Firefox 都已移除 `ftp://` 协议支持，点了没反应是正常的。点一下会复制地址，粘贴到 Windows 资源管理器地址栏或 FileZilla 里用，且必须在校内网。
 
 ## 校内资源目录的用法
 
-那 22 条不直连域名，原因很简单：校外只能通过资源访问控制系统的代理进内网。正确路径是
+那 23 条不直连域名，原因很简单：校外只能通过资源访问控制系统的代理进内网。正确路径是
 
 1. 打开 `https://vpn.gxnzd.com.cn/login` 登录；
 2. 在站内「资源站点」里点对应系统；
@@ -105,7 +131,7 @@ const MEMBERS = [
 
 ## 装到主屏（PWA）
 
-GitHub Pages 本身就是 `https`，所以这一套自动生效，不需要额外配置。
+GitHub Pages 本身就是 `https`，这一套自动生效，不需要额外配置。
 
 - **安卓（Chrome / Edge）**：进站后顶部会出一条「装到主屏」，点一下就装；浏览器没给这个入口时，用菜单里的「添加至主屏幕 / 安装应用」。
 - **iPhone（Safari）**：只能手动——点底部中间的分享 □↑ → 「添加到主屏幕」。页面顶部会提示这一步。
@@ -113,30 +139,6 @@ GitHub Pages 本身就是 `https`，所以这一套自动生效，不需要额�
 - 装好后是全屏、无地址栏、独立图标；清单里的 `start_url` 带 `?embed=1`，进去就是移动端紧凑版。
 - 电脑上想预览这条提示：地址后面加 `?env=1`。
 - `sw.js` 会缓存一份页面壳，断网能打开页面框架；具体内容仍要联网（WPS 在外网）。
-
-## 电脑 / 手机 切换（Worker 已部署，默认未启用）
-
-WPS 在服务端按 UA 给两套壳，网页里改不了 UA，所以真切换只能让服务器替你去请求。`proxy/wps-proxy.js` 就是那个 Worker，**已经部署在班级账号的 Cloudflare 里**：
-
-| 项 | 值 |
-| --- | --- |
-| Worker 名 | `cl-wps-proxy` |
-| 地址 | `https://cl-wps-proxy.3534226279.workers.dev` |
-| Cloudflare 账号 | `3534226279@qq.com`（account id `9b541232809822d0a0af2a7150310e47`） |
-| 脚本类型 | classic（`addEventListener("fetch")`，Dashboard 在线编辑器和 API 都吃得下） |
-| 最后部署 | 2026-11-15，走 API 直传 |
-
-**但它在国内用不了。** 实测 `cl-wps-proxy.3534226279.workers.dev` 被 DNS 污染，解析到 `162.125.18.129`（Dropbox 的 IP），TCP 443 直接超时——`*.workers.dev` 在国内基本都这样。所以 `index.html` 里的 `let PROXY = ""` **保持为空**：点「手机」仍走弹二维码那条路，手机上扫码打开，WPS 本来就给移动版。
-
-想让代理真生效，只有三条路：
-
-1. **给这个 Worker 绑自定义域名**（Workers → Settings → Domains & Routes → Custom domain）。域名得解析到 Cloudflare、且国内可达；`workers.dev` 这一层绕不过去。
-2. **换个国内可达的函数平台**（阿里云函数计算、腾讯云 SCF 之类），把 `proxy/wps-proxy.js` 的逻辑搬过去，只改 `PROXY` 地址。
-3. **维持现状**。手机上本来就能看移动版，桌面看移动版是次要场景，弹二维码已经够用。
-
-填上地址之后的行为：电脑上点「手机」，Worker 用 iPhone UA 去取 `mShareFolder`；手机上点「电脑」反过来。要撤回就把 `PROXY` 清空再推。
-
-边界说清楚：只对**公开分享链接**有效（要登录才看得到的文档，Worker 没有你的账号态）；页面里的接口请求已被注入脚本改道到代理，但个别依赖个人空间的能力可能失效——能看、能翻目录、能预览，写操作别指望。
 
 ## 维护与稳定性
 
@@ -148,9 +150,9 @@ WPS 在服务端按 UA 给两套壳，网页里改不了 UA，所以真切换只
 | 换口令 | `GATE_CODE` |
 | 学校入口 / 校内资源 | `PORTALS` / `RESOURCES` |
 | 分区顺序与折叠 | `GROUPS`、`SUBS`、`ALIAS` |
+| 助手规则 | `RULES` 数组（关键词 + 回答 + 动作） |
+| 云端对话兜底 | `proxy/tcb/index.js`，部署到腾讯云开发 |
 | 图标 | 重新生成 `icon-*.png`，同尺寸覆盖即可，`manifest.json` 不用改 |
-| 换端代理地址 | `index.html` 里的 `let PROXY = ""` |
-| 改代理本身 | `proxy/wps-proxy.js`，改完按下面「更新 Worker」推上去 |
 | 顶部提示条文案 | `#envbar` 那段脚本里的 `show(...)` 三个分支 |
 
 ### 推上去之后多久生效
@@ -159,48 +161,13 @@ WPS 在服务端按 UA 给两套壳，网页里改不了 UA，所以真切换只
 - `sw.js` 是网络优先策略，改页面内容不用动它。**只有改了缓存清单 `SHELL` 才需要把 `CACHE` 从 `v1` 改成 `v2`**，否则老缓存会一直留着那批旧文件。
 - 装到主屏的 PWA 不会因为刷新就更新界面，关掉图标重开一次才会拉新版。
 
-### 更新 Worker（一条命令，别用网页编辑器）
+### 容易出问题的地方
 
-Cloudflare 的在线编辑器是跨域 iframe 里的 Monaco，自动化粘贴进不去，手贴 150 行也容易漏。改完 `proxy/wps-proxy.js` 直接用 API 传：
-
-```powershell
-$acc  = "9b541232809822d0a0af2a7150310e47"
-$tok  = "<7 天期的 API Token>"
-$f    = "proxy\wps-proxy.js"
-$meta = "I:\WindowsCache\Temp\cf-meta.json"
-
-[IO.File]::WriteAllText($meta, '{"body_part":"worker.js","compatibility_date":"2025-01-01"}', (New-Object Text.UTF8Encoding $false))
-
-curl.exe -sS -X PUT "https://api.cloudflare.com/client/v4/accounts/$acc/workers/scripts/cl-wps-proxy" -H "Authorization: Bearer $tok" -F "metadata=@$meta;type=application/json" -F "worker.js=@$f;type=application/javascript"
-```
-
-返回 `"success": true` 就是上线了。四个坑：
-
-- **Token 别用模板**。`Create Token` 里的「Edit Cloudflare Workers」模板带一条 Zone policy，这个账号没有域名，会卡在 `Choose a zone resource` 出不来。改用 `Start from scratch` → Account policy → `Workers Scripts: Edit`，有效期选 **7 days**，创建完立刻复制、用完就 Delete（页面关掉就再也看不到）。
-- **metadata 必须走文件**。写成 `-F 'metadata={"main_module":"worker.js"}'` 会被 PowerShell 剥掉内层引号，服务端报 `invalid character 'm' looking for beginning of object key string`。
-- **别写 `main_module`**。这个 Worker 是 classic 类型；带 `main_module`、或源码里有 `export default`，都会报 `Unexpected token 'export'`。所以 `wps-proxy.js` 用的是 `addEventListener("fetch", ...)` + 顶层 `async function handleRequest`，改代码时保持这个结构。
-- **`curl.exe` 要写全路径**。PowerShell 里 `curl` 是 `Invoke-WebRequest` 的别名，写法不同会静默失败；用 `C:\Windows\system32\curl.exe`。
-
-### 容易出问题的六个地方
-
-1. **WPS 改版**。Worker 靠的是 WPS「服务端按 UA 分两套壳」这个行为。哪天它换目录结构，代理可能只返回壳、内容出不来。自查一行命令：
-
-   ```powershell
-   $h = @{ "User-Agent" = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1" }
-   $r = Invoke-WebRequest "https://www.kdocs.cn/folder/<slug>" -Headers $h -UseBasicParsing
-   $r.RawContentLength; ($r.Content -match 'mShareFolder')
-   ```
-
-   返回 5000 字节上下、`mShareFolder` 为真，说明分流还在，代理能用；变成登录页或 2000 字节左右，说明手机壳的入口变了。
-
-2. **Worker 免费额度**。每天 10 万请求，班级规模一年也用不到百分之一。别把白名单 `HOSTS` 扩大，否则它会变成公开代理，额度很快烧完还可能被封。
-
-3. **WPS 限流**。同一个分享页被反复代理抓，可能触发风控返回验证页。Worker 里给的是 `cache-control: max-age=30`，别改成 0。真被限流时把 `PROXY` 临时清空即可——点「手机」会退回弹二维码，不影响任何人看文档。
-
-4. **分享被撤回**。写着「永久有效」也会被分享者收回。撤回后代理拿到的是 WPS 的错误页，不是站点坏了。
-
+1. **WPS 改版**。换端代取靠 WPS「服务端按 UA 分两套壳」这个行为，哪天目录结构变了，代理可能只返回壳、内容出不来；目前换端本就未启用，走浏览器本地开关兜底。
+2. **云端额度**。免费模型额度用完会自动冷却跳下一家；别把 CORS 白名单扩大，否则函数会变成公开代理，额度很快烧完还可能被封。
+3. **WPS 限流**。同一个分享页被反复抓取，可能触发风控返回验证页；真被限流时临时清空代理地址即可——退回弹二维码，不影响任何人看文档。
+4. **分享被撤回**。写着「永久有效」也会被分享者收回。撤回后代理拿到的是 WPS 错误页，不是站点坏了。
 5. **PWA 装不上**。按顺序排查：当前是不是 `https`（`file://` 一定不行）→ 是不是在微信 / QQ 内置浏览器 → DevTools → Application → Service Workers → Unregister 清掉旧壳再试。
-
 6. **所有手机都看到旧版**。把 `sw.js` 里的 `CACHE = "class-cloud-2502-v1"` 改成 `v2` 再推，`activate` 阶段会清掉旧缓存。
 
 ### 出事了先做这一句
@@ -212,13 +179,13 @@ git checkout HEAD~1 -- index.html
 git commit -m "revert index.html" && git push
 ```
 
-`manifest.json`、`sw.js`、图标这三样不动也能一直跑；换端代理是可选装饰，它坏了不影响任何人打开文档。
+`manifest.json`、`sw.js`、图标这三样不动也能一直跑；云端函数坏了不影响页面打开，助手退回离线规则。
 
 ## 技术说明
 
 - 原生 JavaScript，无框架、无构建、无 `type="module"`，`file://` 双击可用
 - 数据固化在脚本里而不是 `fetch` JSON，因为 `file://` 下不能读本地文件
 - 移动端优先设计，断点 640 / 1024
-- 页内 hash 路由：两个组 `#/main`（概览·成员索引·学校入口·资料库）、`#/admin`（权限说明·高级功能·部署维护）；旧地址如 `#/home`、`#/library`、`#/desk` 仍然直达，会落到对应组
-- 状态存在 `localStorage`：`cl_access_v1`（口令是否已通过）、`cl_envbar_v1`（顶部提示条是否被关掉）
+- 页内 hash 路由：`#/main` 组（概览 / 成员索引 / 学校入口 / 资料库）、`#/admin` 组（访问权限 / 高级功能 / 部署维护）；旧地址如 `#/home`、`#/library`、`#/desk`、`#/lessons` 仍然直达，会落到对应视图
+- 状态存在 `localStorage`：口令通过、环境提示条、助手后端/偏好/强度/温度/自定义配置、朗读开关/音色/语速/音调、桌宠形象/台词/显隐、强调色、底色、字号、对话历史等，全部只在本机
 - 不用 emoji，图标为内联 SVG；PWA 图标是 `System.Drawing` 画的 PNG，无第三方依赖

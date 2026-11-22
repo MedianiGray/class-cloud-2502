@@ -806,7 +806,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <span>GXAU · NET-ENG 2502</span>
     </div>
     <div class="gate-h1">班级云库</div>
-    <p class="gate-sub">网络工程技术（本）2502班 内部资源索引。输入<b>班级口令</b>进入。名册只存序号与学号后三位，姓名与完整学号都不落库、不上网。</p>
+    <p class="gate-sub">网络工程技术（本）2502班 的班级工作协助门户：资料、入口、找人、问答都在这儿。输入<b>班级口令</b>进入。名册只存序号与学号后三位，姓名与完整学号都不落库、不上网。</p>
     <input id="gateInput" type="text" inputmode="numeric" autocomplete="off" placeholder="班级口令" aria-label="班级口令">
     <div class="gate-err" id="gateErr"></div>
     <div class="gate-actions">
@@ -854,8 +854,8 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 <section class="view" id="view-home">
   <div class="wrap">
     <div class="home-lead">
-      <h1>要什么，<em>点一下</em>。</h1>
-      <p>要资料，还是要去办事 —— 两处，点一下就到。</p>
+      <h1>班里常用的事，<em>点一下</em>。</h1>
+      <p>找资料、去办事、问流程，常用入口都在这一页；规则答不上来的，问问会带你找真人。</p>
       <p class="live-line" id="liveLine">45 个格子都在</p>
     </div>
 
@@ -1032,7 +1032,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 
     <div class="maint-block" style="margin-top:28px">
       <h3>网页与文档的关系</h3>
-      <p>这套网页是「索引」，不是「仓库」。GitHub Pages 上只有匿名端口目录和链接，没有任何姓名、完整学号、文档正文、附件或成绩数据。真正的访问控制发生在 WPS：成员点开链接后，WPS 会先校验他的账号与权限，没权限的人看到的只是一张「无权访问」的提示。因此就算网页链接被转发出去，文件本身也不会泄露。</p>
+      <p>这套网页只做索引、指引和问答，不存文档正文。GitHub Pages 上只有匿名端口目录和链接，没有任何姓名、完整学号、文档正文、附件或成绩数据。真正的访问控制发生在 WPS：成员点开链接后，WPS 会先校验他的账号与权限，没权限的人看到的只是一张「无权访问」的提示。因此就算网页链接被转发出去，文件本身也不会泄露。</p>
       <p>这也是这套结构能长期用的原因：调整权限不用改代码，在 WPS 里点几下就行；网页不需要维护数据。</p>
     </div>
   </div>
@@ -1043,7 +1043,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">六张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一套手机与电脑互相看对方界面的正确做法。全部在浏览器里，这个站没有后端。</p>
+      <p class="page-lead">六张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一套手机与电脑互相看对方界面的正确做法。这些工具本身都在浏览器里跑；只有「问问」的联网兜底走一个云端函数代理，班级文件仍不经过本站。</p>
     </div>
 
     <div class="task">
@@ -1167,7 +1167,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     <div class="task">
       <div class="task-h"><span class="task-t">05 · 远程协助</span><span class="task-meta">帮同学看电脑，三条路</span></div>
       <div class="task-b">
-        <p>这里没有「远程控制」按钮，这是有意的：远程桌面的前提是<b>对方那台电脑正开着</b>，并且装了一个服务端。这个站是 GitHub Pages 上的静态页，既不能常开机器、也没有服务器可跑，塞一个按钮进来只会跳到别人的网站。</p>
+        <p>这里没有「远程控制」按钮，这是有意的：远程桌面的前提是<b>对方那台电脑正开着</b>，并且装了一个服务端。页面壳是 GitHub Pages 静态站，只另挂了一个对话兜底的云端函数；它不能常开别人的机器，也没有常驻服务端可挂，塞一个远程控制按钮进来只会跳到别人的网站。</p>
         <p style="font-size:13px;color:var(--ink2);margin:0 0 4px">真要连，按场景选：</p>
         <ul style="font-size:13px;color:var(--ink2);line-height:1.9;margin:0 0 14px;padding-left:18px">
           <li><b>临时帮一次</b>：Windows 自带「快速助手」，双方按 <span class="mono">Win + Ctrl + Q</span>，输一次性验证码即可，什么都不用装。</li>
@@ -1204,7 +1204,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">部署与维护</h1>
-      <p class="page-lead">本文件是单文件静态页，不依赖任何服务器与数据库。上传到 GitHub 仓库并开启 Pages 即可对外访问。</p>
+      <p class="page-lead">页面主体是单文件静态页，上传到 GitHub 仓库开 Pages 即可访问；「问问」的联网兜底另挂了一个云端函数代理（源码在 <span class="mono">proxy/tcb/</span>），不挂它也能用离线规则。</p>
     </div>
 
     <div class="maint-block">
@@ -1277,8 +1277,8 @@ const MEMBERS = [
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
         <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 四颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
-        <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
-        <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
+        <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。页面静下来两秒后才加载；<span class="mono">prefers-reduced-motion</span> 下不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
+        <div class="step"><span class="step-n">12</span><div><b>联网兜底的云端函数（可选）</b>　桌宠双击聊天面板还没做，目前只说本机台词；右下角「问问」的联网兜底走云端函数 <span class="mono">proxy/tcb/index.js</span>。模型 Key 只能存在函数环境变量里，<b>绝不能填进页面</b>——公开仓库写进来等于谁都能拿去烧额度。函数带了四道闸：只认班级站来源、每来源每天 40 次、历史 6 条每条 400 字、输出 240 tokens。<b>别给桌宠碎碎念接 AI</b>，那是定时自动说一句，接上就是定时烧额度，台词留在本地池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时按钮会明确说它不在这儿，不假装成功。</div></div>
 <div class="step"><span class="step-n">14</span><div><b>桌宠只挂大肥鱼这一只有完整动画的形象</b>　它是第三方开源库（MIT），骨骼加物理的那种，二十段真动画，能拖、能摸头、右键喂饭和下五子棋。早先的静态 PNG 贴纸（<span class="mono">pet/shapes/*@480.png</span>）和五只逐帧精灵图都已从选择列表撤下，素材文件保留在目录里没删；精灵图来自 <span class="mono">github.com/legeling/awesome-codex-pet</span>，素材 CC BY-NC 4.0。想再加形象，要接骨骼动画或 Live2D 素材，单张 PNG 不再进选择列表。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它只挂一次，隐藏时只 <span class="mono">display:none</span>；<b>也别去扒 B 站那种 Live2D 公皮</b>，作者明确禁止盗用。切换一句 <span class="mono">__PET_SWITCH("dafeiyu")</span>，可用 id 看 <span class="mono">__PET_LIST()</span>，选过的记在 <span class="mono">cl_pet_shape_v2</span>。</div></div>
       </div>
@@ -3330,7 +3330,7 @@ route();
     { k: ["姓名", "名册", "名单", "谁是谁", "隐私"],
       a: "名册只存学号后三位和文件夹地址，故意不放姓名 —— 网页是公开的，整份名单不该跟着上网。" },
     { k: ["班委", "找谁", "管理员", "维护", "谁做"],
-      a: "班务去班群问；云库本身的技术维护找学委。这页是 GitHub Pages 静态页 + WPS 云文档，不租服务器、不存文件。",
+      a: "班务去班群问；门户本身的技术维护找学委。页面壳在 GitHub Pages，文件在 WPS；对话兜底走云端额度，本站不存班级文件。",
       act: { t: "看维护手册", h: "#/maint" } },
     { k: ["资料", "四级", "真题", "题库", "考试", "资源"],
       a: "资料库页是校内资源站的入口，考试、题库、网盘都在那一栏。",
@@ -3438,7 +3438,7 @@ route();
     for (i = 0; i < RESOURCES.length; i++) {
       var r = RESOURCES[i];
       if ((r.t + r.h + r.c).toLowerCase().indexOf(q) >= 0) {
-        /* 资源站是校内系统，直接给裸域名在校外是打不开的 —— 统一走门户登录页，和资料库里那 22 条一个行为 */
+        /* 资源站是校内系统，直接给裸域名在校外是打不开的 —— 统一走门户登录页，和资料库里那 23 条一个行为 */
         out.push({ t: r.t, u: VPN_ENTRY, d: "校内资源站 · " + r.c + " · 校内直接开 " + r.h });
       }
     }
@@ -4125,14 +4125,13 @@ route();
 </script>
 
 <!-- ===== 网页宠物「大肥鱼」：dafeiyu（MIT），动画素材来自 dsh-pet（MIT）
-     脚本与素材都在本站 pet/ 目录，不走外部 CDN；只在电脑宽屏、页面静下来两秒后出现，
+     脚本与素材都在本站 pet/ 目录，不走外部 CDN；页面静下来两秒后出现，窄屏按视口缩尺寸，
      位置左下，避开右下角的「问问」；拉不到就不显示，页面本身照常工作 ===== -->
 <script>
 (function(){
-  /* 想让宠物真能聊天：把 proxy/pet-ai.js 部署到 Cloudflare Workers，
-     再把下面这行填成 https://xxx.workers.dev/chat。
-     留空 = 不联网：双击宠物没有聊天面板，碎碎念只走本地台词池。
-     为什么不能直接填别家的 key：这是纯静态页，写进来等于公开，谁都能拿去烧。 */
+  /* 桌宠聊天面板还没做：PET_AI 留空，双击宠物不开聊天窗，碎碎念只走本地台词池。
+     右下角「问问」的联网兜底走 proxy/tcb/index.js 云端函数；模型 Key 只能放函数环境变量，
+     写进公开页面等于谁都能拿去烧额度。 */
   var PET_AI = "";
   var SHAPE_KEY = "cl_pet_shape_v2";
   var booted = false;
