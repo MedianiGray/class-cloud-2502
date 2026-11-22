@@ -274,14 +274,17 @@ function addMsg(role, content, acts){
   who.textContent = role === "user" ? "我" : "助手";
   var bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.textContent = content;
+  var txt = document.createElement("div");
+  txt.className = "txt";
+  txt.textContent = content;
+  bubble.appendChild(txt);
   if (acts){
     var bar = document.createElement("div");
     bar.className = "acts";
     acts.forEach(function(a){
       var b = document.createElement("button");
       b.type = "button"; b.textContent = a.label;
-      b.addEventListener("click", a.onClick);
+      b.addEventListener("click", function(){ a.onClick(bubble); });
       bar.appendChild(b);
     });
     bubble.appendChild(bar);
@@ -290,6 +293,14 @@ function addMsg(role, content, acts){
   chat.appendChild(row);
   chat.scrollTop = chat.scrollHeight;
   return bubble;
+}
+function setBubbleText(bubble, text){
+  var txt = bubble.querySelector(".txt");
+  if (txt) txt.textContent = text; else bubble.textContent = text;
+}
+function bubbleText(bubble){
+  var txt = bubble.querySelector(".txt");
+  return txt ? txt.textContent : bubble.textContent;
 }
 function copyText(t){
   function fallback(){
@@ -301,6 +312,16 @@ function copyText(t){
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(fallback);
   else fallback();
 }
+function assistantActs(){
+  return [
+    { label: "复制", onClick: function(bubble){ copyText(bubbleText(bubble)); } },
+    { label: "重新生成", onClick: function(){ regenerate(); } }
+  ];
+}
+function lastAssistantBubble(){
+  var bs = chat.querySelectorAll(".msg.assistant .bubble");
+  return bs.length ? bs[bs.length - 1] : null;
+}
 function renderHistory(){
   chat.innerHTML = "";
   if (!history.length){
@@ -311,7 +332,7 @@ function renderHistory(){
   }
   history.forEach(function(m){
     addMsg(m.role === "user" ? "user" : "assistant", m.content,
-      m.role === "assistant" ? [{ label: "复制", onClick: function(){ copyText(m.content); } }] : null);
+      m.role === "assistant" ? assistantActs() : null);
   });
 }
 
@@ -442,36 +463,61 @@ function stripTokens(t){
     .trim();
 }
 
+async function runInference(msgs){
+  var gen = await ensureModel();
+  var prompt = gen.tokenizer.apply_chat_template(msgs, { tokenize: false, add_generation_prompt: true });
+  var out = await gen(prompt, {
+    max_new_tokens: Number(cfg.maxTokens) || 256,
+    temperature: Number(cfg.temperature) || 0.5,
+    do_sample: true,
+    repetition_penalty: 1.15,
+    return_full_text: false
+  });
+  var reply = stripTokens(out && out[0] && out[0].generated_text);
+  if (!reply) reply = "（模型没生成内容，换个问法或调大最大生成字数试试）";
+  return reply;
+}
+
+async function fillReply(bubble){
+  setStatus("推理中…", "load");
+  var msgs = buildMessages();
+  try {
+    var reply = await runInference(msgs);
+    setBubbleText(bubble, reply);
+    var last = history[history.length - 1];
+    if (last && last.role === "assistant") last.content = reply;
+    else history.push({ role: "assistant", content: reply });
+    setStatus("就绪", "on");
+  } catch(e){
+    setBubbleText(bubble, "出错了：" + ((e && e.message) || e));
+    setStatus("推理失败", "err");
+  } finally {
+    busy = false; setBusy(false); input.focus();
+  }
+}
+
 async function send(raw){
   var text = (raw != null ? raw : input.value).trim();
   if (!text || busy) return;
   busy = true; setBusy(true);
   addMsg("user", text);
   history.push({ role: "user", content: text });
-  var bubble = addMsg("assistant", "…", [{ label: "复制", onClick: function(){ copyText(bubble.textContent); } }]);
-  setStatus("推理中…", "load");
-  try {
-    var gen = await ensureModel();
-    var msgs = buildMessages();
-    var prompt = gen.tokenizer.apply_chat_template(msgs, { tokenize: false, add_generation_prompt: true });
-    var out = await gen(prompt, {
-      max_new_tokens: Number(cfg.maxTokens) || 256,
-      temperature: Number(cfg.temperature) || 0.5,
-      do_sample: true,
-      repetition_penalty: 1.15,
-      return_full_text: false
-    });
-    var reply = stripTokens(out && out[0] && out[0].generated_text);
-    if (!reply) reply = "（模型没生成内容，换个问法或调大最大生成字数试试）";
-    bubble.textContent = reply;
-    history.push({ role: "assistant", content: reply });
-    setStatus("就绪", "on");
-  } catch(e){
-    bubble.textContent = "出错了：" + ((e && e.message) || e);
-    setStatus("推理失败", "err");
-  } finally {
-    busy = false; setBusy(false); input.focus();
+  var bubble = addMsg("assistant", "…", assistantActs());
+  await fillReply(bubble);
+}
+
+async function regenerate(){
+  if (busy) return;
+  var lastUser = null;
+  for (var i = history.length - 1; i >= 0; i--){
+    if (history[i].role === "user"){ lastUser = history[i]; break; }
   }
+  if (!lastUser){ setStatus("还没有可重试的提问", ""); return; }
+  busy = true; setBusy(true);
+  var bubble = lastAssistantBubble();
+  if (!bubble){ bubble = addMsg("assistant", "…", assistantActs()); }
+  else { setBubbleText(bubble, "…"); }
+  await fillReply(bubble);
 }
 function setBusy(on){
   sendBtn.disabled = on || !input.value.trim();
