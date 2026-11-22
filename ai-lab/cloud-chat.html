@@ -316,11 +316,27 @@ body.sheet-open .sheet{transform:translateX(0)}
       navigator.clipboard.writeText(t).catch(fallback);
     } else { fallback(); }
   }
+  function speakText(text){
+    if (!window.speechSynthesis || !text) return;
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(String(text).slice(0, 500));
+      var vs = speechSynthesis.getVoices().filter(function(v){ return (v.lang || "").toLowerCase().indexOf("zh") === 0; });
+      var v = vs[0];
+      if (v){ u.voice = v; u.lang = v.lang; } else { u.lang = "zh-CN"; }
+      u.rate = 1.0; u.pitch = 1.0;
+      speechSynthesis.speak(u);
+    } catch(e){}
+  }
   function assistantActs(){
-    return [
-      { label: "复制", onClick: function(bubble){ copyText(bubbleText(bubble)); } },
-      { label: "重新生成", onClick: function(){ regenerate(); } }
+    var acts = [
+      { label: "复制", onClick: function(bubble){ copyText(bubbleText(bubble)); } }
     ];
+    if (window.speechSynthesis){
+      acts.push({ label: "朗读", onClick: function(bubble){ speakText(bubbleText(bubble)); } });
+    }
+    acts.push({ label: "重新生成", onClick: function(){ regenerate(); } });
+    return acts;
   }
   function lastAssistantBubble(){
     var bs = chat.querySelectorAll(".msg.assistant .bubble");
