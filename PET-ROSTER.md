@@ -32,7 +32,7 @@
 
 | 形象 | 外观与人设要点 | 本地残留 | 开源库命中 | 协议 / 格式 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| 奶蛙 | 奶黄梨形大肚子、绿色大圆蛙眼，弯腰捂肚狂笑；抽象丑萌、情绪宣泄 | 无 | `naiwa--sandytruant`（仓库标注 MIT，但素材另按 ASSETS-LICENSE 走 CC BY-NC） | 精灵图；协议存疑 | ❌ 格式模糊 + 协议待核 |
+| 奶蛙 | 奶黄梨形大肚子、绿色大圆蛙眼，弯腰捂肚狂笑；抽象丑萌、情绪宣泄 | 无 | `naiwa--sandytruant`（仓库标注 MIT，素材另按 ASSETS-LICENSE 走 CC BY-NC）；另有 `runnerww/naiwa-4skins`、`timerring/codex-pet-naiwa` 两个桌面仓库 | 精灵图；桌面 EXE / agent 原生，素材打包不独立分发，上游未声明许可 | ❌ 网页不可嵌入 + 协议存疑 |
 | 妙脆角猫 | 头顶两只三角耳、圆滚滚小猫；软萌，"野生纪录片"AI 短片常客 | 无 | 猫类 38 条（capoo、hello-kitty 等，多为其他角色） | 精灵图；多 Non-commercial | ❌ 无准确对应形象 |
 | 刀盾狗 | 小狗一手拿刀一手举盾，荒诞战斗风；无畏傻乎乎 | 无 | `wo-de-dao-dun--legeling`、`wo-de-dao-dun--yamengzzz` | 精灵图；Non-commercial meme 二创 | ❌ 无合规动画素材 |
 | 香蕉猫 | 黄色香蕉头小猫，委屈爱哭，情绪向 meme | 无 | 0 命中 | — | ❌ 无素材 |
@@ -55,8 +55,14 @@
 ## 五、检索来源与复核
 
 - 开源桌宠图库：`github.com/legeling/awesome-codex-pet`（386 只；代码 MIT，素材默认 CC BY-NC 4.0 / Non-commercial，逐条以条目内 `license` 字段为准）。复核日期 2026-11-22。
-- Live2D 网页方案：easy-live2d、`dsh-live2d-pets`、Open-LLM-VTuber；可嵌入的内置模型均为 Live2D 官方示例 OC 或原创角色，清单内这些拟人娘 / 迷因形象暂无现成 Live2D 模型。
-- 模型拟人娘形象描述来自抖音 / B 站短视频圈二创通识（ZipZipPipe 体系），无唯一标准，不同画师有变体。
+- Live2D 网页方案：easy-live2d、`dsh-live2d-pets`、`dsh-live2d-avatar`、`live2d-companion`、`live2d-board`、`stevenjoezhang/live2d-widget`；可嵌入的内置模型均为 Live2D 官方示例 OC（Haru / Hiyori / Mao / Mark / Natori / Zundamon 等）或原创角色，清单内这些拟人娘 / 迷因形象暂无现成 Live2D 模型。
+- 模型收集站：`SunshineCloudTech/live2d-model-web`（128 个，可静态站）、`ezshine/AwesomeLive2D`、`zenghongtu/live2d-model-assets`；收录的是番剧 / 游戏角色提取件，版权灰色，不含本清单形象。
+- 可商用原创 OC 模型：Live2D 官方示例数据（小规模企业与个人可商用，需遵守示例素材条款并署名）、`takoyakisoft` CC0 章鱼烧示例模型；均为原创角色，与本清单无关。
+- 奶蛙专项复核（2026-11-22）：
+  - `runnerww/naiwa-4skins`（fork `jiasjdia/naiwa`）：Windows EXE 桌面桌宠，432 帧序列帧 + 眼部跟随配置封装在 EXE 内；**上游未声明开源许可证，分发需先取得原作者同意**，不提供可独立分发的网页素材。
+  - `timerring/codex-pet-naiwa`：Codex agent 原生桌宠（Petdex 体系），面向编程助手桌面端，不是网页可嵌入素材。
+  - B 站流传的「Live2D 免费模型 · 奶蛙」属站外公皮，作者未给网页分发授权，按既定规则不扒。
+- 模型拟人娘形象描述来自抖音 / B 站短视频圈二创通识（ZipZipPipe 体系），无唯一标准，不同画师有变体；截至复核日未见任何一家流出可独立分发的 Live2D / 骨骼模型文件。
 
 ## 六、后续怎么接新形象
 
