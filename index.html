@@ -607,7 +607,8 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-act{align-self:flex-start;margin-top:-3px;border:1px solid color-mix(in srgb, var(--green) 32%, transparent);background:#fff;color:var(--green);
   font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;transition:background .15s,transform .15s}
 .bot-act:hover{background:rgba(62,125,95,.07);transform:translateY(-1px)}
-/* 回复气泡下的轻量小钮：复制 / 重试，不抢主操作按钮的样式 */
+/* 回复气泡下的轻量小钮：复制 / 朗读 / 重试，不抢主操作按钮的样式 */
+.bot-acts{display:flex;gap:2px;align-items:center;margin-top:-2px}
 .bot-copy{align-self:flex-start;margin-top:-2px;border:0;background:transparent;color:var(--ink3);
   font-size:11px;padding:2px 8px;cursor:pointer;border-radius:8px}
 .bot-copy:hover{color:var(--green)}
@@ -3464,6 +3465,8 @@ route();
     renderMsg(m, text);
     body.appendChild(m);
     if (!me) {
+      var acts = document.createElement("div");
+      acts.className = "bot-acts";
       var cp = document.createElement("button");
       cp.type = "button"; cp.className = "bot-copy"; cp.textContent = "复制";
       cp.addEventListener("click", function(){
@@ -3473,7 +3476,14 @@ route();
           navigator.clipboard.writeText(t).then(function(){ say("已复制"); }, function(){ say("浏览器不让自动复制，手动抄一下"); });
         } else { say("这浏览器不支持自动复制，手动抄一下"); }
       });
-      body.appendChild(cp);
+      acts.appendChild(cp);
+      if (window.speechSynthesis) {
+        var sp = document.createElement("button");
+        sp.type = "button"; sp.className = "bot-copy"; sp.textContent = "朗读";
+        sp.addEventListener("click", function(){ if (window.__speakText) window.__speakText(m.dataset.text || ""); });
+        acts.appendChild(sp);
+      }
+      body.appendChild(acts);
     }
     body.scrollTop = body.scrollHeight;
     if (body.dataset.boot) { hist.push({ me: !!me, text: String(text) }); saveHist(); }
