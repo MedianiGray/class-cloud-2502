@@ -573,7 +573,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 /* 首页动态小字：一行会换的活话 */
 .live-line{margin-top:12px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em;min-height:18px;line-height:1.6}
 
-/* 云库小助手：右下角悬浮，纯前端规则应答，不联网、不存对话 */
+/* 云库小助手：右下角悬浮；离线规则本地应答，联网开关打开后才交云端模型，历史只存本机 */
 .bot-fab{position:fixed;right:18px;bottom:22px;width:54px;height:54px;border:0;border-radius:50%;
   background:var(--green);color:#fff;font-size:15px;font-weight:700;letter-spacing:.02em;
   box-shadow:0 8px 20px rgba(47,95,73,.26);cursor:pointer;z-index:62;display:block;
@@ -946,7 +946,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">学校入口</h1>
-      <p class="page-lead">七个官方入口，按「要不要先连校内网」分成两组。这页只放「要登录去办事」的系统；二十三个校内资源站（知网、理论库、文库那些）在资料库里。校外一律先走 VPN，否则内网系统打不开。</p>
+      <p class="page-lead">校内办事入口、官网和 FTP 仓库，按「要不要先连校内网」分成两组。资源站（知网、理论库、文库那些）在资料库里。校外一律先走 VPN，否则内网系统打不开。</p>
     </div>
 
     <div class="portal-alert">
@@ -1471,7 +1471,7 @@ const PORTALS = [
   ]}
 ];
 
-/* 校内资源目录：抄自学校资源访问控制系统的「资源站点」页，共 22 项。
+/* 校内资源目录：抄自学校资源访问控制系统的「资源站点」页，共 23 项。
    带 … 的名称是原页面显示不全的截断，未做补全。 */
 const RESOURCES = [
   { t:"统一身份认证",              h:"sso.gxnzd.com.cn",   c:"业务" },
@@ -3205,7 +3205,7 @@ route();
       </div>
       <details class="set-adv">
         <summary>自定义人设指令（一般不用改）</summary>
-        <label>给助手的系统指令<textarea id="setSys" class="set-input set-ta" rows="4" placeholder="留空就用内置人设：话少、不编、只答学习资料和学校系统"></textarea></label>
+        <label>给助手的系统指令<textarea id="setSys" class="set-input set-ta" rows="4" placeholder="留空就用内置人设：先结论后步骤、不编链接、只答学习资料和学校系统"></textarea></label>
         <div class="set-chips" id="setSysPreset"></div>
         <span class="set-note">改坏了清空这个框就回到内置人设。</span>
       </details>
@@ -3283,7 +3283,7 @@ route();
   }, 7000);
 })();
 
-/* 云库小助手：八条规则，纯前端匹配，不发请求、不记对话 */
+/* 云库小助手：本地规则先在前端关键词匹配；联网开关打开后才交云端，对话历史只存本机 */
 (function(){
   var fab = document.getElementById("botFab");
   var panel = document.getElementById("botPanel");
@@ -3321,7 +3321,7 @@ route();
       a: "门户里没有课表本体，课表是班委发在共享库里的。首页下面那行「全班共享云库」点进去，按文件名找。",
       act: { t: "去共享库那页", h: "#/library" } },
     { k: ["vpn", "外网", "教务", "成绩", "校园网", "系统"],
-      a: "学校入口页只放要登录去办事的七个系统，VPN 入口也在里面。账号要去学校信息中心申请，门户只负责把门指给你。知网那类资源站不在那儿，在资料库。",
+      a: "学校入口页放要登录去办事的系统、官网和 FTP 仓库，VPN 入口也在里面。账号要去学校信息中心申请，门户只负责把门指给你。知网那类资源站不在那儿，在资料库。",
       act: { t: "去学校入口", h: "#/portal" } },
     { k: ["装到桌面", "安装", "pwa", "主屏", "图标", "离线"],
       a: "安卓：浏览器菜单 →「添加到主屏幕」。iPhone：Safari 底部分享 →「添加到主屏幕」。装完是独立图标，没网也能打开壳。" },
@@ -3647,7 +3647,7 @@ route();
     "回答要求：",
     "1. 先给结论，再补必要的步骤或入口；说不清楚就分点，一次 2~4 句、最多 120 字，别绕弯子。",
     "2. 不编。站内确实没有的东西就明说「这个我不清楚，问学委去」，不要瞎猜链接和地址。",
-    "3. 能提到的入口仅限站内：首页三张卡是专业学习资料、校内资源站、学校信息入口；成员索引是按学号后三位找的格子；共享库在首页下面那一行。",
+    "3. 能提到的入口仅限站内：首页资料卡和小胶囊、成员索引（按学号后三位找格子）、共享库；不要自己造链接。",
     "4. 只答学习、资料、学校系统这类事；不聊政治，不评价老师同学，不替人写作业。",
     "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼；用户追问时接着上一句答，别重复自我介绍。"
   ].join("\n");
