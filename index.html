@@ -222,9 +222,12 @@ html.is-embed .envbar{display:none}
 .brw-tab.on i{color:var(--ink2)}
 .brw-new{width:26px;height:26px;flex:none;border:1px solid var(--line);background:#F4F4EE;border-radius:6px;font-size:13px;color:var(--ink3);margin-bottom:4px}
 .brw-bar{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#F4F4EE;border-bottom:1px solid var(--line2);flex:none;flex-wrap:wrap}
-.brw-tip{display:none;align-items:flex-start;gap:10px;padding:9px 14px;background:#F7F1EA;
-  border-bottom:1px solid rgba(198,182,166,.42);font-size:12.5px;line-height:1.65;color:var(--ink2);flex:none}
-.brw-tip.on{display:flex}
+.brw-tip{position:absolute;left:14px;right:14px;top:62px;z-index:5;display:none;
+  align-items:flex-start;gap:10px;padding:11px 14px;background:#FFFDFB;
+  border:1px solid rgba(198,182,166,.5);border-radius:16px;
+  box-shadow:0 12px 32px rgba(70,62,52,.18);font-size:12.5px;line-height:1.65;color:var(--ink2)}
+.brw-tip.on{display:flex;animation:tipPop .26s cubic-bezier(.34,1.35,.5,1)}
+@keyframes tipPop{0%{opacity:0;transform:translateY(-8px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
 .brw-tip span{flex:1;min-width:0}
 .brw-tip button{flex:none;border:1px solid rgba(198,182,166,.6);background:#fff;border-radius:99px;
   font-size:12px;padding:4px 10px;cursor:pointer;color:var(--ink2)}
@@ -739,9 +742,13 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   var ACCENTS = [
     {id:"green", name:"墨绿", base:"#2E5348", light:"#3E7D5F", dark:"#263F36"},
     {id:"blue",  name:"靛蓝", base:"#2F4A6E", light:"#4A6E96", dark:"#243B58"},
+    {id:"teal",  name:"青灰", base:"#35656B", light:"#558A90", dark:"#284E53"},
+    {id:"navy",  name:"藏青", base:"#27384C", light:"#43587A", dark:"#1D2B3B"},
     {id:"clay",  name:"陶棕", base:"#A87050", light:"#C0845F", dark:"#8A5638"},
+    {id:"orange",name:"暖橘", base:"#B06A35", light:"#CB8450", dark:"#8E5227"},
+    {id:"rose",  name:"豆沙红", base:"#9C4E52", light:"#B8686C", dark:"#7D3E42"},
     {id:"plum",  name:"酱紫", base:"#5B4A7A", light:"#7A6899", dark:"#473A5E"},
-    {id:"teal",  name:"青灰", base:"#35656B", light:"#558A90", dark:"#284E53"}
+    {id:"sage",  name:"抹茶", base:"#6E8A5E", light:"#88A476", dark:"#566D49"}
   ];
   function shade(hex, f){
     var n=parseInt(hex.slice(1),16), r=n>>16&255, g=n>>8&255, b=n&255, t=f>0?255:0, p=Math.abs(f);
@@ -762,6 +769,26 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   r.setProperty("--green", ac.base);
   r.setProperty("--green2", ac.light);
   r.setProperty("--green-d", ac.dark);
+
+  /* 整站底色三档：奶油纸 / 米白 / 雾灰；只换纸面色系，墨色线条不动 */
+  var BGTONES = [
+    {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5"},
+    {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC"},
+    {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1"}
+  ];
+  function resolveBg(v){
+    var i; for(i=0;i<BGTONES.length;i++) if(BGTONES[i].id===v) return BGTONES[i];
+    return BGTONES[0];
+  }
+  window.BGTONES = BGTONES;
+  window.__BG_RESOLVE = resolveBg;
+  var bgSaved = null; try { bgSaved = localStorage.getItem("cl_bg"); } catch(e){}
+  var bg = resolveBg(bgSaved);
+  r.setProperty("--paper", bg.paper);
+  r.setProperty("--paper2", bg.paper2);
+  r.setProperty("--card", bg.card);
+  r.setProperty("--line", bg.line);
+  r.setProperty("--line2", bg.line2);
   /* 字号档位：小 / 标准 / 大，开机即套，避免刷新后大小跳一下 */
   var FS = { small:"0.92", normal:"1", large:"1.09" };
   var fk = null; try { fk = localStorage.getItem("cl_font_scale"); } catch(e){}
@@ -1253,7 +1280,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。只电脑宽屏（<span class="mono">innerWidth ≥ 760</span>）且页面静下来两秒后才加载，手机不出现；<span class="mono">prefers-reduced-motion</span> 下也不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>让它真能聊天（可选）</b>　宠物双击打开聊天面板需要后端，后端在 <span class="mono">proxy/pet-ai.js</span>。<span class="mono">AI_KEY</span> 只能存在 Worker 的变量里，<b>绝不能填进页面</b>——这是公开仓库，写进来等于把 key 送给全班和搜索引擎。Worker 已经带了四道闸：只认班级站的来源、每 IP 每天 40 次、历史 6 条每条 240 字、输出 240 tokens。<b>别给 whisper 接 AI</b>，那是每 200 秒自动说一句，接上就是定时烧额度，定时碎碎念留在本地台词池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时按钮会明确说它不在这儿，不假装成功。</div></div>
-<div class="step"><span class="step-n">14</span><div><b>桌宠只有一个真会动：大肥鱼</b>　它是第三方开源库（MIT），骨骼加物理的那种，二十段真动画，能拖、能摸头、右键喂饭和下五子棋。<b>另外十八个是静态贴纸</b>，在 <span class="mono">pet/shapes/*@480.png</span>，会呼吸、会跳、能拖，但不会真演动作。<b>五只逐帧精灵图已经全撤</b>（DeepSeek 女仆、深海少女、白龙娘、大小姐、小桃子，来自 <span class="mono">github.com/legeling/awesome-codex-pet</span>，素材 CC BY-NC 4.0）：八帧循环、九帧每秒的图片，跟大肥鱼的骨骼动画差太远，放大之后只剩模糊和一顿一顿。<span class="mono">pet/sprites/</span> 目录和 <span class="mono">SHAPES</span> 里那五条都已删除，<span class="mono">build()</span> 里的 canvas 分支留着没动，以后真接上 Live2D 才用得上。<b>想加形象</b>：往 <span class="mono">SHAPES</span> 加一条，<span class="mono">file</span> 指一张 png，菜单自动多一项。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它只挂一次，切去别的形象时只 <span class="mono">display:none</span>；<b>也别去扒 B 站那种 Live2D 公皮</b>，作者明确禁止盗用。切换一句 <span class="mono">__PET_SWITCH("dafeiyu")</span>，可用 id 看 <span class="mono">__PET_LIST()</span>，选过的记在 <span class="mono">cl_pet_shape_v2</span>。</div></div>
+<div class="step"><span class="step-n">14</span><div><b>桌宠只挂大肥鱼这一只有完整动画的形象</b>　它是第三方开源库（MIT），骨骼加物理的那种，二十段真动画，能拖、能摸头、右键喂饭和下五子棋。早先的静态 PNG 贴纸（<span class="mono">pet/shapes/*@480.png</span>）和五只逐帧精灵图都已从选择列表撤下，素材文件保留在目录里没删；精灵图来自 <span class="mono">github.com/legeling/awesome-codex-pet</span>，素材 CC BY-NC 4.0。想再加形象，要接骨骼动画或 Live2D 素材，单张 PNG 不再进选择列表。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它只挂一次，隐藏时只 <span class="mono">display:none</span>；<b>也别去扒 B 站那种 Live2D 公皮</b>，作者明确禁止盗用。切换一句 <span class="mono">__PET_SWITCH("dafeiyu")</span>，可用 id 看 <span class="mono">__PET_LIST()</span>，选过的记在 <span class="mono">cl_pet_shape_v2</span>。</div></div>
       </div>
     </div>
 
@@ -3131,13 +3158,19 @@ route();
       <div class="set-row"><span class="set-label">强调色（按钮、选中态、重点标记）</span></div>
       <div class="set-chips" id="setAccent"></div>
       <label class="set-color-row">自定义颜色<input id="setAccentCustom" type="color" value="#2E5348" aria-label="自定义强调色"></label>
+      <div class="set-row" style="margin-top:12px"><span class="set-label">页面底色（整站背景与卡片）</span></div>
+      <div class="set-seg" id="setBgTone">
+        <button type="button" data-bg="cream">奶油纸</button>
+        <button type="button" data-bg="white">米白</button>
+        <button type="button" data-bg="gray">雾灰</button>
+      </div>
       <div class="set-row" style="margin-top:12px"><span class="set-label">字号</span></div>
       <div class="set-seg" id="setFontScale">
         <button type="button" data-fs="small">小</button>
         <button type="button" data-fs="normal">标准</button>
         <button type="button" data-fs="large">大</button>
       </div>
-      <span class="set-note">底色仍是米色纸感；深色模式排在后面做，这一版先只换强调色和字号。</span>
+      <span class="set-note">深色模式排在后面做；这一版可换强调色、页面底色和字号，改动都只存在本机。</span>
     </section>
     <section class="set-sec">
       <h4>对话模型</h4>
@@ -3188,13 +3221,14 @@ route();
         <select id="setVoice" class="set-select" aria-label="音色"></select>
         <button class="btn btn-sm ghost" id="setVoiceTest" type="button">试听</button>
       </div>
+      <span class="set-note">音色来自这台设备的系统语音，列表里女声排前面；想要更多可爱音色，在系统的语音 / 时间和语言设置里加装中文语音包。</span>
       <div class="set-row">
         <span class="set-label">语速</span>
         <input id="setRate" type="range" min="0.6" max="1.6" step="0.05" value="1.0" aria-label="语速">
       </div>
       <div class="set-row">
-        <span class="set-label">音调</span>
-        <input id="setPitch" type="range" min="0.6" max="1.6" step="0.05" value="1.15" aria-label="音调">
+        <span class="set-label">音调（越高越可爱）</span>
+        <input id="setPitch" type="range" min="0.6" max="1.6" step="0.05" value="1.25" aria-label="音调">
       </div>
       <div class="set-row">
         <span class="set-label">桌宠语音</span>
@@ -3203,7 +3237,7 @@ route();
     </section>
     <section class="set-sec">
       <h4>桌宠</h4>
-      <div class="set-row">
+      <div class="set-row" id="setShapeRow">
         <span class="set-label">形象</span>
         <select id="setShape" class="set-select" aria-label="桌宠形象"></select>
       </div>
@@ -3213,6 +3247,10 @@ route();
       </div>
       <div class="set-row">
         <button class="btn btn-sm ghost" id="setPetHome" type="button">回原位</button>
+      </div>
+      <div class="set-row">
+        <span class="set-label">它自己念叨的话（每行一句，留空用默认）</span>
+        <textarea id="setPetLines" class="set-input set-ta" rows="3" placeholder="一行一句，比如：今天的课别缺席。"></textarea>
       </div>
     </section>
   </div>
@@ -3312,16 +3350,14 @@ route();
         var list = (typeof window.__PET_LIST === "function") ? window.__PET_LIST() : [];
         var names = [], i;
         for (i = 0; i < list.length; i++) names.push(list[i].name);
-        return "现在有 " + names.length + " 个：" + names.join("、") +
-          "。点下面任一就换，或者直接说名字。名字后面带「动」的 5 个是逐帧精灵图，每行一套动作自己会演；「大肥鱼」是二十段真动画；其余是图片版，会呼吸、会跳、能拖。";
+        return "现在桌宠只留了「" + names.join("、") + "」这一只有完整动画的形象：会呼吸、会跳、能拖，能喂饭、能下五子棋。";
       },
-      /* 动态生成：pet/shapes.js 的 SHAPES 加一条，这里自动多一个按钮 */
       acts: function(){
         var list = (typeof window.__PET_LIST === "function") ? window.__PET_LIST() : [];
         var out = [];
         for (var i = 0; i < list.length; i++) {
           out.push((function (it) {
-            return { t: "换" + it.name + (it.anim ? "（动）" : ""), do: function(){ petCall("switch", it.id); } };
+            return { t: "换回" + it.name, do: function(){ petCall("switch", it.id); } };
           })(list[i]));
         }
         return out;
@@ -3607,17 +3643,24 @@ route();
   paintNet();
 
   var AI_SYS = [
-    "你是「大肥鱼」，广西农职大网络工程技术（本）2502 班云库首页上的一只蓝色小鲸。",
-    "说话像班里那个懂点技术、话不多但靠得住的同学，不是客服，不是老师。",
-    "规矩：",
-    "1. 一次最多两句话，总共不超过 45 个字，能短就短。",
-    "2. 不编。不知道就说「这个我不清楚，问学委去」。",
-    "3. 只有页面里确实有地址的东西才能提：首页三张卡是专业学习资料、校内资源站、学校信息入口；",
-    "   成员索引是 45 个格子按学号后三位；共享库是首页下面那一行。别自己造链接。",
-    "4. 只答学习、资料、学校系统这类事。不聊政治，不评价老师和同学，不替人写作业。",
-    "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼。"
+    "你是「大肥鱼」，广西农职大网络工程技术（本）2502 班云库首页上的助手，说话像班里懂点技术、靠得住的同学，不是客服也不是老师。",
+    "回答要求：",
+    "1. 先给结论，再补必要的步骤或入口；说不清楚就分点，一次 2~4 句、最多 120 字，别绕弯子。",
+    "2. 不编。站内确实没有的东西就明说「这个我不清楚，问学委去」，不要瞎猜链接和地址。",
+    "3. 能提到的入口仅限站内：首页三张卡是专业学习资料、校内资源站、学校信息入口；成员索引是按学号后三位找的格子；共享库在首页下面那一行。",
+    "4. 只答学习、资料、学校系统这类事；不聊政治，不评价老师同学，不替人写作业。",
+    "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼；用户追问时接着上一句答，别重复自我介绍。"
   ].join("\n");
   function sysPrompt(){ var c = store.get("cl_ai_sys"); return c && c.trim() ? c.trim() : AI_SYS; }
+  /* 多轮上下文：把本机最近几轮一起带上，才能接着上一句聊；系统提示单独放最前。
+     当前这句已经进过历史，再带一次会重复，所以按原文跳过最后一条用户消息 */
+  function historyMsgs(skipQ){
+    var arr = hist.slice(-6);
+    if (skipQ && arr.length && arr[arr.length - 1].me && arr[arr.length - 1].text === skipQ) arr = arr.slice(0, -1);
+    return arr.map(function(h){
+      return { role: h.me ? "user" : "assistant", content: String(h.text || "").slice(0, 240) };
+    });
+  }
 
   function customCfg(){
     try { return JSON.parse(store.get(AI_KEY) || "{}"); } catch (e) { return {}; }
@@ -3649,9 +3692,10 @@ route();
     try { pref = localStorage.getItem("cl_ai_pref") || ""; effort = localStorage.getItem("cl_ai_effort") || "medium"; } catch (e) {}
     var payload = {
       messages: [
-        { role: "system", content: sysPrompt() },
+        { role: "system", content: sysPrompt() }
+      ].concat(historyMsgs(q), [
         { role: "user", content: String(q).slice(0, 240) }
-      ],
+      ]),
       effort: effort
     };
     if (pref) payload.prefer = pref;
@@ -3688,9 +3732,10 @@ route();
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key },
       body: JSON.stringify({ model: c.model, messages: [
-        { role: "system", content: sysPrompt() },
+        { role: "system", content: sysPrompt() }
+      ].concat(historyMsgs(q), [
         { role: "user", content: String(q).slice(0, 240) }
-      ], temperature: temp })
+      ]), temperature: temp })
     }).then(function(r){ return r.json().catch(function(){ return {}; }); })
     .then(function(d){
       if (!d || !d.choices || !d.choices.length) {
@@ -3799,6 +3844,31 @@ route();
     paintFont();
   });
   paintFont();
+
+  /* ---- 外观：整站底色三档，写本机，开机即套 ---- */
+  var bgBox = $("setBgTone");
+  function applyBg(v){
+    var bg = window.__BG_RESOLVE ? window.__BG_RESOLVE(v) : null;
+    if (!bg) return;
+    var r = document.documentElement.style;
+    r.setProperty("--paper", bg.paper);
+    r.setProperty("--paper2", bg.paper2);
+    r.setProperty("--card", bg.card);
+    r.setProperty("--line", bg.line);
+    r.setProperty("--line2", bg.line2);
+  }
+  function paintBg(){
+    var cur = store.get("cl_bg") || "cream";
+    if (!bgBox) return;
+    Array.prototype.slice.call(bgBox.querySelectorAll("button")).forEach(function(b){
+      b.classList.toggle("on", b.dataset.bg === cur);
+    });
+  }
+  if (bgBox) bgBox.addEventListener("click", function(e){
+    var b = e.target.closest("[data-bg]"); if (!b) return;
+    store.set("cl_bg", b.dataset.bg); applyBg(b.dataset.bg); paintBg();
+  });
+  paintBg();
 
   /* ---- 后端二选一：云端额度 / 自己的 API ---- */
   var beSeg = $("setBackend");
@@ -3931,17 +4001,29 @@ route();
     store.set("cl_ai_speak", on ? "1" : "0"); paintSw(speakSw, on);
   });
 
+  var FEMALE_RE = /xiao|晓|小|萱|瑶|婷|欣|梦|涵|妍|妮|huiting|huihui|yaoyao|yunxia|meijia|female|女|zira|sera/i;
+  var MALE_RE = /yunxi|yunjian|yunyang|kangjian|yunfeng|yunye|云希|云扬|云健|云野|男|male|david|guy|jian/i;
+  function voiceSex(v){
+    var n = (v.name || "") + " " + (v.lang || "");
+    if (MALE_RE.test(n)) return "male";
+    if (FEMALE_RE.test(n)) return "female";
+    return "unknown";
+  }
   function zhVoices(){
     if (!window.speechSynthesis) return [];
     return speechSynthesis.getVoices().filter(function(v){ return (v.lang || "").toLowerCase().indexOf("zh") === 0; });
   }
   function fillVoices(){
-    var vs = zhVoices(), cur = store.get("dafeiyu:voice-name") || "";
+    var vs = zhVoices().slice(), cur = store.get("dafeiyu:voice-name") || "";
+    var sexRank = { female: 0, unknown: 1, male: 2 };
+    vs.sort(function(a, b){ return sexRank[voiceSex(a)] - sexRank[voiceSex(b)]; });
     voiceSel.innerHTML = "";
     if (!vs.length) { voiceSel.innerHTML = '<option value="">本机没有中文语音</option>'; return; }
     vs.forEach(function(v){
       var o = document.createElement("option");
-      o.value = v.name; o.textContent = v.name.length > 16 ? v.name.slice(0, 16) + "…" : v.name;
+      var sex = voiceSex(v), tag = sex === "female" ? "（女声）" : (sex === "male" ? "（男声）" : "");
+      var label = v.name + tag;
+      o.value = v.name; o.textContent = label.length > 20 ? label.slice(0, 20) + "…" : label;
       if (v.name === cur) o.selected = true;
       voiceSel.appendChild(o);
     });
@@ -3953,7 +4035,7 @@ route();
   var rateEl = $("setRate"), pitchEl = $("setPitch");
   function loadVoiceTune(){
     var r = parseFloat(store.get("cl_ai_rate")); if (isNaN(r)) r = 1.0;
-    var p = parseFloat(store.get("cl_ai_pitch")); if (isNaN(p)) p = 1.15;
+    var p = parseFloat(store.get("cl_ai_pitch")); if (isNaN(p)) p = 1.25;
     if (rateEl) rateEl.value = r; if (pitchEl) pitchEl.value = p;
   }
   if (rateEl) rateEl.addEventListener("input", function(){ store.set("cl_ai_rate", rateEl.value); });
@@ -3970,7 +4052,7 @@ route();
       var v = vs.find(function(x){ return x.name === name; }) || vs[0];
       if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "zh-CN"; }
       var r = parseFloat(store.get("cl_ai_rate")); if (isNaN(r)) r = 1.0;
-      var p = parseFloat(store.get("cl_ai_pitch")); if (isNaN(p)) p = 1.15;
+      var p = parseFloat(store.get("cl_ai_pitch")); if (isNaN(p)) p = 1.25;
       u.rate = r; u.pitch = p;
       speechSynthesis.speak(u);
     } catch (e) {}
@@ -3999,13 +4081,14 @@ route();
   });
 
   /* ---- 桌宠：形象 / 显隐 / 回原位 ---- */
-  var shapeSel = $("setShape"), showSw = $("setPetShow");
+  var shapeSel = $("setShape"), shapeRow = $("setShapeRow"), showSw = $("setPetShow");
   function fillShapes(){
     var list = window.__PET_LIST ? window.__PET_LIST() : [];
     shapeSel.innerHTML = "";
     list.forEach(function(s){
       var o = document.createElement("option"); o.value = s.id; o.textContent = s.name; shapeSel.appendChild(o);
     });
+    if (shapeRow) shapeRow.style.display = list.length > 1 ? "" : "none";
     var cur = store.get("cl_pet_shape_v2") || "dafeiyu";
     if (Array.prototype.some.call(shapeSel.options, function(o){ return o.value === cur; })) shapeSel.value = cur;
   }
@@ -4013,7 +4096,7 @@ route();
   function paintShow(){ paintSw(showSw, !!window.__PET); }
   showSw.addEventListener("click", function(){
     var on = !window.__PET;
-    if (on) { var last = store.get("cl_pet_shape_v2") || "dafeiyu"; if (window.__PET_SWITCH) window.__PET_SWITCH(last); }
+    if (on) { if (window.__PET_SWITCH) window.__PET_SWITCH("dafeiyu"); }
     else { if (window.__PET_HIDE) window.__PET_HIDE(); }
     setTimeout(paintShow, 300);
   });
@@ -4024,7 +4107,20 @@ route();
     if (b) b.click(); else if (window.toast) toast("这只形象不支持回原位");
   });
 
-  function paintAll(){ paintAccent(); paintFont(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); }
+  /* ---- 桌宠台词：每行一句，本机保存；正在跑的实例热更新台词池 ---- */
+  var petLines = $("setPetLines");
+  function readPetLines(){
+    var raw = petLines ? petLines.value : "";
+    return raw.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+  function paintPetLines(){ if (petLines) petLines.value = store.get("cl_pet_lines") || ""; }
+  if (petLines) petLines.addEventListener("input", function(){
+    store.set("cl_pet_lines", petLines.value);
+    if (window.__PET && typeof window.__PET.setLines === "function") window.__PET.setLines(readPetLines());
+  });
+  paintPetLines();
+
+  function paintAll(){ paintAccent(); paintBg(); paintFont(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); paintPetLines(); }
 })();
 </script>
 
@@ -4041,6 +4137,21 @@ route();
   var SHAPE_KEY = "cl_pet_shape_v2";
   var booted = false;
 
+  function defaultLines(){
+    return [
+      "资料在资料库那一栏，慢点翻，别急着问。",
+      "学号后三位填一次，往后它自己记得。",
+      "要开学校系统的，先连上 VPN 再说。",
+      "四十五个格子，一人一格，别点错。",
+      "通知都往共享库那一行归，找文件先去那儿。"
+    ];
+  }
+  function parsePetLines(){
+    var raw = ""; try { raw = localStorage.getItem("cl_pet_lines") || ""; } catch (e) {}
+    var arr = raw.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
+    return arr.length ? arr : defaultLines();
+  }
+
   function dafeiyuOpts(){
     /* 按视口分三档：手机上一百来像素才不挡内容，平板上小一号，宽屏才是全尺寸。
        原来只有 150 / 210 两档，420-700 之间勉强能用，再窄就没见过鱼 */
@@ -4056,13 +4167,7 @@ route();
       /* 自动加载已经用 innerWidth 挡过一道；这里再关掉包自己的移动端判断，
          否则窄视口里拿到的是一句空 handle —— 用户主动点「叫回大肥鱼」时不该再拦他 */
       enabledOnMobile: true,
-      lines: [
-        "资料在资料库那一栏，慢点翻，别急着问。",
-        "学号后三位填一次，往后它自己记得。",
-        "要开学校系统的，先连上 VPN 再说。",
-        "四十五个格子，一人一格，别点错。",
-        "通知都往共享库那一行归，找文件先去那儿。"
-      ]
+      lines: parsePetLines()
     };
     if (PET_AI) opt.endpoints = { chat: PET_AI };
     return opt;
@@ -4293,31 +4398,15 @@ route();
     return true;
   };
 
-  /* 给「问问」用的菜单：现在有哪几个形象可选 */
+  /* 给「问问」用的菜单：现在只留大肥鱼这一只有完整动画的形象；
+     静态 PNG 贴纸版已从选择列表撤下，素材文件保留在 pet/shapes/ 没删 */
   window.__PET_LIST = function(){
-    var out = [{ id: "dafeiyu", name: "大肥鱼" }];
-    if (window.SmallShapes && window.SmallShapes.list) {
-      for (var i = 0; i < window.SmallShapes.list.length; i++) {
-        out.push({ id: window.SmallShapes.list[i].id, name: window.SmallShapes.list[i].name,
-                   anim: !!window.SmallShapes.list[i].sprite });
-      }
-    }
-    return out;
+    return [{ id: "dafeiyu", name: "大肥鱼" }];
   };
 
   function boot(){
-    if (!window.Dafeiyu && !window.SmallShapes) return;
-    var last = null;
-    try { last = localStorage.getItem(SHAPE_KEY); } catch (e) {}
-    if (last && last !== "dafeiyu" && window.SmallShapes) {
-      /* 先把大肥鱼挂上藏好，再摆出上次选的形象 —— 这样「叫回大肥鱼」随时能用 */
-      holdDafeiyu();
-      if (dyHost) dyHost.style.display = "none";
-      window.__PET_SWITCH(last);
-    } else {
-      window.__PET_SWITCH("dafeiyu");
-      if (!window.__PET && window.SmallShapes) window.__PET_SWITCH("bean");
-    }
+    if (!window.Dafeiyu) return;
+    window.__PET_SWITCH("dafeiyu");
   }
 
   function loadPet(){

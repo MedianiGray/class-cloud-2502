@@ -2044,6 +2044,7 @@ var Dafeiyu = (() => {
       play: (name) => ensure().forcePlay(name),
       feed: () => ensure().feed(),
       setVoice: (on) => ensure().setVoice(on),
+      setLines: (arr) => { if (pet) pet.extraLines = Array.isArray(arr) ? arr : []; },
       openChat: () => ensure().openChat(),
       closeChat: () => ensure().closeChat(),
       openGame: () => ensure().openGame(),
