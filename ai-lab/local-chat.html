@@ -76,6 +76,14 @@ body.sheet-open .sheet{transform:translateX(0)}
 .field .hint{font-size:12px;color:var(--ink3);line-height:1.55}
 .field input,.field textarea,.field select{border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:var(--r-sm);padding:9px 11px;font:inherit;font-size:14px;min-width:0}
 .field textarea{resize:vertical;min-height:64px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line2);background:var(--card);border-radius:999px;padding:7px 13px;font-size:13px;color:var(--ink2)}
+.seg button.on{background:var(--green);border-color:var(--green);color:#F3F7F4}
+.voice-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.voice-row select{flex:1;min-width:0}
+.field input[type=range]{width:100%}
+.btn-sm{height:34px;padding:0 12px;border:1px solid var(--line2);background:var(--card);border-radius:var(--r-sm);font-size:13px;color:var(--ink2);flex:none}
+.btn-sm:hover{border-color:var(--green2);color:var(--green2)}
 .note{font-size:12px;color:var(--ink3);line-height:1.6;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
 .note b{color:var(--ink2)}
 .sheet-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
@@ -101,6 +109,16 @@ body.sheet-open .sheet{transform:translateX(0)}
   .msg .bubble{max-width:90%}
 }
 </style>
+<script>
+/* 字号档位开机即套，避免刷新后大小跳一下 */
+(function(){
+  try {
+    var c = JSON.parse(localStorage.getItem("lab_local_v1") || "{}") || {};
+    var FS = { small:"0.92", normal:"1", large:"1.09" };
+    document.documentElement.style.zoom = FS[c.fontScale] || "1";
+  } catch(e){}
+})();
+</script>
 </head>
 <body>
 
@@ -185,6 +203,28 @@ body.sheet-open .sheet{transform:translateX(0)}
       <div class="hint">本地模型上下文有限，轮数过长容易被截断或变慢。切换模型后旧对话仍保留作上下文，需要全新对话可点「清空对话」。</div>
     </div>
 
+    <div class="field">
+      <label>音色（本机系统语音）</label>
+      <div class="voice-row">
+        <select id="voiceSel" aria-label="音色"></select>
+        <button class="btn-sm" id="voiceTest" type="button">试听</button>
+      </div>
+      <div class="hint">列表里女声排前面；想要更多音色，在系统的语音 / 时间和语言设置里加装中文语音包。</div>
+      <label style="margin-top:8px">语速</label>
+      <input id="rateEl" type="range" min="0.6" max="1.6" step="0.05" value="1.0" aria-label="语速">
+      <label style="margin-top:8px">音调（越高越可爱）</label>
+      <input id="pitchEl" type="range" min="0.6" max="1.6" step="0.05" value="1.25" aria-label="音调">
+    </div>
+
+    <div class="field">
+      <label>字号</label>
+      <div class="seg" id="fontSeg">
+        <button type="button" data-fs="small">小</button>
+        <button type="button" data-fs="normal">标准</button>
+        <button type="button" data-fs="large">大</button>
+      </div>
+    </div>
+
     <div class="note">
       <b>硬件约束</b>：1.5B 模型约 1 GB，建议 Chrome / Edge 且有独显或较强核显；0.5B 约 400 MB，轻薄本核显更稳。浏览器不支持 WebGPU 时自动退回 WASM（CPU），速度会明显变慢。手机能跑但体验有限。模型越小越容易答得简短或跑题，属正常现象。
     </div>
@@ -231,7 +271,11 @@ var defaults = {
   temperature: 0.5,
   maxTokens: 256,
   system: "你是一个简洁实用的本地助手，回答用中文，先给结论。",
-  historyLen: 10
+  historyLen: 10,
+  voice: "",
+  rate: 1.0,
+  pitch: 1.25,
+  fontScale: "normal"
 };
 
 /* 场景模板：能力入口先给角色预设与示例，真正回答走本机模型；可在设置里改 system */
@@ -331,17 +375,58 @@ function copyText(t){
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(fallback);
   else fallback();
 }
+/* ---------- 语音：音色 / 语速 / 音调 ---------- */
+var FEMALE_RE = /xiao|晓|小|萱|瑶|婷|欣|梦|涵|妍|妮|huiting|huihui|yaoyao|yunxia|meijia|female|女|zira|sera/i;
+var MALE_RE = /yunxi|yunjian|yunyang|kangjian|yunfeng|yunye|云希|云扬|云健|云野|男|male|david|guy|jian/i;
+function voiceSex(v){
+  var n = (v.name || "") + " " + (v.lang || "");
+  if (MALE_RE.test(n)) return "male";
+  if (FEMALE_RE.test(n)) return "female";
+  return "unknown";
+}
+function zhVoices(){
+  if (!window.speechSynthesis) return [];
+  return speechSynthesis.getVoices().filter(function(v){ return (v.lang || "").toLowerCase().indexOf("zh") === 0; });
+}
+function fillVoices(){
+  var sel = $("voiceSel"); if (!sel) return;
+  var vs = zhVoices().slice();
+  var sexRank = { female: 0, unknown: 1, male: 2 };
+  vs.sort(function(a, b){ return sexRank[voiceSex(a)] - sexRank[voiceSex(b)]; });
+  sel.innerHTML = "";
+  if (!vs.length){ sel.innerHTML = '<option value="">本机没有中文语音</option>'; return; }
+  vs.forEach(function(v){
+    var o = document.createElement("option");
+    var sex = voiceSex(v), tag = sex === "female" ? "（女声）" : (sex === "male" ? "（男声）" : "");
+    var label = v.name + tag;
+    o.value = v.name; o.textContent = label.length > 20 ? label.slice(0, 20) + "…" : label;
+    if (v.name === cfg.voice) o.selected = true;
+    sel.appendChild(o);
+  });
+}
 function speakText(text){
   if (!window.speechSynthesis || !text) return;
   try {
     speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(String(text).slice(0, 500));
-    var vs = speechSynthesis.getVoices().filter(function(v){ return (v.lang || "").toLowerCase().indexOf("zh") === 0; });
-    var v = vs[0];
+    var vs = zhVoices();
+    var v = vs.find(function(x){ return x.name === cfg.voice; }) || vs[0];
     if (v){ u.voice = v; u.lang = v.lang; } else { u.lang = "zh-CN"; }
-    u.rate = 1.0; u.pitch = 1.0;
+    var r = parseFloat(cfg.rate); if (isNaN(r)) r = 1.0;
+    var p = parseFloat(cfg.pitch); if (isNaN(p)) p = 1.25;
+    u.rate = r; u.pitch = p;
     speechSynthesis.speak(u);
   } catch(e){}
+}
+
+/* ---------- 字号档位 ---------- */
+var FS = { small:"0.92", normal:"1", large:"1.09" };
+function applyFont(){ document.documentElement.style.zoom = FS[cfg.fontScale] || "1"; }
+function paintFont(){
+  var box = $("fontSeg"); if (!box) return;
+  Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
+    b.classList.toggle("on", b.dataset.fs === cfg.fontScale);
+  });
 }
 function assistantActs(){
   var acts = [
@@ -590,6 +675,10 @@ function fillSheet(){
   $("systemPrompt").value = cfg.system;
   $("historyLen").value = String(cfg.historyLen);
   $("tempVal").textContent = Number(cfg.temperature).toFixed(1);
+  fillVoices();
+  $("rateEl").value = cfg.rate;
+  $("pitchEl").value = cfg.pitch;
+  paintFont();
 }
 function readSheet(){
   cfg.model = $("modelSel").value;
@@ -607,6 +696,16 @@ mask.addEventListener("click", closeSheet);
 document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeSheet(); });
 $("modelSel").addEventListener("change", function(){ $("modelHint").textContent = currentModel(this.value).hint; });
 $("temperature").addEventListener("input", function(){ $("tempVal").textContent = parseFloat(this.value).toFixed(1); });
+fillVoices();
+if (window.speechSynthesis) speechSynthesis.onvoiceschanged = fillVoices;
+$("voiceSel").addEventListener("change", function(){ cfg.voice = this.value; saveCfg(cfg); });
+$("rateEl").addEventListener("input", function(){ cfg.rate = parseFloat(this.value); saveCfg(cfg); });
+$("pitchEl").addEventListener("input", function(){ cfg.pitch = parseFloat(this.value); saveCfg(cfg); });
+$("voiceTest").addEventListener("click", function(){ speakText("你好，这是试听音色。"); });
+$("fontSeg").addEventListener("click", function(e){
+  var b = e.target.closest("[data-fs]"); if (!b) return;
+  cfg.fontScale = b.dataset.fs; applyFont(); paintFont(); saveCfg(cfg);
+});
 $("saveSheet").addEventListener("click", function(){
   var modelChanged = cfg.model !== $("modelSel").value || cfg.host !== $("hostSel").value;
   readSheet(); saveCfg(cfg);
@@ -636,6 +735,7 @@ sendBtn.addEventListener("click", function(){
 
 /* ---------- 启动 ---------- */
 fillSheet();
+applyFont();
 if (!navigator.gpu){
   setStatus("WebGPU 不可用，将走 WASM（较慢）", "");
 } else {
