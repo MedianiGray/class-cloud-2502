@@ -175,6 +175,16 @@ body.sheet-open .sheet{transform:translateX(0)}
       <textarea id="systemPrompt" placeholder="你是一个简洁实用的本地助手，回答用中文。"></textarea>
     </div>
 
+    <div class="field">
+      <label>带入上下文的历史轮数</label>
+      <select id="historyLen">
+        <option value="5">最近 5 轮</option>
+        <option value="10">最近 10 轮</option>
+        <option value="20">最近 20 轮</option>
+      </select>
+      <div class="hint">本地模型上下文有限，轮数过长容易被截断或变慢。切换模型后旧对话仍保留作上下文，需要全新对话可点「清空对话」。</div>
+    </div>
+
     <div class="note">
       <b>硬件约束</b>：1.5B 模型约 1 GB，建议 Chrome / Edge 且有独显或较强核显；0.5B 约 400 MB，轻薄本核显更稳。浏览器不支持 WebGPU 时自动退回 WASM（CPU），速度会明显变慢。手机能跑但体验有限。模型越小越容易答得简短或跑题，属正常现象。
     </div>
@@ -218,7 +228,8 @@ var defaults = {
   host: "https://hf-mirror.com",
   temperature: 0.5,
   maxTokens: 256,
-  system: "你是一个简洁实用的本地助手，回答用中文，先给结论。"
+  system: "你是一个简洁实用的本地助手，回答用中文，先给结论。",
+  historyLen: 10
 };
 
 /* 场景模板：能力入口先给角色预设与示例，真正回答走本机模型；可在设置里改 system */
@@ -454,7 +465,7 @@ async function ensureModel(){
 function buildMessages(){
   var msgs = [];
   if (cfg.system) msgs.push({ role: "system", content: cfg.system });
-  history.slice(-10).forEach(function(m){ msgs.push({ role: m.role, content: m.content }); });
+  history.slice(-cfg.historyLen).forEach(function(m){ msgs.push({ role: m.role, content: m.content }); });
   return msgs;
 }
 function stripTokens(t){
@@ -551,6 +562,7 @@ function fillSheet(){
   $("temperature").value = cfg.temperature;
   $("maxTokens").value = cfg.maxTokens;
   $("systemPrompt").value = cfg.system;
+  $("historyLen").value = String(cfg.historyLen);
   $("tempVal").textContent = Number(cfg.temperature).toFixed(1);
 }
 function readSheet(){
@@ -559,6 +571,8 @@ function readSheet(){
   cfg.temperature = parseFloat($("temperature").value) || 0.5;
   cfg.maxTokens = parseInt($("maxTokens").value, 10) || 256;
   cfg.system = $("systemPrompt").value.trim();
+  var hl = parseInt($("historyLen").value, 10);
+  cfg.historyLen = (hl >= 1 && hl <= 40) ? hl : 10;
 }
 
 $("openSheet").addEventListener("click", openSheet);
@@ -570,7 +584,7 @@ $("temperature").addEventListener("input", function(){ $("tempVal").textContent 
 $("saveSheet").addEventListener("click", function(){
   var modelChanged = cfg.model !== $("modelSel").value || cfg.host !== $("hostSel").value;
   readSheet(); saveCfg(cfg);
-  if (modelChanged){ generator = null; activeModelId = null; }
+  if (modelChanged){ generator = null; activeModelId = null; setStatus("模型已切换，下次提问重新加载；旧对话保留作上下文", ""); }
   closeSheet();
 });
 $("reloadModel").addEventListener("click", function(){

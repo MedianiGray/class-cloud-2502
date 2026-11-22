@@ -184,6 +184,16 @@ body.sheet-open .sheet{transform:translateX(0)}
       <textarea id="systemPrompt" placeholder="你是一个简洁实用的助手，回答用中文，先给结论再补充说明。"></textarea>
     </div>
 
+    <div class="field">
+      <label>带入上下文的历史轮数</label>
+      <select id="historyLen">
+        <option value="5">最近 5 轮</option>
+        <option value="10">最近 10 轮</option>
+        <option value="20">最近 20 轮</option>
+      </select>
+      <div class="hint">每轮含一问一答；数值越大上下文越长，越容易超接口长度或变慢。切换模型或接入方式后旧对话仍保留作上下文，需要全新对话可点「清空对话」。</div>
+    </div>
+
     <div class="note">
       <b>边界</b>：这是本地实验页，对话记录只存在这台设备的浏览器里；清掉浏览器数据就没了。模型回答可能出错，重要通知、成绩、财务事项仍以学校官方渠道为准。
     </div>
@@ -208,7 +218,8 @@ body.sheet-open .sheet{transform:translateX(0)}
     baseUrl: "https://api.deepseek.com",
     model: "deepseek-chat",
     apiKey: "",
-    system: "你是一个简洁实用的助手，回答用中文，先给结论再补充说明。"
+    system: "你是一个简洁实用的助手，回答用中文，先给结论再补充说明。",
+    historyLen: 10
   };
 
   /* 场景模板：能力入口先给角色预设与示例，真正回答走模型；可在设置里改 system */
@@ -341,6 +352,7 @@ body.sheet-open .sheet{transform:translateX(0)}
     $("modelName").value = cfg.model;
     $("apiKey").value = cfg.apiKey;
     $("systemPrompt").value = cfg.system;
+    $("historyLen").value = String(cfg.historyLen);
     paintMode();
   }
   function paintMode(){
@@ -356,6 +368,8 @@ body.sheet-open .sheet{transform:translateX(0)}
     cfg.model = $("modelName").value.trim();
     cfg.apiKey = $("apiKey").value.trim();
     cfg.system = $("systemPrompt").value.trim();
+    var hl = parseInt($("historyLen").value, 10);
+    cfg.historyLen = (hl >= 1 && hl <= 40) ? hl : 10;
   }
 
   $("openSheet").addEventListener("click", openSheet);
@@ -366,8 +380,11 @@ body.sheet-open .sheet{transform:translateX(0)}
     b.addEventListener("click", function(){ cfg.mode = b.dataset.mode; paintMode(); });
   });
   $("saveSheet").addEventListener("click", function(){
+    var oldMode = cfg.mode, oldModel = cfg.model;
     readSheet(); saveCfg(cfg); closeSheet();
-    setStatus(cfg.mode === "proxy" ? "代理模式，待发送" : "直连模式，待发送", "on");
+    var changed = cfg.mode !== oldMode || cfg.model !== oldModel;
+    var base = cfg.mode === "proxy" ? "代理模式，待发送" : "直连模式，待发送";
+    setStatus(changed ? base + "；接入方式或模型已变，旧对话保留作上下文" : base, "on");
   });
 
   /* ---------- 场景模板 ---------- */
@@ -397,7 +414,7 @@ body.sheet-open .sheet{transform:translateX(0)}
   function buildMessages(){
     var msgs = [];
     if (cfg.system) msgs.push({ role: "system", content: cfg.system });
-    history.slice(-10).forEach(function(m){ msgs.push({ role: m.role, content: m.content }); });
+    history.slice(-cfg.historyLen).forEach(function(m){ msgs.push({ role: m.role, content: m.content }); });
     return msgs;
   }
 
