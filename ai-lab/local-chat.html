@@ -190,7 +190,7 @@ body.sheet-open .sheet{transform:translateX(0)}
 </aside>
 
 <script type="module">
-import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
+import { pipeline, env, TextStreamer } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
 
 var LS = "lab_local_v1";
 var $ = function(id){ return document.getElementById(id); };
@@ -463,18 +463,29 @@ function stripTokens(t){
     .trim();
 }
 
-async function runInference(msgs){
+async function runInference(msgs, onDelta){
   var gen = await ensureModel();
   var prompt = gen.tokenizer.apply_chat_template(msgs, { tokenize: false, add_generation_prompt: true });
+  var acc = "";
+  var streamer = new TextStreamer(gen.tokenizer, {
+    skip_prompt: true,
+    skip_special_tokens: true,
+    callback_function: function(token){
+      acc += token;
+      var partial = stripTokens(acc);
+      if (partial && onDelta) onDelta(partial);
+    }
+  });
   var out = await gen(prompt, {
     max_new_tokens: Number(cfg.maxTokens) || 256,
     temperature: Number(cfg.temperature) || 0.5,
     do_sample: true,
     repetition_penalty: 1.15,
-    return_full_text: false
+    return_full_text: false,
+    streamer: streamer
   });
   var reply = stripTokens(out && out[0] && out[0].generated_text);
-  if (!reply) reply = "（模型没生成内容，换个问法或调大最大生成字数试试）";
+  if (!reply) reply = stripTokens(acc) || "（模型没生成内容，换个问法或调大最大生成字数试试）";
   return reply;
 }
 
@@ -482,7 +493,7 @@ async function fillReply(bubble){
   setStatus("推理中…", "load");
   var msgs = buildMessages();
   try {
-    var reply = await runInference(msgs);
+    var reply = await runInference(msgs, function(partial){ if (partial) setBubbleText(bubble, partial); });
     setBubbleText(bubble, reply);
     var last = history[history.length - 1];
     if (last && last.role === "assistant") last.content = reply;

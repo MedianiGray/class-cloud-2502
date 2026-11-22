@@ -415,34 +415,67 @@ body.sheet-open .sheet{transform:translateX(0)}
     return String(d.d).trim();
   }
 
-  async function callDirect(msgs){
+  async function callDirectStream(msgs, onDelta){
     if (!cfg.baseUrl) throw new Error("接口地址没填");
     if (!cfg.model) throw new Error("模型名没填");
     if (!cfg.apiKey) throw new Error("API Key 没填");
     var r = await fetch(cfg.baseUrl + "/chat/completions", {
       method: "POST",
       headers: { "content-type": "application/json", "authorization": "Bearer " + cfg.apiKey },
-      body: JSON.stringify({ model: cfg.model, messages: msgs, temperature: 0.5, max_tokens: 800 })
+      body: JSON.stringify({ model: cfg.model, messages: msgs, temperature: 0.5, max_tokens: 800, stream: true })
     });
-    var d = {};
-    try { d = await r.json(); } catch(e){}
     if (r.status === 401 || r.status === 403) throw new Error("Key 无效或没权限（" + r.status + "）");
     if (r.status === 429) throw new Error("被限流或额度用完（429）");
-    if (!r.ok) throw new Error("接口返回 " + r.status + (d.error && d.error.message ? "：" + d.error.message : ""));
-    var c = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
-    if (!c) throw new Error("接口没有返回内容");
-    return String(c).trim();
+    if (!r.ok){
+      var ed = {}; try { ed = await r.json(); } catch(e){}
+      throw new Error("接口返回 " + r.status + (ed.error && ed.error.message ? "：" + ed.error.message : ""));
+    }
+    if (!r.body || !r.body.getReader){
+      /* 不支持流式读取时退回整段解析 */
+      var d = await r.json().catch(function(){ return {}; });
+      var c0 = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+      if (!c0) throw new Error("接口没有返回内容");
+      c0 = String(c0).trim(); onDelta && onDelta(c0); return c0;
+    }
+    var reader = r.body.getReader();
+    var decoder = new TextDecoder();
+    var full = "", buf = "";
+    while (true){
+      var chunk = await reader.read();
+      if (chunk.done) break;
+      buf += decoder.decode(chunk.value, { stream: true });
+      var lines = buf.split("\n");
+      buf = lines.pop();
+      for (var i = 0; i < lines.length; i++){
+        var line = lines[i].trim();
+        if (!line || line.indexOf("data:") !== 0) continue;
+        var data = line.slice(5).trim();
+        if (data === "[DONE]") continue;
+        try {
+          var j = JSON.parse(data);
+          var c = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+          if (c){ full += c; onDelta && onDelta(full); }
+        } catch(e){}
+      }
+    }
+    if (!full.trim()) throw new Error("接口没有返回内容");
+    return full.trim();
   }
 
-  async function runRequest(msgs){
-    return cfg.mode === "proxy" ? await callProxy(msgs) : await callDirect(msgs);
+  async function runRequest(msgs, onDelta){
+    if (cfg.mode === "proxy"){
+      var reply = await callProxy(msgs);
+      onDelta && onDelta(reply);
+      return reply;
+    }
+    return await callDirectStream(msgs, onDelta);
   }
 
   async function fillReply(bubble){
     setStatus("思考中…", "");
     var msgs = buildMessages();
     try {
-      var reply = await runRequest(msgs);
+      var reply = await runRequest(msgs, function(partial){ if (partial) setBubbleText(bubble, partial); });
       setBubbleText(bubble, reply);
       var last = history[history.length - 1];
       if (last && last.role === "assistant") last.content = reply;
@@ -517,7 +550,7 @@ body.sheet-open .sheet{transform:translateX(0)}
     setStatus("测试中…", "");
     try {
       var msgs = [{ role: "system", content: cfg.system }, { role: "user", content: "回复一个字：好" }];
-      var reply = cfg.mode === "proxy" ? await callProxy(msgs) : await callDirect(msgs);
+      var reply = cfg.mode === "proxy" ? await callProxy(msgs) : await callDirectStream(msgs);
       setStatus("连接正常：" + reply.slice(0, 20), "on");
     } catch (e){
       setStatus("测试失败：" + ((e && e.message) || e), "err");
