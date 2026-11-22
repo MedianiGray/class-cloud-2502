@@ -3203,11 +3203,20 @@ route();
         <span class="set-note" id="setTestOut"></span>
         <span class="set-note">Key 只存在这台设备的浏览器里；报 401 多半是 Key 或模型名写错，报 CORS 是服务商禁止网页直连。</span>
       </div>
+      <div class="set-row" style="margin-top:12px">
+        <span class="set-label">历史留存条数（只存本机）</span>
+        <div class="set-seg" id="setHistMax">
+          <button type="button" data-hm="20">20</button>
+          <button type="button" data-hm="30">30</button>
+          <button type="button" data-hm="50">50</button>
+        </div>
+      </div>
       <details class="set-adv">
-        <summary>自定义人设指令（一般不用改）</summary>
+        <summary>自定义人设指令与快捷问题（一般不用改）</summary>
         <label>给助手的系统指令<textarea id="setSys" class="set-input set-ta" rows="4" placeholder="留空就用内置人设：先结论后步骤、不编链接、只答学习资料和学校系统"></textarea></label>
         <div class="set-chips" id="setSysPreset"></div>
-        <span class="set-note">改坏了清空这个框就回到内置人设。</span>
+        <label>快捷问题（每行一条，留空用默认，最多 12 条）<textarea id="setChips" class="set-input set-ta" rows="4" placeholder="一行一条，比如：FTP 地址是多少"></textarea></label>
+        <span class="set-note">改坏了清空对应框就回到默认。</span>
       </details>
     </section>
     <section class="set-sec">
@@ -3296,9 +3305,16 @@ route();
 
   /* 对话历史只留本机：关掉页面再打开还在上一轮，清空就一起删掉；不经过服务器 */
   var HIST_KEY = "cl_ai_hist_v1";
+  var HIST_MAX_KEY = "cl_ai_hist_max";
+  var HIST_MAXS = [20, 30, 50];
+  function histMax(){
+    var n = parseInt(store.get(HIST_MAX_KEY) || "30", 10);
+    return HIST_MAXS.indexOf(n) >= 0 ? n : 30;
+  }
   var hist = [];
   try { hist = JSON.parse(store.get(HIST_KEY) || "[]") || []; } catch (e) { hist = []; }
-  function saveHist(){ try { store.set(HIST_KEY, JSON.stringify(hist.slice(-30))); } catch (e) {} }
+  hist = hist.slice(-histMax());
+  function saveHist(){ try { store.set(HIST_KEY, JSON.stringify(hist.slice(-histMax()))); } catch (e) {} }
   window.__CLEAR_HIST = function(){ hist = []; saveHist(); if (body) body.innerHTML = ""; };
   window.__EXPORT_HIST = function(){
     if (!hist.length) { if (window.toast) toast("这段还没有记录"); return; }
@@ -3312,6 +3328,29 @@ route();
       if (window.toast) toast("已导出到本机下载目录");
     } catch (e) { if (window.toast) toast("导出失败：" + (e.message || "浏览器限制")); }
   };
+
+  /* 快捷问题：默认六条，本机可按行增删改；留空 / 非法回落默认，最多 12 条 */
+  var CHIPS_KEY = "cl_ai_chips_v1";
+  var DEFAULT_CHIPS = ["我的文件夹在哪", "课表在哪", "VPN 怎么连", "FTP 地址是多少", "那只鱼是什么", "我第一次来，从哪开始"];
+  function readChips(){
+    var arr = null;
+    try { arr = JSON.parse(store.get(CHIPS_KEY) || "null"); } catch (e) { arr = null; }
+    if (!Array.isArray(arr)) return DEFAULT_CHIPS.slice();
+    arr = arr.map(function(s){ return String(s || "").trim(); }).filter(Boolean).slice(0, 12);
+    return arr.length ? arr : DEFAULT_CHIPS.slice();
+  }
+  function renderChips(){
+    if (!chips) return;
+    chips.innerHTML = "";
+    readChips().forEach(function(q){
+      var b = document.createElement("button");
+      b.setAttribute("data-q", q); b.textContent = q;
+      chips.appendChild(b);
+    });
+  }
+  window.__CHIPS_GET = readChips;
+  window.__CHIPS_RENDER = renderChips;
+  renderChips();
 
   var RULES = [
     { k: ["我的文件夹", "我那一格", "我的库", "自己那", "个人文件夹", "学号"],
@@ -3967,6 +4006,34 @@ route();
   });
   paintSys();
 
+  /* ---- 历史留存条数：20 / 30 / 50，本机记忆 ---- */
+  var hmBox = $("setHistMax");
+  function paintHistMax(){
+    var cur = store.get("cl_ai_hist_max") || "30";
+    if (!hmBox) return;
+    Array.prototype.slice.call(hmBox.querySelectorAll("button")).forEach(function(b){
+      b.classList.toggle("on", b.dataset.hm === cur);
+    });
+  }
+  if (hmBox) hmBox.addEventListener("click", function(e){
+    var b = e.target.closest("[data-hm]"); if (!b) return;
+    store.set("cl_ai_hist_max", b.dataset.hm); paintHistMax();
+  });
+  paintHistMax();
+
+  /* ---- 快捷问题：按行编辑，存本机，实时重渲染 chips ---- */
+  var chipsTa = $("setChips");
+  function paintChips(){
+    if (!chipsTa) return;
+    chipsTa.value = (window.__CHIPS_GET ? window.__CHIPS_GET() : []).join("\n");
+  }
+  if (chipsTa) chipsTa.addEventListener("input", function(){
+    var arr = chipsTa.value.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean).slice(0, 12);
+    try { store.set("cl_ai_chips_v1", JSON.stringify(arr)); } catch (e) {}
+    if (window.__CHIPS_RENDER) window.__CHIPS_RENDER();
+  });
+  paintChips();
+
   /* 自定义 API 连通测试：发一条最小请求，回显通不通与原因 */
   var testBtn = $("setTest"), testOut = $("setTestOut");
   function cfgReady(){ return !!(base.value.trim() && model.value.trim() && key.value.trim()); }
@@ -4120,7 +4187,7 @@ route();
   });
   paintPetLines();
 
-  function paintAll(){ paintAccent(); paintBg(); paintFont(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); paintPetLines(); }
+  function paintAll(){ paintAccent(); paintBg(); paintFont(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintHistMax(); paintChips(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); paintPetLines(); }
 })();
 </script>
 
