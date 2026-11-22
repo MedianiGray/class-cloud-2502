@@ -601,6 +601,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-x{border:0;background:transparent;font-size:18px;line-height:1;color:var(--ink3);cursor:pointer;padding:2px 4px}
 .bot-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
 .bot-msg{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.6;word-break:break-word}
+.bot-msg a{color:inherit;text-decoration:underline;word-break:break-all}
 .bot-me{align-self:flex-end;background:rgba(62,125,95,.10);color:#2F5F49;border-bottom-right-radius:5px}
 .bot-bot{align-self:flex-start;background:#F7F1EA;color:var(--ink);border-bottom-left-radius:5px}
 .bot-act{align-self:flex-start;margin-top:-3px;border:1px solid rgba(62,125,95,.32);background:#fff;color:#2F5F49;
@@ -698,6 +699,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .set-select,.set-input{height:38px;border:1px solid rgba(198,182,166,.5);border-radius:12px;background:#FEFBF7;padding:0 11px;font:inherit;font-size:13.5px;color:var(--ink);min-width:0}
 .set-input{width:100%}
 .set-api input[type=range]{width:100%}
+.set-row input[type=range]{flex:1;min-width:0}
 .set-select{flex:1}
 .set-switch{flex:none;width:44px;height:26px;border-radius:999px;background:var(--line2);position:relative;cursor:pointer;transition:background .15s;border:0;padding:0}
 .set-switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
@@ -3114,6 +3116,14 @@ route();
         <button class="btn btn-sm ghost" id="setVoiceTest" type="button">试听</button>
       </div>
       <div class="set-row">
+        <span class="set-label">语速</span>
+        <input id="setRate" type="range" min="0.6" max="1.6" step="0.05" value="1.0" aria-label="语速">
+      </div>
+      <div class="set-row">
+        <span class="set-label">音调</span>
+        <input id="setPitch" type="range" min="0.6" max="1.6" step="0.05" value="1.15" aria-label="音调">
+      </div>
+      <div class="set-row">
         <span class="set-label">桌宠语音</span>
         <button class="set-switch" id="setPetVoice" type="button" role="switch" aria-label="桌宠语音"></button>
       </div>
@@ -3333,10 +3343,20 @@ route();
   });
   document.addEventListener("keydown", function(e){ if (e.key === "Escape" && open) toggle(false); });
 
+  function renderMsg(el, text){
+    var esc = String(text).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+    esc = esc.replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/g, function(u){
+      var href = /^https?:/.test(u) ? u : "https://" + u;
+      return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + u + "</a>";
+    });
+    el.innerHTML = esc.replace(/\n/g, "<br>");
+  }
   function bubble(text, me){
     var m = document.createElement("div");
     m.className = "bot-msg " + (me ? "bot-me" : "bot-bot");
-    m.textContent = text;
+    renderMsg(m, text);
     body.appendChild(m);
     body.scrollTop = body.scrollHeight;
     return m;
@@ -3497,7 +3517,7 @@ route();
     }).then(function(d){
       if (d && d.d) {
         var txt = String(d.d).trim().slice(0, 220);
-        wait.textContent = txt;
+        renderMsg(wait, txt);
         /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
         if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
         speakReply(txt);
@@ -3529,7 +3549,7 @@ route();
         throw new Error(s + (bad ? "（Key 或模型名不对 / 余额不够）" : "（接口格式不对，检查地址是否以 /v1 结尾）"));
       }
       var txt = (d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d)).trim().slice(0, 220);
-      wait.textContent = txt;
+      renderMsg(wait, txt);
       if (botSub) botSub.textContent = " · 自己的 API（" + c.model + "）";
       speakReply(txt);
       body.scrollTop = body.scrollHeight;
@@ -3678,6 +3698,16 @@ route();
   if (window.speechSynthesis) speechSynthesis.onvoiceschanged = fillVoices;
   voiceSel.addEventListener("change", function(){ if (voiceSel.value) store.set("dafeiyu:voice-name", voiceSel.value); });
 
+  var rateEl = $("setRate"), pitchEl = $("setPitch");
+  function loadVoiceTune(){
+    var r = parseFloat(store.get("cl_ai_rate")); if (isNaN(r)) r = 1.0;
+    var p = parseFloat(store.get("cl_ai_pitch")); if (isNaN(p)) p = 1.15;
+    if (rateEl) rateEl.value = r; if (pitchEl) pitchEl.value = p;
+  }
+  if (rateEl) rateEl.addEventListener("input", function(){ store.set("cl_ai_rate", rateEl.value); });
+  if (pitchEl) pitchEl.addEventListener("input", function(){ store.set("cl_ai_pitch", pitchEl.value); });
+  loadVoiceTune();
+
   /* 给对话回复用的朗读：音色名和桌宠共用一份记忆 */
   window.__speakText = function(text){
     if (!window.speechSynthesis || !text) return;
@@ -3687,7 +3717,9 @@ route();
       var vs = zhVoices(), name = store.get("dafeiyu:voice-name");
       var v = vs.find(function(x){ return x.name === name; }) || vs[0];
       if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "zh-CN"; }
-      u.rate = 1.05; u.pitch = 1.15;
+      var r = parseFloat(store.get("cl_ai_rate")); if (isNaN(r)) r = 1.0;
+      var p = parseFloat(store.get("cl_ai_pitch")); if (isNaN(p)) p = 1.15;
+      u.rate = r; u.pitch = p;
       speechSynthesis.speak(u);
     } catch (e) {}
   };
@@ -3740,7 +3772,7 @@ route();
     if (b) b.click(); else if (window.toast) toast("这只形象不支持回原位");
   });
 
-  function paintAll(){ paintBe(); paintPref(); paintEff(); loadCfg(); paintPetVoice(); fillShapes(); paintShow(); }
+  function paintAll(){ paintBe(); paintPref(); paintEff(); loadCfg(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); }
 })();
 </script>
 
