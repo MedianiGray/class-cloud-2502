@@ -34,6 +34,9 @@
 ├── icon-180/192/512.png  # PWA 与 iOS 主屏图标
 ├── qrcode.min.js     # 换端 / 共享库二维码生成
 ├── robots.txt        # 禁止搜索引擎收录
+├── BLUEPRINT.md      # 终局蓝图：定位、场景全景、角色分工、分期路线
+├── ROADMAP.md        # 待办分层与已上线功能盘点
+├── PET-ROSTER.md     # 桌宠目标形象台账：两组清单、素材状态、协议与接入门槛
 ├── pet/
 │   ├── dafeiyu.iife.js   # 大肥鱼主体（动画物理、台词句柄）
 │   ├── shapes.js         # 静态形象休眠外壳（列表已撤下，文件保留）
