@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>云端对话实验 · ai-lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='7' height='7' fill='%232E5348'/%3E%3Crect x='14' y='3' width='7' height='7' fill='%233E7D5F'/%3E%3Crect x='3' y='14' width='7' height='7' fill='%233E7D5F'/%3E%3Crect x='14' y='14' width='7' height='7' fill='%232E5348'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5; --line:#CDD2C9; --line2:#B9C0B5;
+  --ink:#1F2A26; --ink2:#46544E; --ink3:#7A857E;
+  --green:#2E5348; --green2:#3E7D5F; --good:#2F7D5B; --bad:#9C4E52;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r-md:14px; --r-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.65; display:flex; flex-direction:column;
+}
+button{font:inherit;cursor:pointer}
+a{color:var(--green2)}
+
+/* 顶栏 */
+.top{
+  display:flex; align-items:center; gap:12px; padding:14px 18px;
+  border-bottom:1px solid var(--line); background:var(--card);
+}
+.top .mark{width:26px;height:26px;flex:none}
+.top h1{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.top .sub{font-size:12.5px;color:var(--ink3)}
+.top .spacer{flex:1}
+.status{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
+.dot.on{background:var(--good);box-shadow:0 0 0 4px rgba(47,125,91,.15)}
+.dot.err{background:var(--bad);box-shadow:0 0 0 4px rgba(156,78,82,.15)}
+.icon-btn{
+  border:1px solid var(--line);background:var(--paper);color:var(--ink2);
+  border-radius:var(--r-sm);padding:7px 11px;display:inline-flex;align-items:center;gap:6px;font-size:13px;
+}
+.icon-btn:hover{background:#fff;border-color:var(--line2)}
+
+/* 对话区 */
+.wrap{flex:1;display:flex;flex-direction:column;max-width:880px;width:100%;margin:0 auto;padding:18px 16px 10px;min-height:0}
+.chat{flex:1;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:4px 2px 16px}
+.msg{display:flex;gap:10px;min-width:0}
+.msg .who{flex:0 0 64px;font-size:11px;letter-spacing:.06em;color:var(--ink3);padding-top:10px}
+.msg .bubble{max-width:82%;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:11px 13px;white-space:pre-wrap;word-break:break-word}
+.msg.user{flex-direction:row-reverse}
+.msg.user .who{text-align:right}
+.msg.user .bubble{background:var(--green);color:#F3F7F4;border-color:var(--green)}
+.msg.assistant .bubble{background:var(--card)}
+.msg.sys .bubble{background:var(--paper2);color:var(--ink2);border-style:dashed;font-size:13px}
+.bubble .acts{display:flex;gap:8px;margin-top:8px}
+.bubble .acts button{border:none;background:none;color:var(--ink3);font-size:12px;padding:2px 0;display:inline-flex;align-items:center;gap:5px}
+.bubble .acts button:hover{color:var(--green2)}
+.empty{margin:auto;text-align:center;color:var(--ink3);font-size:14px;max-width:340px}
+.empty p{margin-top:6px}
+
+/* 输入区 */
+.composer{display:flex;gap:10px;align-items:flex-end;padding:10px 0 4px;border-top:1px solid var(--line);margin-top:6px}
+.composer textarea{
+  flex:1;min-width:0;resize:none;border:1px solid var(--line2);background:var(--card);color:var(--ink);
+  border-radius:var(--r-md);padding:11px 13px;font:inherit;line-height:1.6;max-height:160px;
+}
+.composer textarea:focus{outline:none;border-color:var(--green2)}
+.send{
+  flex:none;border:none;background:var(--green);color:#F3F7F4;border-radius:var(--r-md);
+  padding:11px 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px;
+}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.send:not(:disabled):hover{background:var(--green2)}
+
+/* 场景模板 chips */
+.scenes{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.scenes::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:999px;padding:6px 12px;font-size:12.5px;white-space:nowrap}
+.chip:hover{border-color:var(--green2)}
+.chip.on{background:var(--green);border-color:var(--green);color:#F3F7F4}
+
+/* 设置抽屉 */
+.mask{position:fixed;inset:0;background:rgba(31,42,38,.28);opacity:0;pointer-events:none;transition:opacity .18s}
+.sheet{
+  position:fixed;top:0;right:0;height:100%;width:min(380px,88vw);background:var(--paper);
+  border-left:1px solid var(--line);transform:translateX(100%);transition:transform .2s;
+  display:flex;flex-direction:column;z-index:30;
+}
+body.sheet-open .mask{opacity:1;pointer-events:auto}
+body.sheet-open .sheet{transform:translateX(0)}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.sheet-head h2{font-size:15px;font-weight:700;flex:1}
+.sheet-body{flex:1;overflow:auto;padding:16px 18px;display:grid;gap:16px;align-content:start}
+.field{display:grid;gap:6px}
+.field label{font-size:12.5px;color:var(--ink2);font-weight:600}
+.field .hint{font-size:12px;color:var(--ink3);line-height:1.55}
+.field input,.field textarea,.field select{
+  border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:var(--r-sm);
+  padding:9px 11px;font:inherit;font-size:14px;min-width:0;
+}
+.field textarea{resize:vertical;min-height:64px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line2);background:var(--card);border-radius:999px;padding:7px 13px;font-size:13px;color:var(--ink2)}
+.seg button.on{background:var(--green);border-color:var(--green);color:#F3F7F4}
+.note{font-size:12px;color:var(--ink3);line-height:1.6;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+.note b{color:var(--ink2)}
+.sheet-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
+.sheet-foot .btn{border:1px solid var(--line2);background:var(--card);border-radius:var(--r-sm);padding:9px 14px;font-size:13px}
+.sheet-foot .btn.primary{background:var(--green);color:#F3F7F4;border-color:var(--green)}
+.hidden{display:none}
+
+@media (max-width:560px){
+  .top{padding:12px 14px}
+  .wrap{padding:14px 12px 8px}
+  .msg .who{flex-basis:48px;font-size:10.5px}
+  .msg .bubble{max-width:90%}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <svg class="mark" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="#2E5348"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="#3E7D5F"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="#3E7D5F"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="#2E5348"/></svg>
+  <div>
+    <h1>云端对话实验</h1>
+    <div class="sub">静态网页只做界面，算力来自你填的接口；密钥只存这台设备，不进代码。</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="status"><span class="dot" id="led"></span><span id="statusText">未连接</span></div>
+  <button class="icon-btn" id="openSheet" type="button" aria-label="设置">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    设置
+  </button>
+</header>
+
+<main class="wrap">
+  <section class="chat" id="chat" aria-live="polite"></section>
+  <div class="scenes" id="scenes" aria-label="场景模板"></div>
+  <div class="composer">
+    <textarea id="input" rows="2" placeholder="输入问题，Enter 发送，Shift+Enter 换行"></textarea>
+    <button class="send" id="send" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+      发送
+    </button>
+  </div>
+</main>
+
+<div class="mask" id="mask"></div>
+<aside class="sheet" id="sheet" aria-label="设置">
+  <div class="sheet-head">
+    <h2>连接设置</h2>
+    <button class="icon-btn" id="closeSheet" type="button" aria-label="关闭">×</button>
+  </div>
+  <div class="sheet-body">
+
+    <div class="field">
+      <label>接入方式</label>
+      <div class="seg" id="modeSeg">
+        <button type="button" data-mode="proxy">走代理（Key 留服务器）</button>
+        <button type="button" data-mode="direct">网页直连（自填接口）</button>
+      </div>
+      <div class="hint">代理模式只把对话发到你自己的代理地址，页面里不出现密钥；直连模式把 Key 存在本机浏览器，公开仓库的页面不要填长期 Key。</div>
+    </div>
+
+    <div class="field" id="proxyField">
+      <label>代理地址（/chat）</label>
+      <input id="proxyUrl" type="text" placeholder="https://你的云函数地址/proxy/chat" autocomplete="off">
+      <div class="hint">沿用班级站那台腾讯云开发函数即可；代理负责换 Key、轮换额度，前端拿不到密钥。</div>
+    </div>
+
+    <div class="field hidden" id="directField">
+      <label>接口地址 base_url</label>
+      <input id="baseUrl" type="text" placeholder="https://api.deepseek.com" autocomplete="off">
+      <label style="margin-top:8px">模型名</label>
+      <input id="modelName" type="text" placeholder="deepseek-chat" autocomplete="off">
+      <label style="margin-top:8px">API Key</label>
+      <input id="apiKey" type="password" placeholder="sk-…" autocomplete="off">
+      <div class="hint">OpenAI 兼容格式。若浏览器报跨域（CORS）错误，说明该厂商不允许网页直连，改用代理模式。</div>
+    </div>
+
+    <div class="field">
+      <label>助手预设词（system）</label>
+      <textarea id="systemPrompt" placeholder="你是一个简洁实用的助手，回答用中文，先给结论再补充说明。"></textarea>
+    </div>
+
+    <div class="note">
+      <b>边界</b>：这是本地实验页，对话记录只存在这台设备的浏览器里；清掉浏览器数据就没了。模型回答可能出错，重要通知、成绩、财务事项仍以学校官方渠道为准。
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn" id="testConn" type="button">测试连接</button>
+    <button class="btn" id="exportBtn" type="button">导出对话 JSON</button>
+    <button class="btn" id="clearBtn" type="button">清空对话</button>
+    <button class="btn primary" id="saveSheet" type="button">保存设置</button>
+  </div>
+</aside>
+
+<script>
+(function(){
+  "use strict";
+  var LS = "lab_cloud_v1";
+  var $ = function(id){ return document.getElementById(id); };
+
+  var defaults = {
+    mode: "proxy",
+    proxyUrl: "",
+    baseUrl: "https://api.deepseek.com",
+    model: "deepseek-chat",
+    apiKey: "",
+    system: "你是一个简洁实用的助手，回答用中文，先给结论再补充说明。"
+  };
+
+  /* 场景模板：能力入口先给角色预设与示例，真正回答走模型；可在设置里改 system */
+  var SCENES = [
+    { id: "dev", label: "软件开发", system: "你是一名严谨的软件开发助手，熟悉常见编程语言与调试方法。回答先给结论或关键代码，再说明思路与注意事项；代码用代码块标注语言。", example: "帮我把这段需求拆成可实现的步骤，并指出可能的坑：" },
+    { id: "webauto", label: "网页自动化", system: "你是一名流程自动化助手，擅长把重复的网页操作整理成可复用的脚本或步骤清单。优先给出稳妥、可复现的流程，注明依赖与风险。", example: "我要重复完成这套网页操作，帮我整理成步骤清单或自动化思路：" },
+    { id: "file", label: "文件整理", system: "你是一名知识管理助手，擅长归纳资料、设计文件分类结构并沉淀可复用的模板与要点。回答给出清晰的目录结构和可直接套用的框架。", example: "这批资料我想归档沉淀，帮我设计分类目录和命名规范：" },
+    { id: "write", label: "文字创作", system: "你是一名文字编辑助手，擅长报告、文案与翻译润色。先理解用途与读者，再给出得体、通顺的中文表达，必要时提供中英对照。", example: "帮我把下面这段内容改写成更通顺得体的版本：" },
+    { id: "finance", label: "投资研究", system: "你是一名信息整理助手，只做公开资料梳理与逻辑分析，不构成投资建议；涉及估值、买卖结论时提示风险，重要决策以正规渠道和专业意见为准。", example: "帮我梳理这家公司公开财报里的关键指标和需要注意的风险点：" },
+    { id: "office", label: "办公文档", system: "你是一名办公文档助手，擅长提纲、表格、PPT 大纲和日常材料。回答先给结构框架，再填充要点，便于落到 Word/Excel/PPT。", example: "帮我列一份办公材料的大纲和分点要点：" },
+    { id: "research", label: "调研检索", system: "你是一名调研助手，擅长把问题拆成检索方向、整理关键结论并标注信息来源类型。不确定的信息明确说明，不臆造数据。", example: "围绕这个主题，帮我列出应查的方向和需要核实的关键结论：" },
+    { id: "daily", label: "事务效率", system: "你是一名效率助手，帮忙拆解重复性事务、安排待办与日程思路。回答给出可执行的清单和优先级，定时、邮件等具体操作以系统官方功能为准。", example: "帮我把这些日常事务整理成待办清单和优先级：" },
+    { id: "data", label: "数据洞察", system: "你是一名数据分析助手，擅长整理数据口径、设计计算思路并用通俗方式解释结论。图表只给方案与口径，具体数值以真实数据为准。", example: "这批数据我想看出趋势和异常，帮我设计分析口径和图表思路：" },
+    { id: "multi", label: "多模态创作", system: "你是一名创意策划助手，擅长描述图片、视频、3D 内容的构思与提示词方向。具体出图、出视频需对接相应生成工具，这里先给文案与方案。", example: "帮我把这个创意方向写成可交给生成工具的画面/视频提示词：" }
+  ];
+
+  function loadCfg(){
+    var cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch(e){}
+    return Object.assign({}, defaults, cfg);
+  }
+  function saveCfg(cfg){
+    try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch(e){}
+  }
+
+  var cfg = loadCfg();
+  var history = [];
+  var busy = false;
+
+  var chat = $("chat"), input = $("input"), sendBtn = $("send"),
+      led = $("led"), statusText = $("statusText"),
+      sheet = $("sheet"), mask = $("mask"), scenes = $("scenes");
+
+  /* ---------- 渲染 ---------- */
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+  function setLED(mode){
+    led.className = "dot" + (mode ? " " + mode : "");
+  }
+  function setStatus(t, mode){
+    statusText.textContent = t;
+    setLED(mode || "");
+  }
+  function addMsg(role, content, acts){
+    var empty = chat.querySelector(".empty"); if (empty) empty.remove();
+    var row = document.createElement("div");
+    row.className = "msg " + role;
+    var who = document.createElement("div");
+    who.className = "who";
+    who.textContent = role === "user" ? "我" : (role === "sys" ? "提示" : "助手");
+    var bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = content;
+    if (acts){
+      var bar = document.createElement("div");
+      bar.className = "acts";
+      acts.forEach(function(a){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.textContent = a.label;
+        b.addEventListener("click", a.onClick);
+        bar.appendChild(b);
+      });
+      bubble.appendChild(bar);
+    }
+    row.appendChild(who);
+    row.appendChild(bubble);
+    chat.appendChild(row);
+    chat.scrollTop = chat.scrollHeight;
+    return bubble;
+  }
+  function copyText(t){
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = t; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch(e){}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).catch(fallback);
+    } else { fallback(); }
+  }
+
+  function renderHistory(){
+    chat.innerHTML = "";
+    if (!history.length){
+      var empty = document.createElement("div");
+      empty.className = "empty";
+      empty.innerHTML = "<div>还没有对话</div><p>先在右上角「设置」里选接入方式、填好接口；代理模式填代理地址，直连模式填地址、模型和 Key。</p>";
+      chat.appendChild(empty);
+      return;
+    }
+    history.forEach(function(m){
+      if (m.role === "system") return;
+      addMsg(m.role === "user" ? "user" : "assistant", m.content,
+        m.role === "assistant" ? [{ label: "复制", onClick: function(){ copyText(m.content); } }] : null);
+    });
+  }
+
+  /* ---------- 设置抽屉 ---------- */
+  function openSheet(){ document.body.classList.add("sheet-open"); fillSheet(); }
+  function closeSheet(){ document.body.classList.remove("sheet-open"); }
+  function fillSheet(){
+    $("proxyUrl").value = cfg.proxyUrl;
+    $("baseUrl").value = cfg.baseUrl;
+    $("modelName").value = cfg.model;
+    $("apiKey").value = cfg.apiKey;
+    $("systemPrompt").value = cfg.system;
+    paintMode();
+  }
+  function paintMode(){
+    Array.prototype.slice.call(document.querySelectorAll("#modeSeg button")).forEach(function(b){
+      b.classList.toggle("on", b.dataset.mode === cfg.mode);
+    });
+    $("proxyField").classList.toggle("hidden", cfg.mode !== "proxy");
+    $("directField").classList.toggle("hidden", cfg.mode !== "direct");
+  }
+  function readSheet(){
+    cfg.proxyUrl = $("proxyUrl").value.trim();
+    cfg.baseUrl = $("baseUrl").value.trim().replace(/\/+$/, "");
+    cfg.model = $("modelName").value.trim();
+    cfg.apiKey = $("apiKey").value.trim();
+    cfg.system = $("systemPrompt").value.trim();
+  }
+
+  $("openSheet").addEventListener("click", openSheet);
+  $("closeSheet").addEventListener("click", closeSheet);
+  mask.addEventListener("click", closeSheet);
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeSheet(); });
+  document.querySelectorAll("#modeSeg button").forEach(function(b){
+    b.addEventListener("click", function(){ cfg.mode = b.dataset.mode; paintMode(); });
+  });
+  $("saveSheet").addEventListener("click", function(){
+    readSheet(); saveCfg(cfg); closeSheet();
+    setStatus(cfg.mode === "proxy" ? "代理模式，待发送" : "直连模式，待发送", "on");
+  });
+
+  /* ---------- 场景模板 ---------- */
+  function paintScene(id){
+    Array.prototype.slice.call(scenes.children).forEach(function(c){
+      c.classList.toggle("on", c.dataset.id === id);
+    });
+  }
+  function applyScene(sc){
+    readSheet();
+    cfg.system = sc.system;
+    $("systemPrompt").value = sc.system;
+    input.value = sc.example;
+    paintScene(sc.id);
+    input.focus();
+  }
+  SCENES.forEach(function(sc){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.dataset.id = sc.id; b.textContent = sc.label;
+    b.addEventListener("click", function(){ applyScene(sc); });
+    scenes.appendChild(b);
+  });
+  var sceneHit = SCENES.find(function(s){ return s.system === cfg.system; });
+  if (sceneHit) paintScene(sceneHit.id);
+
+  /* ---------- 请求 ---------- */
+  function buildMessages(){
+    var msgs = [];
+    if (cfg.system) msgs.push({ role: "system", content: cfg.system });
+    history.slice(-10).forEach(function(m){ msgs.push({ role: m.role, content: m.content }); });
+    return msgs;
+  }
+
+  async function callProxy(msgs){
+    if (!cfg.proxyUrl) throw new Error("代理地址没填：去设置里填 /proxy/chat 地址");
+    var r = await fetch(cfg.proxyUrl, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: msgs, effort: "medium" })
+    });
+    var d = {};
+    try { d = await r.json(); } catch(e){}
+    if (!r.ok) throw new Error(d.e || ("代理返回 " + r.status));
+    if (!d.d) throw new Error(d.e || "代理没有返回内容");
+    return String(d.d).trim();
+  }
+
+  async function callDirect(msgs){
+    if (!cfg.baseUrl) throw new Error("接口地址没填");
+    if (!cfg.model) throw new Error("模型名没填");
+    if (!cfg.apiKey) throw new Error("API Key 没填");
+    var r = await fetch(cfg.baseUrl + "/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", "authorization": "Bearer " + cfg.apiKey },
+      body: JSON.stringify({ model: cfg.model, messages: msgs, temperature: 0.5, max_tokens: 800 })
+    });
+    var d = {};
+    try { d = await r.json(); } catch(e){}
+    if (r.status === 401 || r.status === 403) throw new Error("Key 无效或没权限（" + r.status + "）");
+    if (r.status === 429) throw new Error("被限流或额度用完（429）");
+    if (!r.ok) throw new Error("接口返回 " + r.status + (d.error && d.error.message ? "：" + d.error.message : ""));
+    var c = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+    if (!c) throw new Error("接口没有返回内容");
+    return String(c).trim();
+  }
+
+  async function send(raw){
+    var text = (raw != null ? raw : input.value).trim();
+    if (!text || busy) return;
+    busy = true; setBusy(true);
+    addMsg("user", text);
+    history.push({ role: "user", content: text });
+    var bubble = addMsg("assistant", "…", [{ label: "复制", onClick: function(){ copyText(bubble.textContent); } }]);
+    setStatus("思考中…", "");
+    var msgs = buildMessages();
+    try {
+      var reply = cfg.mode === "proxy" ? await callProxy(msgs) : await callDirect(msgs);
+      bubble.textContent = reply;
+      history.push({ role: "assistant", content: reply });
+      setStatus("已回复", "on");
+    } catch (e){
+      var msg = (e && e.message) || String(e);
+      bubble.textContent = "出错了：" + msg;
+      setStatus("连接失败", "err");
+    } finally {
+      busy = false; setBusy(false); input.focus();
+    }
+  }
+
+  function setBusy(on){
+    sendBtn.disabled = on || !input.value.trim();
+    input.disabled = on;
+  }
+
+  /* ---------- 事件 ---------- */
+  input.addEventListener("input", function(){ sendBtn.disabled = busy || !input.value.trim(); });
+  input.addEventListener("keydown", function(e){
+    if (e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      var t = input.value; input.value = ""; sendBtn.disabled = true;
+      send(t);
+    }
+  });
+  sendBtn.addEventListener("click", function(){
+    var t = input.value; input.value = ""; sendBtn.disabled = true;
+    send(t);
+  });
+
+  $("clearBtn").addEventListener("click", function(){
+    history = []; renderHistory(); setStatus("已清空", "");
+  });
+  $("exportBtn").addEventListener("click", function(){
+    var data = { exportedAt: new Date().toISOString(), mode: cfg.mode, history: history };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "cloud-chat-" + Date.now() + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  $("testConn").addEventListener("click", async function(){
+    readSheet(); saveCfg(cfg);
+    setStatus("测试中…", "");
+    try {
+      var msgs = [{ role: "system", content: cfg.system }, { role: "user", content: "回复一个字：好" }];
+      var reply = cfg.mode === "proxy" ? await callProxy(msgs) : await callDirect(msgs);
+      setStatus("连接正常：" + reply.slice(0, 20), "on");
+    } catch (e){
+      setStatus("测试失败：" + ((e && e.message) || e), "err");
+    }
+  });
+
+  /* ---------- 启动 ---------- */
+  renderHistory();
+  setStatus(cfg.mode === "proxy" ? "代理模式，待发送" : "直连模式，待发送", cfg.apiKey || cfg.proxyUrl ? "on" : "");
+  input.focus();
+})();
+</script>
+</body>
+</html>

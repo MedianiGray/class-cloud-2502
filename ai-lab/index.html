@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ai-lab · 两个对话实验</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='7' height='7' rx='1.5' fill='%232E5348'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1.5' fill='%233E7D5F'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1.5' fill='%233E7D5F'/%3E%3Crect x='14' y='14' width='7' height='7' rx='1.5' fill='%232E5348'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5; --line:#CDD2C9; --line2:#B9C0B5;
+  --ink:#1F2A26; --ink2:#46544E; --ink3:#7A857E;
+  --green:#2E5348; --green2:#3E7D5F;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r-md:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.65;min-height:100vh}
+.wrap{max-width:880px;margin:0 auto;padding:32px 18px 40px}
+.head{margin-bottom:24px}
+.head .kicker{font-family:var(--mono);font-size:12px;color:var(--green2);letter-spacing:.08em}
+.head h1{font-size:24px;font-weight:700;letter-spacing:-.01em;margin:6px 0 8px}
+.head p{color:var(--ink2);max-width:56ch}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.card{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:20px;text-decoration:none;color:var(--ink)}
+.card:hover{border-color:var(--green2)}
+.card .tag{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.card h2{font-size:17px;font-weight:700}
+.card p{font-size:13.5px;color:var(--ink2)}
+.card ul{margin:2px 0 0;padding-left:18px;display:grid;gap:5px;font-size:13px;color:var(--ink2)}
+.card .go{margin-top:auto;display:inline-flex;align-items:center;gap:6px;color:var(--green2);font-weight:600;font-size:13.5px}
+.note{margin-top:22px;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;font-size:13px;color:var(--ink2);line-height:1.7}
+.note b{color:var(--ink)}
+@media (max-width:640px){
+  .grid{grid-template-columns:1fr}
+  .wrap{padding:22px 14px}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="head">
+    <div class="kicker">AI-LAB · 静态页实验</div>
+    <h1>两个对话实验</h1>
+    <p>这里的页面都是纯静态 HTML，跑不了模型本身：一个把界面接到外部接口的算力，一个把模型下载到本机浏览器里跑。两者互不依赖，也不属于班级云库主站。</p>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="cloud-chat.html">
+      <span class="tag">云端 API</span>
+      <h2>云端对话实验</h2>
+      <p>界面通过 OpenAI 兼容接口调用外部模型。可走自己的代理（Key 留服务器），也可在页面里自填地址、模型和 Key（只存本机）。</p>
+      <ul>
+        <li>多轮上下文，最近 10 条一起送</li>
+        <li>对话记录只存本机浏览器，可导出 JSON</li>
+        <li>公开仓库页面不要填长期 Key</li>
+      </ul>
+      <span class="go">打开云端对话 →</span>
+    </a>
+
+    <a class="card" href="local-chat.html">
+      <span class="tag">浏览器本地推理</span>
+      <h2>本地推理实验</h2>
+      <p>模型权重下载到本机浏览器，推理在设备上完成，对话不上传。Transformers.js + WebGPU，不支持时自动退回 WASM。</p>
+      <ul>
+        <li>可选 0.5B 轻量 / 1.5B 推理型两个 ONNX 模型</li>
+        <li>首次下载后缓存本地，第二次不再重复下</li>
+        <li>吃硬件：建议 Chrome / Edge，独显或较强核显</li>
+      </ul>
+      <span class="go">打开本地推理 →</span>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>边界</b>：这两页都是练手实验，回答可能出错；正式通知、成绩、学籍、财务事项仍以学校官方渠道为准。模型 Key、对话记录都不写进公开代码，清浏览器数据即从本机删除。
+  </div>
+</main>
+</body>
+</html>

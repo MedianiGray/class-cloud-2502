@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本地推理实验 · ai-lab</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='3' width='7' height='7' rx='1.5' fill='%232E5348'/%3E%3Crect x='14' y='3' width='7' height='7' rx='1.5' fill='%233E7D5F'/%3E%3Crect x='3' y='14' width='7' height='7' rx='1.5' fill='%233E7D5F'/%3E%3Crect x='14' y='14' width='7' height='7' rx='1.5' fill='%232E5348'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5; --line:#CDD2C9; --line2:#B9C0B5;
+  --ink:#1F2A26; --ink2:#46544E; --ink3:#7A857E;
+  --green:#2E5348; --green2:#3E7D5F; --good:#2F7D5B; --bad:#9C4E52;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r-md:14px; --r-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  font-size:15px; line-height:1.65; display:flex; flex-direction:column;
+}
+button{font:inherit;cursor:pointer}
+
+.top{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--card)}
+.top .mark{width:26px;height:26px;flex:none}
+.top h1{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.top .sub{font-size:12.5px;color:var(--ink3)}
+.top .spacer{flex:1}
+.status{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
+.dot.on{background:var(--good);box-shadow:0 0 0 4px rgba(47,125,91,.15)}
+.dot.err{background:var(--bad);box-shadow:0 0 0 4px rgba(156,78,82,.15)}
+.dot.load{background:var(--green2);box-shadow:0 0 0 4px rgba(62,125,95,.15)}
+.icon-btn{border:1px solid var(--line);background:var(--paper);color:var(--ink2);border-radius:var(--r-sm);padding:7px 11px;display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.icon-btn:hover{background:#fff;border-color:var(--line2)}
+
+.wrap{flex:1;display:flex;flex-direction:column;max-width:880px;width:100%;margin:0 auto;padding:18px 16px 10px;min-height:0}
+.chat{flex:1;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:4px 2px 16px}
+.msg{display:flex;gap:10px;min-width:0}
+.msg .who{flex:0 0 64px;font-size:11px;letter-spacing:.06em;color:var(--ink3);padding-top:10px}
+.msg .bubble{max-width:82%;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:11px 13px;white-space:pre-wrap;word-break:break-word}
+.msg.user{flex-direction:row-reverse}
+.msg.user .who{text-align:right}
+.msg.user .bubble{background:var(--green);color:#F3F7F4;border-color:var(--green)}
+.msg.sys .bubble{background:var(--paper2);color:var(--ink2);border-style:dashed;font-size:13px}
+.bubble .acts{display:flex;gap:8px;margin-top:8px}
+.bubble .acts button{border:none;background:none;color:var(--ink3);font-size:12px;padding:2px 0}
+.bubble .acts button:hover{color:var(--green2)}
+.empty{margin:auto;text-align:center;color:var(--ink3);font-size:14px;max-width:360px}
+.empty p{margin-top:6px}
+
+.composer{display:flex;gap:10px;align-items:flex-end;padding:10px 0 4px;border-top:1px solid var(--line);margin-top:6px}
+.composer textarea{flex:1;min-width:0;resize:none;border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:var(--r-md);padding:11px 13px;font:inherit;line-height:1.6;max-height:160px}
+.composer textarea:focus{outline:none;border-color:var(--green2)}
+.send{flex:none;border:none;background:var(--green);color:#F3F7F4;border-radius:var(--r-md);padding:11px 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.send:disabled{opacity:.5;cursor:not-allowed}
+.send:not(:disabled):hover{background:var(--green2)}
+
+/* 场景模板 chips */
+.scenes{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.scenes::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line2);background:var(--card);color:var(--ink2);border-radius:999px;padding:6px 12px;font-size:12.5px;white-space:nowrap}
+.chip:hover{border-color:var(--green2)}
+.chip.on{background:var(--green);border-color:var(--green);color:#F3F7F4}
+
+.mask{position:fixed;inset:0;background:rgba(31,42,38,.28);opacity:0;pointer-events:none;transition:opacity .18s}
+.sheet{position:fixed;top:0;right:0;height:100%;width:min(380px,88vw);background:var(--paper);border-left:1px solid var(--line);transform:translateX(100%);transition:transform .2s;display:flex;flex-direction:column;z-index:30}
+body.sheet-open .mask{opacity:1;pointer-events:auto}
+body.sheet-open .sheet{transform:translateX(0)}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.sheet-head h2{font-size:15px;font-weight:700;flex:1}
+.sheet-body{flex:1;overflow:auto;padding:16px 18px;display:grid;gap:16px;align-content:start}
+.field{display:grid;gap:6px}
+.field label{font-size:12.5px;color:var(--ink2);font-weight:600}
+.field .hint{font-size:12px;color:var(--ink3);line-height:1.55}
+.field input,.field textarea,.field select{border:1px solid var(--line2);background:var(--card);color:var(--ink);border-radius:var(--r-sm);padding:9px 11px;font:inherit;font-size:14px;min-width:0}
+.field textarea{resize:vertical;min-height:64px}
+.note{font-size:12px;color:var(--ink3);line-height:1.6;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+.note b{color:var(--ink2)}
+.sheet-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
+.sheet-foot .btn{border:1px solid var(--line2);background:var(--card);border-radius:var(--r-sm);padding:9px 14px;font-size:13px}
+.sheet-foot .btn.primary{background:var(--green);color:#F3F7F4;border-color:var(--green)}
+.hidden{display:none}
+
+/* 加载遮罩 */
+.overlay{position:fixed;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.show{opacity:1;pointer-events:auto}
+.ov-box{width:min(420px,88vw);background:var(--card);border:1px solid var(--line);border-radius:var(--r-md);padding:22px;display:grid;gap:12px}
+.ov-box h3{font-size:15px}
+.ov-line{font-size:13px;color:var(--ink2)}
+.ov-file{font-family:var(--mono);font-size:11.5px;color:var(--ink3);word-break:break-all}
+.bar{height:8px;border-radius:999px;background:var(--paper2);overflow:hidden}
+.bar-fill{height:100%;width:0;background:var(--green2);border-radius:999px;transition:width .2s}
+.ov-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3)}
+
+@media (max-width:560px){
+  .top{padding:12px 14px}
+  .wrap{padding:14px 12px 8px}
+  .msg .who{flex-basis:48px;font-size:10.5px}
+  .msg .bubble{max-width:90%}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <svg class="mark" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="#2E5348"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="#3E7D5F"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="#3E7D5F"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="#2E5348"/></svg>
+  <div>
+    <h1>本地推理实验</h1>
+    <div class="sub">模型在你这台设备的浏览器里跑，对话不出本机；首次要下载权重，之后缓存本地。</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="status"><span class="dot" id="led"></span><span id="statusText">模型未加载</span></div>
+  <button class="icon-btn" id="openSheet" type="button" aria-label="设置">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    设置
+  </button>
+</header>
+
+<main class="wrap">
+  <section class="chat" id="chat" aria-live="polite"></section>
+  <div class="scenes" id="scenes" aria-label="场景模板"></div>
+  <div class="composer">
+    <textarea id="input" rows="2" placeholder="输入问题，Enter 发送，Shift+Enter 换行"></textarea>
+    <button class="send" id="send" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+      发送
+    </button>
+  </div>
+</main>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="ov-box">
+    <h3 id="ovTitle">加载模型…</h3>
+    <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    <div class="ov-meta"><span id="ovPct">0%</span><span id="ovBytes">—</span></div>
+    <div class="ov-line" id="ovLine">准备中</div>
+    <div class="ov-file" id="ovFile">—</div>
+  </div>
+</div>
+
+<div class="mask" id="mask"></div>
+<aside class="sheet" id="sheet" aria-label="设置">
+  <div class="sheet-head">
+    <h2>模型与生成设置</h2>
+    <button class="icon-btn" id="closeSheet" type="button" aria-label="关闭">×</button>
+  </div>
+  <div class="sheet-body">
+
+    <div class="field">
+      <label>本地模型</label>
+      <select id="modelSel"></select>
+      <div class="hint" id="modelHint"></div>
+    </div>
+
+    <div class="field">
+      <label>模型下载源</label>
+      <select id="hostSel">
+        <option value="https://hf-mirror.com">国内镜像（hf-mirror）</option>
+        <option value="https://huggingface.co">Hugging Face 官方</option>
+      </select>
+      <div class="hint">首次下载走所选源；权重缓存到浏览器本地，第二次打开不再重复下载。</div>
+    </div>
+
+    <div class="field">
+      <label>温度 <span id="tempVal"></span></label>
+      <input id="temperature" type="range" min="0.1" max="1" step="0.1" value="0.5">
+      <label style="margin-top:8px">最大生成字数</label>
+      <input id="maxTokens" type="number" min="64" max="1024" step="32" value="256">
+    </div>
+
+    <div class="field">
+      <label>助手预设词（system）</label>
+      <textarea id="systemPrompt" placeholder="你是一个简洁实用的本地助手，回答用中文。"></textarea>
+    </div>
+
+    <div class="note">
+      <b>硬件约束</b>：1.5B 模型约 1 GB，建议 Chrome / Edge 且有独显或较强核显；0.5B 约 400 MB，轻薄本核显更稳。浏览器不支持 WebGPU 时自动退回 WASM（CPU），速度会明显变慢。手机能跑但体验有限。模型越小越容易答得简短或跑题，属正常现象。
+    </div>
+    <div class="note">
+      <b>隐私</b>：推理在本机完成，对话不上传；模型权重从所选源下载并缓存在浏览器里。清浏览器数据会连同缓存一起删掉，下次需重新下载。
+    </div>
+  </div>
+  <div class="sheet-foot">
+    <button class="btn" id="reloadModel" type="button">重新加载模型</button>
+    <button class="btn" id="clearBtn" type="button">清空对话</button>
+    <button class="btn primary" id="saveSheet" type="button">保存设置</button>
+  </div>
+</aside>
+
+<script type="module">
+import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
+
+var LS = "lab_local_v1";
+var $ = function(id){ return document.getElementById(id); };
+
+/* 可选本地模型：repo 为 Transformers.js 兼容的 ONNX 仓库 */
+var MODELS = [
+  {
+    id: "qwen25-0.5b",
+    repo: "onnx-community/Qwen2.5-0.5B-Instruct",
+    label: "Qwen2.5 0.5B（轻量）",
+    hint: "约 400 MB，核显 / 轻薄本更易跑，回答较短。",
+    dtypeGpu: "q4", dtypeCpu: "q4"
+  },
+  {
+    id: "r1-1.5b",
+    repo: "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
+    label: "DeepSeek-R1 蒸馏 1.5B（推理型）",
+    hint: "约 1 GB，带思考过程，建议 WebGPU 独显或较强核显。",
+    dtypeGpu: "q4f16", dtypeCpu: "q4"
+  }
+];
+
+var defaults = {
+  model: "qwen25-0.5b",
+  host: "https://hf-mirror.com",
+  temperature: 0.5,
+  maxTokens: 256,
+  system: "你是一个简洁实用的本地助手，回答用中文，先给结论。"
+};
+
+/* 场景模板：能力入口先给角色预设与示例，真正回答走本机模型；可在设置里改 system */
+var SCENES = [
+  { id: "dev", label: "软件开发", system: "你是一名严谨的软件开发助手，熟悉常见编程语言与调试方法。回答先给结论或关键代码，再说明思路与注意事项；代码用代码块标注语言。", example: "帮我把这段需求拆成可实现的步骤，并指出可能的坑：" },
+  { id: "webauto", label: "网页自动化", system: "你是一名流程自动化助手，擅长把重复的网页操作整理成可复用的脚本或步骤清单。优先给出稳妥、可复现的流程，注明依赖与风险。", example: "我要重复完成这套网页操作，帮我整理成步骤清单或自动化思路：" },
+  { id: "file", label: "文件整理", system: "你是一名知识管理助手，擅长归纳资料、设计文件分类结构并沉淀可复用的模板与要点。回答给出清晰的目录结构和可直接套用的框架。", example: "这批资料我想归档沉淀，帮我设计分类目录和命名规范：" },
+  { id: "write", label: "文字创作", system: "你是一名文字编辑助手，擅长报告、文案与翻译润色。先理解用途与读者，再给出得体、通顺的中文表达，必要时提供中英对照。", example: "帮我把下面这段内容改写成更通顺得体的版本：" },
+  { id: "finance", label: "投资研究", system: "你是一名信息整理助手，只做公开资料梳理与逻辑分析，不构成投资建议；涉及估值、买卖结论时提示风险，重要决策以正规渠道和专业意见为准。", example: "帮我梳理这家公司公开财报里的关键指标和需要注意的风险点：" },
+  { id: "office", label: "办公文档", system: "你是一名办公文档助手，擅长提纲、表格、PPT 大纲和日常材料。回答先给结构框架，再填充要点，便于落到 Word/Excel/PPT。", example: "帮我列一份办公材料的大纲和分点要点：" },
+  { id: "research", label: "调研检索", system: "你是一名调研助手，擅长把问题拆成检索方向、整理关键结论并标注信息来源类型。不确定的信息明确说明，不臆造数据。", example: "围绕这个主题，帮我列出应查的方向和需要核实的关键结论：" },
+  { id: "daily", label: "事务效率", system: "你是一名效率助手，帮忙拆解重复性事务、安排待办与日程思路。回答给出可执行的清单和优先级，定时、邮件等具体操作以系统官方功能为准。", example: "帮我把这些日常事务整理成待办清单和优先级：" },
+  { id: "data", label: "数据洞察", system: "你是一名数据分析助手，擅长整理数据口径、设计计算思路并用通俗方式解释结论。图表只给方案与口径，具体数值以真实数据为准。", example: "这批数据我想看出趋势和异常，帮我设计分析口径和图表思路：" },
+  { id: "multi", label: "多模态创作", system: "你是一名创意策划助手，擅长描述图片、视频、3D 内容的构思与提示词方向。具体出图、出视频需对接相应生成工具，这里先给文案与方案。", example: "帮我把这个创意方向写成可交给生成工具的画面/视频提示词：" }
+];
+
+function loadCfg(){
+  var cfg = {};
+  try { cfg = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch(e){}
+  return Object.assign({}, defaults, cfg);
+}
+function saveCfg(cfg){ try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch(e){} }
+
+var cfg = loadCfg();
+var history = [];
+var generator = null;
+var loadingPromise = null;
+var busy = false;
+var activeModelId = null;
+
+var chat = $("chat"), input = $("input"), sendBtn = $("send"),
+    led = $("led"), statusText = $("statusText"),
+    sheet = $("sheet"), mask = $("mask"), overlay = $("overlay"), scenes = $("scenes");
+
+env.allowLocalModels = false;
+
+function currentModel(id){
+  var key = id || cfg.model;
+  for (var i = 0; i < MODELS.length; i++) if (MODELS[i].id === key) return MODELS[i];
+  return MODELS[0];
+}
+
+/* ---------- 渲染 ---------- */
+function setLED(mode){ led.className = "dot" + (mode ? " " + mode : ""); }
+function setStatus(t, mode){ statusText.textContent = t; setLED(mode || ""); }
+
+function addMsg(role, content, acts){
+  var empty = chat.querySelector(".empty"); if (empty) empty.remove();
+  var row = document.createElement("div");
+  row.className = "msg " + role;
+  var who = document.createElement("div");
+  who.className = "who";
+  who.textContent = role === "user" ? "我" : "助手";
+  var bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = content;
+  if (acts){
+    var bar = document.createElement("div");
+    bar.className = "acts";
+    acts.forEach(function(a){
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = a.label;
+      b.addEventListener("click", a.onClick);
+      bar.appendChild(b);
+    });
+    bubble.appendChild(bar);
+  }
+  row.appendChild(who); row.appendChild(bubble);
+  chat.appendChild(row);
+  chat.scrollTop = chat.scrollHeight;
+  return bubble;
+}
+function copyText(t){
+  function fallback(){
+    var ta = document.createElement("textarea");
+    ta.value = t; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(ta);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).catch(fallback);
+  else fallback();
+}
+function renderHistory(){
+  chat.innerHTML = "";
+  if (!history.length){
+    var empty = document.createElement("div");
+    empty.className = "empty";
+    empty.innerHTML = "<div>还没有对话</div><p>首次发送会下载并加载本地模型；加载完之后，推理都在这台设备上完成。</p>";
+    chat.appendChild(empty); return;
+  }
+  history.forEach(function(m){
+    addMsg(m.role === "user" ? "user" : "assistant", m.content,
+      m.role === "assistant" ? [{ label: "复制", onClick: function(){ copyText(m.content); } }] : null);
+  });
+}
+
+/* ---------- 加载进度 ---------- */
+var fileMap = new Map();
+function fmtBytes(n){
+  if (!Number.isFinite(n) || n <= 0) return "0 B";
+  var u = ["B","KB","MB","GB"], i = 0, v = n;
+  while (v >= 1024 && i < u.length - 1){ v /= 1024; i++; }
+  return v.toFixed(v >= 10 || i === 0 ? 0 : 1) + " " + u[i];
+}
+function overallPct(){
+  var loaded = 0, total = 0;
+  fileMap.forEach(function(v){ loaded += v.loaded || 0; total += v.total || 0; });
+  if (!total) return 0;
+  return Math.min(100, Math.round(loaded / total * 100));
+}
+function onProgress(info){
+  var st = info && info.status, file = (info && info.file) || "";
+  if (st === "initiate"){
+    $("ovTitle").textContent = "下载模型…";
+    $("ovLine").textContent = "开始 " + (file || "下载");
+    $("ovFile").textContent = file || "—";
+  } else if (st === "download" || st === "progress"){
+    if (file) fileMap.set(file, { loaded: info.loaded || 0, total: info.total || 0 });
+    var pct = overallPct();
+    $("barFill").style.width = pct + "%";
+    $("ovPct").textContent = pct + "%";
+    $("ovLine").textContent = "下载 " + (file || "文件");
+    $("ovFile").textContent = file || "—";
+    if (info.total) $("ovBytes").textContent = fmtBytes(info.loaded) + " / " + fmtBytes(info.total);
+  } else if (st === "done"){
+    if (file && fileMap.has(file)){ var v = fileMap.get(file); fileMap.set(file, { loaded: v.total || v.loaded, total: v.total || v.loaded }); }
+    $("barFill").style.width = overallPct() + "%";
+    $("ovLine").textContent = "整理 " + (file || "文件");
+  } else if (st === "ready"){
+    $("barFill").style.width = "100%"; $("ovPct").textContent = "100%";
+    $("ovLine").textContent = "就绪";
+  }
+}
+function showOverlay(on){
+  overlay.classList.toggle("show", !!on);
+  overlay.setAttribute("aria-hidden", on ? "false" : "true");
+}
+
+/* ---------- 场景模板 ---------- */
+function paintScene(id){
+  Array.prototype.slice.call(scenes.children).forEach(function(c){
+    c.classList.toggle("on", c.dataset.id === id);
+  });
+}
+function applyScene(sc){
+  readSheet();
+  cfg.system = sc.system;
+  $("systemPrompt").value = sc.system;
+  input.value = sc.example;
+  paintScene(sc.id);
+  input.focus();
+}
+SCENES.forEach(function(sc){
+  var b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.dataset.id = sc.id; b.textContent = sc.label;
+  b.addEventListener("click", function(){ applyScene(sc); });
+  scenes.appendChild(b);
+});
+var sceneHit = SCENES.find(function(s){ return s.system === cfg.system; });
+if (sceneHit) paintScene(sceneHit.id);
+
+/* ---------- 模型加载 ---------- */
+async function ensureModel(){
+  if (generator && activeModelId === cfg.model) return generator;
+  if (loadingPromise) return loadingPromise;
+  fileMap.clear();
+  showOverlay(true);
+  $("ovTitle").textContent = "加载模型…";
+  $("ovLine").textContent = "准备中"; $("ovFile").textContent = "—";
+  $("barFill").style.width = "0%"; $("ovPct").textContent = "0%"; $("ovBytes").textContent = "—";
+  setStatus("加载模型…", "load");
+
+  var m = currentModel();
+  env.remoteHost = cfg.host;
+
+  loadingPromise = (async function(){
+    var useGpu = !!navigator.gpu;
+    var opts = { progress_callback: onProgress, dtype: useGpu ? m.dtypeGpu : m.dtypeCpu };
+    var gpuErr = null;
+    if (useGpu){
+      try {
+        opts.device = "webgpu";
+        return await pipeline("text-generation", m.repo, opts);
+      } catch(e){ gpuErr = e; }
+    }
+    opts.device = "wasm"; opts.dtype = m.dtypeCpu;
+    var wasmPipe = await pipeline("text-generation", m.repo, opts);
+    wasmPipe.__gpuFallback = !!gpuErr;
+    return wasmPipe;
+  })();
+
+  try {
+    generator = await loadingPromise;
+    activeModelId = cfg.model;
+    var dev = generator.device || (navigator.gpu ? "webgpu" : "wasm");
+    setStatus("就绪 · " + (generator.__gpuFallback ? "WASM 降级" : dev), "on");
+    setTimeout(function(){ showOverlay(false); }, 250);
+    return generator;
+  } catch(e){
+    console.error(e);
+    var msg = (e && e.message) || String(e);
+    if (/failed to fetch|networkerror|load failed|failed to load/i.test(msg)){
+      msg = "模型下载源连不上：检查网络，或在设置里把下载源切到另一个镜像；首次下载必须能访问所选源。";
+    }
+    setStatus("模型加载失败", "err");
+    showOverlay(false);
+    throw new Error(msg);
+  } finally { loadingPromise = null; }
+}
+
+/* ---------- 生成 ---------- */
+function buildMessages(){
+  var msgs = [];
+  if (cfg.system) msgs.push({ role: "system", content: cfg.system });
+  history.slice(-10).forEach(function(m){ msgs.push({ role: m.role, content: m.content }); });
+  return msgs;
+}
+function stripTokens(t){
+  return String(t || "")
+    .split("<|im_end|>")[0].split("<|end|>")[0].split("<|endoftext|>")[0].split("</s>")[0]
+    .trim();
+}
+
+async function send(raw){
+  var text = (raw != null ? raw : input.value).trim();
+  if (!text || busy) return;
+  busy = true; setBusy(true);
+  addMsg("user", text);
+  history.push({ role: "user", content: text });
+  var bubble = addMsg("assistant", "…", [{ label: "复制", onClick: function(){ copyText(bubble.textContent); } }]);
+  setStatus("推理中…", "load");
+  try {
+    var gen = await ensureModel();
+    var msgs = buildMessages();
+    var prompt = gen.tokenizer.apply_chat_template(msgs, { tokenize: false, add_generation_prompt: true });
+    var out = await gen(prompt, {
+      max_new_tokens: Number(cfg.maxTokens) || 256,
+      temperature: Number(cfg.temperature) || 0.5,
+      do_sample: true,
+      repetition_penalty: 1.15,
+      return_full_text: false
+    });
+    var reply = stripTokens(out && out[0] && out[0].generated_text);
+    if (!reply) reply = "（模型没生成内容，换个问法或调大最大生成字数试试）";
+    bubble.textContent = reply;
+    history.push({ role: "assistant", content: reply });
+    setStatus("就绪", "on");
+  } catch(e){
+    bubble.textContent = "出错了：" + ((e && e.message) || e);
+    setStatus("推理失败", "err");
+  } finally {
+    busy = false; setBusy(false); input.focus();
+  }
+}
+function setBusy(on){
+  sendBtn.disabled = on || !input.value.trim();
+  input.disabled = on;
+}
+
+/* ---------- 设置抽屉 ---------- */
+function openSheet(){ document.body.classList.add("sheet-open"); fillSheet(); }
+function closeSheet(){ document.body.classList.remove("sheet-open"); }
+function fillSheet(){
+  var sel = $("modelSel");
+  sel.innerHTML = "";
+  MODELS.forEach(function(m){
+    var o = document.createElement("option");
+    o.value = m.id; o.textContent = m.label; sel.appendChild(o);
+  });
+  sel.value = cfg.model;
+  $("modelHint").textContent = currentModel().hint;
+  $("hostSel").value = cfg.host;
+  $("temperature").value = cfg.temperature;
+  $("maxTokens").value = cfg.maxTokens;
+  $("systemPrompt").value = cfg.system;
+  $("tempVal").textContent = Number(cfg.temperature).toFixed(1);
+}
+function readSheet(){
+  cfg.model = $("modelSel").value;
+  cfg.host = $("hostSel").value;
+  cfg.temperature = parseFloat($("temperature").value) || 0.5;
+  cfg.maxTokens = parseInt($("maxTokens").value, 10) || 256;
+  cfg.system = $("systemPrompt").value.trim();
+}
+
+$("openSheet").addEventListener("click", openSheet);
+$("closeSheet").addEventListener("click", closeSheet);
+mask.addEventListener("click", closeSheet);
+document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeSheet(); });
+$("modelSel").addEventListener("change", function(){ $("modelHint").textContent = currentModel(this.value).hint; });
+$("temperature").addEventListener("input", function(){ $("tempVal").textContent = parseFloat(this.value).toFixed(1); });
+$("saveSheet").addEventListener("click", function(){
+  var modelChanged = cfg.model !== $("modelSel").value || cfg.host !== $("hostSel").value;
+  readSheet(); saveCfg(cfg);
+  if (modelChanged){ generator = null; activeModelId = null; }
+  closeSheet();
+});
+$("reloadModel").addEventListener("click", function(){
+  readSheet(); saveCfg(cfg);
+  generator = null; activeModelId = null; closeSheet();
+  ensureModel().catch(function(){});
+});
+$("clearBtn").addEventListener("click", function(){ history = []; renderHistory(); });
+
+/* ---------- 事件 ---------- */
+input.addEventListener("input", function(){ sendBtn.disabled = busy || !input.value.trim(); });
+input.addEventListener("keydown", function(e){
+  if (e.key === "Enter" && !e.shiftKey){
+    e.preventDefault();
+    var t = input.value; input.value = ""; sendBtn.disabled = true;
+    send(t);
+  }
+});
+sendBtn.addEventListener("click", function(){
+  var t = input.value; input.value = ""; sendBtn.disabled = true;
+  send(t);
+});
+
+/* ---------- 启动 ---------- */
+fillSheet();
+if (!navigator.gpu){
+  setStatus("WebGPU 不可用，将走 WASM（较慢）", "");
+} else {
+  setStatus("模型未加载", "");
+}
+renderHistory();
+input.focus();
+</script>
+</body>
+</html>
