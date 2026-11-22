@@ -3360,15 +3360,21 @@ route();
 
   function askAI(q){
     var wait = bubble("我想想。", false);
+    /* 偏好厂商与回答强度存在本机；云端旧代码不认这两个字段时会忽略，不影响兜底 */
+    var pref = "", effort = "medium";
+    try { pref = localStorage.getItem("cl_ai_pref") || ""; effort = localStorage.getItem("cl_ai_effort") || "medium"; } catch (e) {}
+    var payload = {
+      messages: [
+        { role: "system", content: AI_SYS },
+        { role: "user", content: String(q).slice(0, 240) }
+      ],
+      effort: effort
+    };
+    if (pref) payload.prefer = pref;
     fetch(AI_BACKEND, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        messages: [
-          { role: "system", content: AI_SYS },
-          { role: "user", content: String(q).slice(0, 240) }
-        ]
-      })
+      body: JSON.stringify(payload)
     }).then(function(r){
       return r.json().catch(function(){ return {}; });
     }).then(function(d){
@@ -3976,7 +3982,7 @@ route();
 
   function pageModel(){
     menu.innerHTML = "";
-    menu.appendChild(head("谁在答：云端五家免费额度，哪家还有额度就用哪家"));
+    menu.appendChild(head("谁在答：云端五家免费额度，点一家优先用，没额度自动换下一家"));
     var box = document.createElement("div");
     box.style.cssText = "padding:4px 10px 8px;font-size:12px;color:var(--ink3);line-height:1.8";
     box.textContent = "正在查…";
@@ -3992,19 +3998,62 @@ route();
     menu.appendChild(row("↻", "重新查一次", "", pageModel));
     menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
 
+    function prefGet(){ try { return localStorage.getItem("cl_ai_pref") || ""; } catch (e) { return ""; } }
+    function effGet(){ try { return localStorage.getItem("cl_ai_effort") || "medium"; } catch (e) { return "medium"; } }
+
     fetch(BACKEND + "/pool", { cache: "no-store" }).then(function(r){ return r.json(); }).then(function(d){
       var list = (d && d.list) || (d && d.pool) || [];
       if (!list.length) throw new Error("没回列表");
       box.innerHTML = "";
+
+      /* 回答强度三档：低=稳、中=适中、高=活；云端按档映射 temperature */
+      var effMap = [["low", "稳"], ["medium", "适中"], ["high", "活"]];
+      var effRow = document.createElement("div");
+      effRow.style.cssText = "display:flex;gap:6px;align-items:center;margin:2px 0 10px";
+      effRow.innerHTML = '<span style="flex:none">强度</span>';
+      effMap.forEach(function(e){
+        var b = document.createElement("button");
+        b.textContent = e[1];
+        b.dataset.eff = e[0];
+        b.style.cssText = "flex:1;height:30px;border:1px solid rgba(198,182,166,.55);border-radius:999px;background:#fff;font-size:12px;color:var(--ink2)";
+        effRow.appendChild(b);
+      });
+      function paintEff(){
+        effRow.querySelectorAll("button").forEach(function(b){
+          var on = b.dataset.eff === effGet();
+          b.style.background = on ? "var(--green)" : "#fff";
+          b.style.color = on ? "#fff" : "var(--ink2)";
+          b.style.borderColor = on ? "var(--green)" : "rgba(198,182,166,.55)";
+        });
+      }
+      effRow.addEventListener("click", function(e){
+        var b = e.target.closest("button[data-eff]");
+        if (!b) return;
+        try { localStorage.setItem("cl_ai_effort", b.dataset.eff); } catch (_) {}
+        paintEff();
+      });
+      paintEff();
+      box.appendChild(effRow);
+
       list.forEach(function(it){
         var n = it.name || it.vendor || it.p || "一家";
         var ok = it.usable === true || it.fails === 0;
-        var line = document.createElement("div");
-        line.style.cssText = "display:flex;gap:6px;align-items:center";
-        line.innerHTML = '<span style="color:' + (ok ? "#2F5F49" : "#B4543E") + '">' + (ok ? "●" : "○") + "</span>" +
+        var sel = prefGet() && n.toLowerCase().indexOf(prefGet().toLowerCase()) >= 0;
+        var line = document.createElement("button");
+        line.style.cssText = "display:flex;gap:6px;align-items:center;width:100%;padding:8px 2px;font:inherit;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line)";
+        line.innerHTML = '<span style="color:' + (ok ? "#2F5F49" : "#B4543E") + '">' + (sel ? "★" : (ok ? "●" : "○")) + "</span>" +
                          "<span>" + n + "</span>" +
                          '<span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:#8C7F70">' +
-                         (it.fails ? "失败 " + it.fails + " 次" : "可用") + "</span>";
+                         (sel ? "优先" : (it.fails ? "失败 " + it.fails + " 次" : "可用")) + "</span>";
+        line.onclick = function(){
+          var cur = prefGet();
+          if (cur && n.toLowerCase().indexOf(cur.toLowerCase()) >= 0) {
+            try { localStorage.removeItem("cl_ai_pref"); } catch (_) {}
+          } else {
+            try { localStorage.setItem("cl_ai_pref", n); } catch (_) {}
+          }
+          pageModel();
+        };
         box.appendChild(line);
       });
     }).catch(function(){

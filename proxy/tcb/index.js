@@ -202,6 +202,15 @@ async function handleChat(event, origin, cors) {
     return out(400, { e: "没有 messages" }, cors);
   }
 
+  /* 前端可指定「优先哪家」：名字里包含 prefer 就排最前；匹配不到、那家在冷却或没 key，
+     就回到池子原有顺序兜底，不会因为挑了某家而整站哑掉。 */
+  const prefer = String(body.prefer || "").trim();
+  /* 强度三档 → temperature；前端直接给 0~1 的 temperature 数字也认 */
+  const EFFORT = { low: 0.2, medium: 0.3, high: 0.8 };
+  let temperature = 0.3;
+  if (typeof body.temperature === "number" && body.temperature >= 0 && body.temperature <= 1) temperature = body.temperature;
+  else if (EFFORT[body.effort]) temperature = EFFORT[body.effort];
+
   const picked = pickPool();
   if (!picked.all.some(keyOf)) {
     return out(500, { e: "服务器上没配任何模型 key，去云函数环境变量里加 AI_KEY 或 SF_KEY" }, cors);
@@ -212,16 +221,26 @@ async function handleChat(event, origin, cors) {
     return out(503, { e: "所有免费额度暂时都不可用（" + why + "），冷却 20 分钟后会自动恢复。" }, cors);
   }
 
+  let ready = picked.ready.slice();
+  if (prefer) {
+    const pl = prefer.toLowerCase();
+    ready.sort(function (a, b) {
+      const am = a.name.toLowerCase().indexOf(pl) >= 0 ? 0 : 1;
+      const bm = b.name.toLowerCase().indexOf(pl) >= 0 ? 0 : 1;
+      return am - bm;
+    });
+  }
+
   const errs = [];
-  for (let i = 0; i < picked.ready.length; i++) {
-    const p = picked.ready[i];
+  for (let i = 0; i < ready.length; i++) {
+    const p = ready[i];
     const key = keyOf(p);
     let r;
     try {
       r = await fetch(p.base + "/chat/completions", {
         method: "POST",
         headers: { "content-type": "application/json", "authorization": "Bearer " + key },
-        body: JSON.stringify({ model: p.model, temperature: 0.3, max_tokens: 240, messages: clean }),
+        body: JSON.stringify({ model: p.model, temperature: temperature, max_tokens: 240, messages: clean }),
         signal: AbortSignal.timeout(12000)
       });
     } catch (e) {
@@ -253,7 +272,9 @@ async function handleChat(event, origin, cors) {
     }
     return out(200, {
       d: String(c).trim().slice(0, 400),
-      p: p.name                      // 告诉前端这句是谁答的，方便排查额度
+      p: p.name,                    // 告诉前端这句是谁答的，方便排查额度
+      prefer: prefer || null,
+      effort: body.effort || "medium"
     }, Object.assign({ "cache-control": "no-store" }, cors));
   }
 
