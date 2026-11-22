@@ -595,8 +595,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   font-size:11.5px;line-height:1;padding:5px 9px;border-radius:99px;cursor:pointer;white-space:nowrap}
 .bot-net:hover{border-color:#2F5F49;color:#2F5F49}
 .bot-net.on{background:#2F5F49;border-color:#2F5F49;color:#fff}
-.bot-title{font-size:13.5px;font-weight:700;letter-spacing:.02em}
+.bot-title{font-size:13.5px;font-weight:700;letter-spacing:.02em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bot-head .bot-sub{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.08em}
+@media (max-width:420px){ .bot-head{padding:10px 12px;gap:6px} .bot-sub{display:none} }
 .bot-x{border:0;background:transparent;font-size:18px;line-height:1;color:var(--ink3);cursor:pointer;padding:2px 4px}
 .bot-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
 .bot-msg{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.6;word-break:break-word}
@@ -671,6 +672,43 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .pet-bar button{flex:none;width:34px;height:34px;border:0;border-radius:9px;background:transparent;
   display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#2B2118;cursor:pointer}
 .pet-bar button:active{background:#F4EBE1}
+
+/* ---------- 统一设置框：后台参数都收进这一层，主界面只留一颗入口 ---------- */
+.set-scrim{position:fixed;inset:0;background:rgba(34,28,22,.32);z-index:80;display:none}
+.set-scrim.on{display:block}
+.set-modal{position:fixed;z-index:81;left:50%;bottom:0;transform:translateX(-50%);
+  width:min(400px,calc(100vw - 20px));max-height:min(78vh,600px);display:flex;flex-direction:column;
+  background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:18px;overflow:hidden;
+  box-shadow:0 20px 50px rgba(60,52,44,.22);opacity:0;visibility:hidden;pointer-events:none}
+.set-modal.on{opacity:1;visibility:visible;pointer-events:auto}
+@media (min-width:720px){.set-modal{bottom:50%;transform:translate(-50%,50%)}}
+.set-head{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid rgba(198,182,166,.32);flex:none}
+.set-head .set-title{font-size:14.5px;font-weight:700;letter-spacing:.02em}
+.set-head .set-x{margin-left:auto;border:0;background:transparent;font-size:18px;color:var(--ink3);cursor:pointer;padding:4px 6px}
+.set-body{flex:1;overflow-y:auto;padding:4px 16px 16px}
+.set-sec{padding:14px 0;border-bottom:1px solid rgba(198,182,166,.28)}
+.set-sec:last-child{border-bottom:0}
+.set-sec h4{font-size:12px;color:var(--ink3);letter-spacing:.06em;margin-bottom:10px;font-weight:600}
+.set-row{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+.set-row .set-label{flex:1;min-width:0;font-size:13px}
+.set-note{flex-basis:100%;font-size:11.5px;color:var(--ink3);line-height:1.55}
+.set-seg{display:flex;gap:4px;background:var(--paper2);border-radius:10px;padding:3px}
+.set-seg button{flex:1;height:32px;border:0;border-radius:8px;background:transparent;font-size:12.5px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.set-seg button.on{background:var(--green);color:#fff;font-weight:600}
+.set-select,.set-input{height:38px;border:1px solid rgba(198,182,166,.5);border-radius:12px;background:#FEFBF7;padding:0 11px;font:inherit;font-size:13.5px;color:var(--ink);min-width:0}
+.set-input{width:100%}
+.set-api input[type=range]{width:100%}
+.set-select{flex:1}
+.set-switch{flex:none;width:44px;height:26px;border-radius:999px;background:var(--line2);position:relative;cursor:pointer;transition:background .15s;border:0;padding:0}
+.set-switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.set-switch.on{background:var(--green)}
+.set-switch.on::after{left:21px}
+.set-chips{display:flex;gap:6px;flex-wrap:wrap}
+.set-chips button{border:1px solid rgba(198,182,166,.5);background:#FFFDFB;color:var(--ink2);font-size:12px;padding:7px 11px;border-radius:999px;cursor:pointer}
+.set-chips button.on{background:var(--green);border-color:var(--green);color:#fff}
+.set-api{display:none;flex-direction:column;gap:9px;margin-top:10px}
+.set-api.on{display:flex}
+.set-api label{font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:5px}
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:720px){ body{overflow-x:hidden} }
 @media (max-width:760px){ .nav{display:none} }
@@ -2999,7 +3037,7 @@ route();
   <div class="bot-head">
     <span class="bot-title">云库小助手<span class="bot-sub" id="botSub"> · 离线规则，不联网</span></span>
     <button class="bot-net" id="botNet" type="button" title="接模型后，规则答不上来的问题也能答">联网</button>
-    <button class="bot-net bot-model" id="botModel" type="button" title="换模型 / 接自己的 API">模型</button>
+    <button class="bot-net" id="botModel" type="button" title="设置：模型后端、语音、桌宠">⚙ 设置</button>
     <button class="bot-x" id="botClose" aria-label="关闭">×</button>
   </div>
   <div class="bot-nav" id="botNav"></div>
@@ -3025,6 +3063,77 @@ route();
 
 <!-- 大肥鱼自己的功能条：挂在小助手外面，点鱼才出来，跟对话卡互不打扰 -->
 <div class="pet-bar" id="petBar" aria-label="大肥鱼的功能"></div>
+
+<!-- 统一设置框：模型后端、语音、桌宠的后台参数都在这里调，对话卡上不再堆按钮 -->
+<div class="set-scrim" id="setScrim"></div>
+<div class="set-modal" id="setModal" role="dialog" aria-label="设置">
+  <div class="set-head">
+    <span class="set-title">设置</span>
+    <button class="set-x" id="setClose" type="button" aria-label="关闭设置">×</button>
+  </div>
+  <div class="set-body">
+    <section class="set-sec">
+      <h4>对话模型</h4>
+      <div class="set-row">
+        <span class="set-label">后端</span>
+        <div class="set-seg" id="setBackend">
+          <button type="button" data-be="cloud">云端额度</button>
+          <button type="button" data-be="custom">自己的 API</button>
+        </div>
+      </div>
+      <div id="setCloud">
+        <div class="set-row"><span class="set-label">优先厂商（不选就自动轮换）</span></div>
+        <div class="set-chips" id="setPref"></div>
+        <div class="set-row"><span class="set-label">回答强度</span></div>
+        <div class="set-seg" id="setEffort">
+          <button type="button" data-eff="low">稳</button>
+          <button type="button" data-eff="medium">适中</button>
+          <button type="button" data-eff="high">活</button>
+        </div>
+      </div>
+      <div class="set-api" id="setApi">
+        <label>接口地址<input id="setBase" class="set-input" placeholder="https://api.openai.com/v1"></label>
+        <label>模型名<input id="setModel" class="set-input" placeholder="gpt-4o-mini / deepseek-chat"></label>
+        <label>API Key<input id="setKey" class="set-input" type="password" placeholder="sk-..."></label>
+        <label>推理强度 <span id="setTempVal" style="font-family:var(--mono);color:var(--ink3)">0.7</span>
+          <input id="setTemp" type="range" min="0" max="1" step="0.1" value="0.7">
+        </label>
+        <div class="set-chips" id="setPreset"></div>
+        <span class="set-note">Key 只存在这台设备的浏览器里；报 401 多半是 Key 或模型名写错，报 CORS 是服务商禁止网页直连。</span>
+      </div>
+    </section>
+    <section class="set-sec">
+      <h4>语音</h4>
+      <div class="set-row">
+        <span class="set-label">助手回复朗读</span>
+        <button class="set-switch" id="setSpeak" type="button" role="switch" aria-label="助手回复朗读"></button>
+      </div>
+      <div class="set-row">
+        <span class="set-label">音色</span>
+        <select id="setVoice" class="set-select" aria-label="音色"></select>
+        <button class="btn btn-sm ghost" id="setVoiceTest" type="button">试听</button>
+      </div>
+      <div class="set-row">
+        <span class="set-label">桌宠语音</span>
+        <button class="set-switch" id="setPetVoice" type="button" role="switch" aria-label="桌宠语音"></button>
+      </div>
+    </section>
+    <section class="set-sec">
+      <h4>桌宠</h4>
+      <div class="set-row">
+        <span class="set-label">形象</span>
+        <select id="setShape" class="set-select" aria-label="桌宠形象"></select>
+      </div>
+      <div class="set-row">
+        <span class="set-label">显示桌宠</span>
+        <button class="set-switch" id="setPetShow" type="button" role="switch" aria-label="显示桌宠"></button>
+      </div>
+      <div class="set-row">
+        <button class="btn btn-sm ghost" id="setPetHome" type="button">回原位</button>
+      </div>
+    </section>
+  </div>
+</div>
 
 <script>
 /* 首页那行会换的活话（系统开了「减少动效」就停在第一句） */
@@ -3217,16 +3326,10 @@ route();
   }
   fab.addEventListener("click", function(){ toggle(); });
   if (x) x.addEventListener("click", function(){ toggle(false); });
-  /* 「模型」这颗钮把人直接送到 AI 工具台，并把手风琴展开——那块的字段一直藏在 details 里，
-     手机上根本翻不到，等于没做 */
+  /* 「设置」这颗钮打开统一设置框：模型后端、语音、桌宠参数都收在里面，对话卡上不堆按钮 */
   var modelBtn = document.getElementById("botModel");
   if (modelBtn) modelBtn.addEventListener("click", function(){
-    toggle(false);
-    location.hash = "#/plus";
-    setTimeout(function(){
-      var d = document.querySelector("#view-plus details");
-      if (d) { d.open = true; d.scrollIntoView({ block: "nearest" }); }
-    }, 360);
+    if (window.__SETTINGS_OPEN) window.__SETTINGS_OPEN();
   });
   document.addEventListener("keydown", function(e){ if (e.key === "Escape" && open) toggle(false); });
 
@@ -3358,8 +3461,22 @@ route();
     "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼。"
   ].join("\n");
 
+  function customCfg(){
+    try { return JSON.parse(store.get(AI_KEY) || "{}"); } catch (e) { return {}; }
+  }
+  function customReady(){
+    var c = customCfg(); return !!(c.base && c.model && c.key);
+  }
+  function speakReply(text){
+    if (store.get("cl_ai_speak") === "1" && window.__speakText) window.__speakText(text);
+  }
   function askAI(q){
     var wait = bubble("我想想。", false);
+    var be = store.get("cl_ai_backend") || "cloud";
+    if (be === "custom" && customReady()) askCustom(q, wait);
+    else askCloud(q, wait);
+  }
+  function askCloud(q, wait){
     /* 偏好厂商与回答强度存在本机；云端旧代码不认这两个字段时会忽略，不影响兜底 */
     var pref = "", effort = "medium";
     try { pref = localStorage.getItem("cl_ai_pref") || ""; effort = localStorage.getItem("cl_ai_effort") || "medium"; } catch (e) {}
@@ -3379,14 +3496,45 @@ route();
       return r.json().catch(function(){ return {}; });
     }).then(function(d){
       if (d && d.d) {
-        wait.textContent = String(d.d).trim().slice(0, 220);
+        var txt = String(d.d).trim().slice(0, 220);
+        wait.textContent = txt;
         /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
         if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
+        speakReply(txt);
       }
       else { throw new Error((d && d.e) || "服务器没回答"); }
       body.scrollTop = body.scrollHeight;
     }).catch(function(err){
       wait.textContent = "联网没接上（" + (err.message || "网络") + "）。先按原来的答：" + NONE;
+      body.scrollTop = body.scrollHeight;
+    });
+  }
+  function askCustom(q, wait){
+    var c = customCfg();
+    var temp = parseFloat(store.get("cl_ai_temp")); if (isNaN(temp)) temp = 0.7;
+    var url = c.base.replace(/\s/g, "").replace(/\/+$/, "") + "/chat/completions";
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key },
+      body: JSON.stringify({ model: c.model, messages: [
+        { role: "system", content: AI_SYS },
+        { role: "user", content: String(q).slice(0, 240) }
+      ], temperature: temp })
+    }).then(function(r){ return r.json().catch(function(){ return {}; }); })
+    .then(function(d){
+      if (!d || !d.choices || !d.choices.length) {
+        var raw = (d && (d.message || (d.error && (d.error.message || d.error.code)) || d.code)) || "没有返回内容";
+        var s = String(raw);
+        var bad = /401|403|invalid|unauthor|permission|30014|30001/i.test(s);
+        throw new Error(s + (bad ? "（Key 或模型名不对 / 余额不够）" : "（接口格式不对，检查地址是否以 /v1 结尾）"));
+      }
+      var txt = (d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d)).trim().slice(0, 220);
+      wait.textContent = txt;
+      if (botSub) botSub.textContent = " · 自己的 API（" + c.model + "）";
+      speakReply(txt);
+      body.scrollTop = body.scrollHeight;
+    }).catch(function(err){
+      wait.textContent = "自己的 API 没接上（" + (err.message || "网络 / CORS") + "）。先按原来的答：" + NONE;
       body.scrollTop = body.scrollHeight;
     });
   }
@@ -3410,6 +3558,189 @@ route();
     var b = e.target.closest("[data-q]");
     if (b) ask(b.getAttribute("data-q"));
   });
+})();
+</script>
+
+<script>
+/* ===== 统一设置框：模型后端 / 语音 / 桌宠，参数都收在这一层 ===== */
+(function(){
+  var BACKEND = "https://class-cloud-d0gpmd6vg58eab7aa-1533844902.ap-shanghai.app.tcloudbase.com/proxy";
+  function $(id){ return document.getElementById(id); }
+  var scrim = $("setScrim"), modal = $("setModal"), closeBtn = $("setClose");
+  if (!modal) return;
+
+  function open(){ modal.classList.add("on"); scrim.classList.add("on"); paintAll(); }
+  function close(){ modal.classList.remove("on"); scrim.classList.remove("on"); }
+  window.__SETTINGS_OPEN = open;
+  closeBtn.addEventListener("click", close);
+  scrim.addEventListener("click", close);
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") close(); });
+
+  /* ---- 后端二选一：云端额度 / 自己的 API ---- */
+  var beSeg = $("setBackend");
+  function paintBe(){
+    var be = store.get("cl_ai_backend") || "cloud";
+    Array.prototype.forEach.call(beSeg.children, function(b){ b.classList.toggle("on", b.dataset.be === be); });
+    $("setCloud").style.display = be === "cloud" ? "" : "none";
+    $("setApi").classList.toggle("on", be === "custom");
+  }
+  beSeg.addEventListener("click", function(e){
+    var b = e.target.closest("button[data-be]"); if (!b) return;
+    store.set("cl_ai_backend", b.dataset.be); paintBe();
+  });
+
+  /* ---- 云端：优先厂商 ---- */
+  var prefBox = $("setPref");
+  function paintPref(){
+    var cur = store.get("cl_ai_pref") || "";
+    Array.prototype.forEach.call(prefBox.children, function(c){ c.classList.toggle("on", !!cur && c.dataset.name === cur); });
+  }
+  fetch(BACKEND + "/pool", { cache: "no-store" }).then(function(r){ return r.json(); }).then(function(d){
+    var list = (d && d.pool) || (d && d.list) || [];
+    prefBox.innerHTML = "";
+    list.forEach(function(it){
+      var n = it.name || "一家";
+      var b = document.createElement("button");
+      b.type = "button"; b.dataset.name = n; b.textContent = n;
+      b.addEventListener("click", function(){
+        var cur = store.get("cl_ai_pref") || "";
+        if (cur === n) store.del("cl_ai_pref"); else store.set("cl_ai_pref", n);
+        paintPref();
+      });
+      prefBox.appendChild(b);
+    });
+    paintPref();
+  }).catch(function(){ prefBox.innerHTML = '<span class="set-note">云端状态没查到，不影响离线规则。</span>'; });
+
+  /* ---- 云端：回答强度 ---- */
+  var effSeg = $("setEffort");
+  function paintEff(){
+    var e = store.get("cl_ai_effort") || "medium";
+    Array.prototype.forEach.call(effSeg.children, function(b){ b.classList.toggle("on", b.dataset.eff === e); });
+  }
+  effSeg.addEventListener("click", function(e){
+    var b = e.target.closest("button[data-eff]"); if (!b) return;
+    store.set("cl_ai_effort", b.dataset.eff); paintEff();
+  });
+
+  /* ---- 自己的 API：地址 / 模型 / Key，与高级页同一份记忆 ---- */
+  var base = $("setBase"), model = $("setModel"), key = $("setKey");
+  var tempEl = $("setTemp"), tempVal = $("setTempVal");
+  function loadTemp(){
+    var t = parseFloat(store.get("cl_ai_temp")); if (isNaN(t)) t = 0.7;
+    if (tempEl) tempEl.value = t; if (tempVal) tempVal.textContent = Number(t).toFixed(1);
+  }
+  function saveTemp(){ if (!tempEl) return; store.set("cl_ai_temp", tempEl.value); if (tempVal) tempVal.textContent = Number(tempEl.value).toFixed(1); }
+  if (tempEl) tempEl.addEventListener("input", saveTemp);
+  function loadCfg(){
+    var c = {}; try { c = JSON.parse(store.get(AI_KEY) || "{}"); } catch (e) {}
+    base.value = c.base || ""; model.value = c.model || ""; key.value = c.key || "";
+    loadTemp();
+  }
+  function saveCfg(){ store.set(AI_KEY, JSON.stringify({ base: base.value.trim(), model: model.value.trim(), key: key.value.trim() })); }
+  [base, model, key].forEach(function(el){ el.addEventListener("change", saveCfg); });
+  var pre = $("setPreset");
+  AI_SERVICES.filter(function(a){ return a.b && a.m; }).forEach(function(a){
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = a.n.replace(" SiliconFlow", "");
+    b.addEventListener("click", function(){
+      base.value = a.b; model.value = a.m; saveCfg();
+      if (window.toast) toast("地址和模型名已填，补上 Key 就能用");
+    });
+    pre.appendChild(b);
+  });
+
+  /* ---- 语音：助手朗读开关 ---- */
+  var speakSw = $("setSpeak"), voiceSel = $("setVoice"), petVoiceSw = $("setPetVoice");
+  function paintSw(sw, on){ sw.classList.toggle("on", !!on); sw.setAttribute("aria-checked", on ? "true" : "false"); }
+  paintSw(speakSw, store.get("cl_ai_speak") === "1");
+  speakSw.addEventListener("click", function(){
+    var on = store.get("cl_ai_speak") !== "1";
+    store.set("cl_ai_speak", on ? "1" : "0"); paintSw(speakSw, on);
+  });
+
+  function zhVoices(){
+    if (!window.speechSynthesis) return [];
+    return speechSynthesis.getVoices().filter(function(v){ return (v.lang || "").toLowerCase().indexOf("zh") === 0; });
+  }
+  function fillVoices(){
+    var vs = zhVoices(), cur = store.get("dafeiyu:voice-name") || "";
+    voiceSel.innerHTML = "";
+    if (!vs.length) { voiceSel.innerHTML = '<option value="">本机没有中文语音</option>'; return; }
+    vs.forEach(function(v){
+      var o = document.createElement("option");
+      o.value = v.name; o.textContent = v.name.length > 16 ? v.name.slice(0, 16) + "…" : v.name;
+      if (v.name === cur) o.selected = true;
+      voiceSel.appendChild(o);
+    });
+  }
+  fillVoices();
+  if (window.speechSynthesis) speechSynthesis.onvoiceschanged = fillVoices;
+  voiceSel.addEventListener("change", function(){ if (voiceSel.value) store.set("dafeiyu:voice-name", voiceSel.value); });
+
+  /* 给对话回复用的朗读：音色名和桌宠共用一份记忆 */
+  window.__speakText = function(text){
+    if (!window.speechSynthesis || !text) return;
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(String(text).slice(0, 200));
+      var vs = zhVoices(), name = store.get("dafeiyu:voice-name");
+      var v = vs.find(function(x){ return x.name === name; }) || vs[0];
+      if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = "zh-CN"; }
+      u.rate = 1.05; u.pitch = 1.15;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  };
+  $("setVoiceTest").addEventListener("click", function(){ window.__speakText("你好，这是试听音色。"); });
+
+  /* ---- 桌宠语音开关：同一个 localStorage 键，再点原生菜单按钮同步正在跑的实例 ---- */
+  function petHosts(){
+    return Array.prototype.slice.call(document.querySelectorAll("div")).filter(function(d){
+      return d.shadowRoot && (d.shadowRoot.querySelector(".dfy-menu") || d.shadowRoot.querySelector("img.pet"));
+    });
+  }
+  function nativeVoiceBtn(){
+    var h = petHosts()[0]; if (!h) return null;
+    var m = h.shadowRoot.querySelector(".dfy-menu");
+    return m ? Array.prototype.slice.call(m.querySelectorAll("button")).find(function(b){ return /语音/.test(b.textContent || ""); }) : null;
+  }
+  function paintPetVoice(){ paintSw(petVoiceSw, store.get("dafeiyu:voice") !== "0"); }
+  paintPetVoice();
+  petVoiceSw.addEventListener("click", function(){
+    var on = store.get("dafeiyu:voice") !== "0"; on = !on;
+    store.set("dafeiyu:voice", on ? "1" : "0");
+    var nb = nativeVoiceBtn();
+    if (nb) { var liveOn = /语音：开/.test(nb.textContent || ""); if (liveOn !== on) nb.click(); }
+    paintPetVoice();
+  });
+
+  /* ---- 桌宠：形象 / 显隐 / 回原位 ---- */
+  var shapeSel = $("setShape"), showSw = $("setPetShow");
+  function fillShapes(){
+    var list = window.__PET_LIST ? window.__PET_LIST() : [];
+    shapeSel.innerHTML = "";
+    list.forEach(function(s){
+      var o = document.createElement("option"); o.value = s.id; o.textContent = s.name; shapeSel.appendChild(o);
+    });
+    var cur = store.get("cl_pet_shape_v2") || "dafeiyu";
+    if (Array.prototype.some.call(shapeSel.options, function(o){ return o.value === cur; })) shapeSel.value = cur;
+  }
+  shapeSel.addEventListener("change", function(){ if (window.__PET_SWITCH) window.__PET_SWITCH(shapeSel.value); });
+  function paintShow(){ paintSw(showSw, !!window.__PET); }
+  showSw.addEventListener("click", function(){
+    var on = !window.__PET;
+    if (on) { var last = store.get("cl_pet_shape_v2") || "dafeiyu"; if (window.__PET_SWITCH) window.__PET_SWITCH(last); }
+    else { if (window.__PET_HIDE) window.__PET_HIDE(); }
+    setTimeout(paintShow, 300);
+  });
+  $("setPetHome").addEventListener("click", function(){
+    var h = petHosts()[0]; if (!h) { if (window.toast) toast("桌宠还没挂上"); return; }
+    var m = h.shadowRoot.querySelector(".dfy-menu");
+    var b = m ? Array.prototype.slice.call(m.querySelectorAll("button")).find(function(x){ return /回原位/.test(x.textContent || ""); }) : null;
+    if (b) b.click(); else if (window.toast) toast("这只形象不支持回原位");
+  });
+
+  function paintAll(){ paintBe(); paintPref(); paintEff(); loadCfg(); paintPetVoice(); fillShapes(); paintShow(); }
 })();
 </script>
 
@@ -3938,7 +4269,7 @@ route();
     menu.appendChild(row("◎", "目标", "一句话说清要点", function(){ put("这次我想做："); }));
     menu.appendChild(row("☰", "计划", "先拆步骤再动手", function(){ put("先列步骤，再一步步做。"); }));
     menu.appendChild(sep());
-    menu.appendChild(row("⚙", "模型与接口", "看这次谁在答", pageModel));
+    menu.appendChild(row("⚙", "设置", "后端 / 音色 / 桌宠", function(){ close(); if (window.__SETTINGS_OPEN) window.__SETTINGS_OPEN(); }));
   }
 
   function pageSkills(){
@@ -3978,87 +4309,6 @@ route();
     }));
     menu.appendChild(sep());
     menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
-  }
-
-  function pageModel(){
-    menu.innerHTML = "";
-    menu.appendChild(head("谁在答：云端五家免费额度，点一家优先用，没额度自动换下一家"));
-    var box = document.createElement("div");
-    box.style.cssText = "padding:4px 10px 8px;font-size:12px;color:var(--ink3);line-height:1.8";
-    box.textContent = "正在查…";
-    menu.appendChild(box);
-    menu.appendChild(sep());
-    menu.appendChild(row("✎", "接我自己的 API", "地址 / 模型 / Key", function(){
-      close(); location.hash = "#/plus";
-      setTimeout(function(){
-        var d = document.querySelector("#view-plus details");
-        if (d) { d.open = true; d.scrollIntoView({ block: "center" }); }
-      }, 420);
-    }));
-    menu.appendChild(row("↻", "重新查一次", "", pageModel));
-    menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
-
-    function prefGet(){ try { return localStorage.getItem("cl_ai_pref") || ""; } catch (e) { return ""; } }
-    function effGet(){ try { return localStorage.getItem("cl_ai_effort") || "medium"; } catch (e) { return "medium"; } }
-
-    fetch(BACKEND + "/pool", { cache: "no-store" }).then(function(r){ return r.json(); }).then(function(d){
-      var list = (d && d.list) || (d && d.pool) || [];
-      if (!list.length) throw new Error("没回列表");
-      box.innerHTML = "";
-
-      /* 回答强度三档：低=稳、中=适中、高=活；云端按档映射 temperature */
-      var effMap = [["low", "稳"], ["medium", "适中"], ["high", "活"]];
-      var effRow = document.createElement("div");
-      effRow.style.cssText = "display:flex;gap:6px;align-items:center;margin:2px 0 10px";
-      effRow.innerHTML = '<span style="flex:none">强度</span>';
-      effMap.forEach(function(e){
-        var b = document.createElement("button");
-        b.textContent = e[1];
-        b.dataset.eff = e[0];
-        b.style.cssText = "flex:1;height:30px;border:1px solid rgba(198,182,166,.55);border-radius:999px;background:#fff;font-size:12px;color:var(--ink2)";
-        effRow.appendChild(b);
-      });
-      function paintEff(){
-        effRow.querySelectorAll("button").forEach(function(b){
-          var on = b.dataset.eff === effGet();
-          b.style.background = on ? "var(--green)" : "#fff";
-          b.style.color = on ? "#fff" : "var(--ink2)";
-          b.style.borderColor = on ? "var(--green)" : "rgba(198,182,166,.55)";
-        });
-      }
-      effRow.addEventListener("click", function(e){
-        var b = e.target.closest("button[data-eff]");
-        if (!b) return;
-        try { localStorage.setItem("cl_ai_effort", b.dataset.eff); } catch (_) {}
-        paintEff();
-      });
-      paintEff();
-      box.appendChild(effRow);
-
-      list.forEach(function(it){
-        var n = it.name || it.vendor || it.p || "一家";
-        var ok = it.usable === true || it.fails === 0;
-        var sel = prefGet() && n.toLowerCase().indexOf(prefGet().toLowerCase()) >= 0;
-        var line = document.createElement("button");
-        line.style.cssText = "display:flex;gap:6px;align-items:center;width:100%;padding:8px 2px;font:inherit;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line)";
-        line.innerHTML = '<span style="color:' + (ok ? "#2F5F49" : "#B4543E") + '">' + (sel ? "★" : (ok ? "●" : "○")) + "</span>" +
-                         "<span>" + n + "</span>" +
-                         '<span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:#8C7F70">' +
-                         (sel ? "优先" : (it.fails ? "失败 " + it.fails + " 次" : "可用")) + "</span>";
-        line.onclick = function(){
-          var cur = prefGet();
-          if (cur && n.toLowerCase().indexOf(cur.toLowerCase()) >= 0) {
-            try { localStorage.removeItem("cl_ai_pref"); } catch (_) {}
-          } else {
-            try { localStorage.setItem("cl_ai_pref", n); } catch (_) {}
-          }
-          pageModel();
-        };
-        box.appendChild(line);
-      });
-    }).catch(function(){
-      box.textContent = "查不到云端状态（没网或云函数在睡）。不填 Key 也能用离线规则。";
-    });
   }
 
   plus.addEventListener("click", function(e){
