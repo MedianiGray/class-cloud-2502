@@ -17,7 +17,7 @@
   --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5;
   --ink:#17211D; --ink2:#4C594F; --ink3:#87918A;
   --line:#CDD2C9; --line2:#B9C0B5;
-  --green:#2E5348; --green2:#3E7D5F; --amber:#B4812A; --red:#9B3B2E;
+  --green:#2E5348; --green2:#3E7D5F; --green-d:#263F36; --amber:#B4812A; --red:#9B3B2E;
   --mono:ui-monospace,"SF Mono","JetBrains Mono",Consolas,"Liberation Mono",monospace;
   --sans:"PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
   --pad:20px;
@@ -50,7 +50,7 @@ button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit
 #gateInput:focus{outline:2px solid var(--green2);outline-offset:-1px}
 .gate-actions{display:flex;gap:10px;margin-top:14px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:48px;padding:0 18px;font-size:14.5px;font-weight:600;border:1px solid var(--green);background:var(--green);color:#fff;transition:background .15s}
-.btn:hover{background:#263F36}
+.btn:hover{background:var(--green-d)}
 .btn.ghost{background:transparent;color:var(--ink2);border-color:var(--line2);font-weight:500}
 .btn.ghost:hover{background:var(--paper2);color:var(--ink)}
 .btn-sm{height:38px;padding:0 13px;font-size:13.5px}
@@ -492,7 +492,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .subnav a:hover,.chip:hover{border-color:var(--green2);color:var(--green)}
 .subnav a.on,.chip.on{background:var(--green);border-color:transparent;color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(46,83,72,.18)}
 .btn{border:0;border-radius:var(--r-md);background:var(--green);box-shadow:0 2px 8px rgba(46,83,72,.16);transition:transform .15s,box-shadow .15s,background .15s}
-.btn:hover{background:#263F36;transform:translateY(-1px);box-shadow:0 6px 16px rgba(46,83,72,.20)}
+.btn:hover{background:var(--green-d);transform:translateY(-1px);box-shadow:0 6px 16px rgba(46,83,72,.20)}
 .btn.ghost{background:rgba(255,255,255,.75);border:1px solid rgba(198,182,166,.55);box-shadow:var(--sh-1);color:var(--ink2)}
 .btn.ghost:hover{background:#fff;border-color:rgba(198,182,166,.85);color:var(--ink)}
 
@@ -584,7 +584,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px 7px;border-bottom:1px solid rgba(198,182,166,.30);background:#FFFDFB}
 .bot-nav a{flex:1 1 auto;text-align:center;padding:7px 9px;font-size:12.5px;color:var(--ink2);border-radius:9px;text-decoration:none;white-space:nowrap}
 .bot-nav a:hover{background:var(--paper2);color:var(--ink)}
-.bot-nav a.on{background:#2F5F49;color:#fff}
+.bot-nav a.on{background:var(--green);color:#fff}
 .bot-panel{position:fixed;left:18px;bottom:88px;width:min(358px,calc(100vw - 32px));max-height:min(66vh,470px);
   display:flex;flex-direction:column;background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:18px;
   box-shadow:0 18px 44px rgba(60,52,44,.18);z-index:63;overflow:hidden}
@@ -593,8 +593,8 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   border-bottom:1px solid rgba(198,182,166,.32);background:rgba(250,246,241,.7)}
 .bot-net{margin-left:auto;border:1px solid rgba(198,182,166,.62);background:#fff;color:var(--ink2);
   font-size:11.5px;line-height:1;padding:5px 9px;border-radius:99px;cursor:pointer;white-space:nowrap}
-.bot-net:hover{border-color:#2F5F49;color:#2F5F49}
-.bot-net.on{background:#2F5F49;border-color:#2F5F49;color:#fff}
+.bot-net:hover{border-color:var(--green);color:var(--green)}
+.bot-net.on{background:var(--green);border-color:var(--green);color:#fff}
 .bot-title{font-size:13.5px;font-weight:700;letter-spacing:.02em;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bot-head .bot-sub{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.08em}
 @media (max-width:420px){ .bot-head{padding:10px 12px;gap:6px} .bot-sub{display:none} }
@@ -602,9 +602,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
 .bot-msg{max-width:86%;padding:9px 12px;border-radius:14px;font-size:13px;line-height:1.6;word-break:break-word}
 .bot-msg a{color:inherit;text-decoration:underline;word-break:break-all}
-.bot-me{align-self:flex-end;background:rgba(62,125,95,.10);color:#2F5F49;border-bottom-right-radius:5px}
+.bot-me{align-self:flex-end;background:color-mix(in srgb, var(--green) 10%, transparent);color:var(--green);border-bottom-right-radius:5px}
 .bot-bot{align-self:flex-start;background:#F7F1EA;color:var(--ink);border-bottom-left-radius:5px}
-.bot-act{align-self:flex-start;margin-top:-3px;border:1px solid rgba(62,125,95,.32);background:#fff;color:#2F5F49;
+.bot-act{align-self:flex-start;margin-top:-3px;border:1px solid color-mix(in srgb, var(--green) 32%, transparent);background:#fff;color:var(--green);
   font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;transition:background .15s,transform .15s}
 .bot-act:hover{background:rgba(62,125,95,.07);transform:translateY(-1px)}
 .bot-chips{display:flex;gap:7px;overflow-x:auto;padding:0 12px 10px;flex-wrap:nowrap}
@@ -612,9 +612,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 /* 输入框左边那颗「＋」和它拉出来的菜单：抄的是聊天软件的惯例，
    图标一行一个、右边带一句说明，不再做成大黑框 */
 .bot-plus{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(198,182,166,.62);
-  background:#fff;color:#2F5F49;font-size:18px;line-height:1;cursor:pointer;
+  background:#fff;color:var(--green);font-size:18px;line-height:1;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:background .15s}
-.bot-plus.on{background:#2F5F49;border-color:#2F5F49;color:#fff}
+.bot-plus.on{background:var(--green);border-color:var(--green);color:#fff}
 .bot-menu{position:absolute;left:8px;right:8px;bottom:64px;z-index:6;display:none;
   background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:14px;padding:6px;
   box-shadow:0 16px 38px rgba(60,52,44,.16),0 2px 6px rgba(60,52,44,.06);max-height:58%;overflow-y:auto}
@@ -628,7 +628,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-menu .msep{height:1px;background:rgba(198,182,166,.30);margin:5px 4px}
 .bot-chips button{flex:none;border:1px solid rgba(198,182,166,.5);background:#FFFDFB;color:var(--ink2);
   font-size:12px;padding:6px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}
-.bot-chips button:hover{border-color:rgba(62,125,95,.45);color:#2F5F49}
+.bot-chips button:hover{border-color:color-mix(in srgb, var(--green) 45%, transparent);color:var(--green)}
 .bot-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(198,182,166,.32);background:#FFFDFB}
 .bot-input input{flex:1;height:38px;padding:0 12px;border:1px solid rgba(198,182,166,.5);border-radius:12px;
   background:#FEFBF7;font-size:13.5px;color:var(--ink)}
@@ -670,7 +670,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   left:12px;bottom:96px;top:auto}
 .pet-bar::-webkit-scrollbar{height:0;display:none}
 .pet-bar.on{display:flex}
-.pet-bar button{flex:none;width:34px;height:34px;border:0;border-radius:9px;background:transparent;
+.pet-bar button{flex:none;width:40px;height:40px;border:0;border-radius:10px;background:transparent;
   display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#2B2118;cursor:pointer}
 .pet-bar button:active{background:#F4EBE1}
 
@@ -708,14 +708,57 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .set-chips{display:flex;gap:6px;flex-wrap:wrap}
 .set-chips button{border:1px solid rgba(198,182,166,.5);background:#FFFDFB;color:var(--ink2);font-size:12px;padding:7px 11px;border-radius:999px;cursor:pointer}
 .set-chips button.on{background:var(--green);border-color:var(--green);color:#fff}
+.set-chips button i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.set-color-row{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--ink3)}
+.set-color-row input[type=color]{flex:none;width:44px;height:30px;padding:2px;border:1px solid rgba(198,182,166,.5);border-radius:10px;background:#FEFBF7;cursor:pointer}
+.set-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--line2)}
+.set-dot.ok{background:var(--green)}
+.set-dot.cool{background:#C9A24A}
+.set-dot.bad{background:#B4543E}
+.set-chips button.on .set-dot{background:#fff}
 .set-api{display:none;flex-direction:column;gap:9px;margin-top:10px}
 .set-api.on{display:flex}
 .set-api label{font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:5px}
+.set-adv{margin-top:12px;border-top:1px solid rgba(198,182,166,.28);padding-top:10px}
+.set-adv summary{font-size:12px;color:var(--ink3);cursor:pointer}
+.set-adv label{margin-top:8px;font-size:12px;color:var(--ink3);display:flex;flex-direction:column;gap:5px}
+.set-ta{height:auto;min-height:88px;padding:10px 11px;resize:vertical;line-height:1.55}
 /* 窄屏用浮动导航取代顶栏：一屏内只留一套入口 */
 @media (max-width:720px){ body{overflow-x:hidden} }
 @media (max-width:760px){ .nav{display:none} }
 
 </style>
+<script>
+/* 外观：开机先套用本机存的强调色，避免刷新闪一下默认绿 */
+(function(){
+  var ACCENTS = [
+    {id:"green", name:"墨绿", base:"#2E5348", light:"#3E7D5F", dark:"#263F36"},
+    {id:"blue",  name:"靛蓝", base:"#2F4A6E", light:"#4A6E96", dark:"#243B58"},
+    {id:"clay",  name:"陶棕", base:"#A87050", light:"#C0845F", dark:"#8A5638"},
+    {id:"plum",  name:"酱紫", base:"#5B4A7A", light:"#7A6899", dark:"#473A5E"},
+    {id:"teal",  name:"青灰", base:"#35656B", light:"#558A90", dark:"#284E53"}
+  ];
+  function shade(hex, f){
+    var n=parseInt(hex.slice(1),16), r=n>>16&255, g=n>>8&255, b=n&255, t=f>0?255:0, p=Math.abs(f);
+    r=Math.round(r+(t-r)*p); g=Math.round(g+(t-g)*p); b=Math.round(b+(t-b)*p);
+    return "#"+[r,g,b].map(function(x){return x.toString(16).padStart(2,"0");}).join("");
+  }
+  function resolve(v){
+    if(!v) return ACCENTS[0];
+    var i; for(i=0;i<ACCENTS.length;i++) if(ACCENTS[i].id===v) return ACCENTS[i];
+    if(/^#[0-9a-fA-F]{6}$/.test(v)) return {id:"custom", base:v, light:shade(v,.18), dark:shade(v,-.16)};
+    return ACCENTS[0];
+  }
+  window.ACCENTS = ACCENTS;
+  window.__ACCENT_RESOLVE = resolve;
+  var saved = null; try { saved = localStorage.getItem("cl_accent"); } catch(e){}
+  var ac = resolve(saved);
+  var r = document.documentElement.style;
+  r.setProperty("--green", ac.base);
+  r.setProperty("--green2", ac.light);
+  r.setProperty("--green-d", ac.dark);
+})();
+</script>
 </head>
 <body>
 
@@ -723,7 +766,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 <div id="gate">
   <div class="gate-card">
     <div class="gate-mark">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#2E5348" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       <span>GXAU · NET-ENG 2502</span>
     </div>
     <div class="gate-h1">班级云库</div>
@@ -750,7 +793,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 <header id="topbar">
   <div class="wrap bar-inner">
     <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#2E5348" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       <div class="brand-txt"><b>班级云库</b>2502 · 网络工程技术</div>
     </div>
     <nav class="nav" id="nav">
@@ -3075,6 +3118,13 @@ route();
   </div>
   <div class="set-body">
     <section class="set-sec">
+      <h4>外观</h4>
+      <div class="set-row"><span class="set-label">强调色（按钮、选中态、重点标记）</span></div>
+      <div class="set-chips" id="setAccent"></div>
+      <label class="set-color-row">自定义颜色<input id="setAccentCustom" type="color" value="#2E5348" aria-label="自定义强调色"></label>
+      <span class="set-note">底色仍是米色纸感；深色模式排在后面做，这一版先只换强调色。</span>
+    </section>
+    <section class="set-sec">
       <h4>对话模型</h4>
       <div class="set-row">
         <span class="set-label">后端</span>
@@ -3101,8 +3151,15 @@ route();
           <input id="setTemp" type="range" min="0" max="1" step="0.1" value="0.7">
         </label>
         <div class="set-chips" id="setPreset"></div>
+        <button class="btn btn-sm ghost" id="setTest" type="button">测试连接</button>
+        <span class="set-note" id="setTestOut"></span>
         <span class="set-note">Key 只存在这台设备的浏览器里；报 401 多半是 Key 或模型名写错，报 CORS 是服务商禁止网页直连。</span>
       </div>
+      <details class="set-adv">
+        <summary>自定义人设指令（一般不用改）</summary>
+        <label>给助手的系统指令<textarea id="setSys" class="set-input set-ta" rows="4" placeholder="留空就用内置人设：话少、不编、只答学习资料和学校系统"></textarea></label>
+        <span class="set-note">改坏了清空这个框就回到内置人设。</span>
+      </details>
     </section>
     <section class="set-sec">
       <h4>语音</h4>
@@ -3182,6 +3239,13 @@ route();
   var txt = document.getElementById("botText");
   var x = document.getElementById("botClose");
   if (!fab || !panel || !body) return;
+
+  /* 对话历史只留本机：关掉页面再打开还在上一轮，清空就一起删掉；不经过服务器 */
+  var HIST_KEY = "cl_ai_hist_v1";
+  var hist = [];
+  try { hist = JSON.parse(store.get(HIST_KEY) || "[]") || []; } catch (e) { hist = []; }
+  function saveHist(){ try { store.set(HIST_KEY, JSON.stringify(hist.slice(-30))); } catch (e) {} }
+  window.__CLEAR_HIST = function(){ hist = []; saveHist(); if (body) body.innerHTML = ""; };
 
   var RULES = [
     { k: ["我的文件夹", "我那一格", "我的库", "自己那", "个人文件夹", "学号"],
@@ -3359,8 +3423,15 @@ route();
     renderMsg(m, text);
     body.appendChild(m);
     body.scrollTop = body.scrollHeight;
+    if (body.dataset.boot) { hist.push({ me: !!me, text: String(text) }); saveHist(); }
     return m;
   }
+  /* 开机把本机存的历史铺回来；铺完再标记 boot，之后新发言才写入历史 */
+  if (hist.length) {
+    body.innerHTML = "";
+    hist.forEach(function(h){ bubble(h.text, h.me); });
+  }
+  body.dataset.boot = "1";
   function actBtn(act){
     var b = document.createElement("button");
     b.className = "bot-act";
@@ -3459,14 +3530,17 @@ route();
   var netBtn = document.getElementById("botNet");
   var botSub = document.getElementById("botSub");
 
-  function aiReady(){ return aiOn; }
+  function aiReady(){ return aiOn || (store.get("cl_ai_backend") === "custom" && customReady()); }
   function paintNet(){
+    var be = store.get("cl_ai_backend") || "cloud";
+    var ready = aiReady();
     if (netBtn) {
-      netBtn.textContent = aiReady() ? "联网 · 开" : "联网";
-      netBtn.classList.toggle("on", aiReady());
+      netBtn.textContent = ready ? (be === "custom" ? "API · 接好了" : "联网 · 开") : "联网";
+      netBtn.classList.toggle("on", ready);
     }
-    if (botSub) botSub.textContent = aiReady() ? " · 已接班级服务器" : " · 离线规则，不联网";
+    if (botSub) botSub.textContent = ready ? (be === "custom" ? " · 自己的 API" : " · 已接班级服务器") : " · 离线规则，不联网";
   }
+  window.__paintNet = paintNet;
   paintNet();
 
   var AI_SYS = [
@@ -3480,6 +3554,7 @@ route();
     "4. 只答学习、资料、学校系统这类事。不聊政治，不评价老师和同学，不替人写作业。",
     "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼。"
   ].join("\n");
+  function sysPrompt(){ var c = store.get("cl_ai_sys"); return c && c.trim() ? c.trim() : AI_SYS; }
 
   function customCfg(){
     try { return JSON.parse(store.get(AI_KEY) || "{}"); } catch (e) { return {}; }
@@ -3502,7 +3577,7 @@ route();
     try { pref = localStorage.getItem("cl_ai_pref") || ""; effort = localStorage.getItem("cl_ai_effort") || "medium"; } catch (e) {}
     var payload = {
       messages: [
-        { role: "system", content: AI_SYS },
+        { role: "system", content: sysPrompt() },
         { role: "user", content: String(q).slice(0, 240) }
       ],
       effort: effort
@@ -3537,7 +3612,7 @@ route();
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + c.key },
       body: JSON.stringify({ model: c.model, messages: [
-        { role: "system", content: AI_SYS },
+        { role: "system", content: sysPrompt() },
         { role: "user", content: String(q).slice(0, 240) }
       ], temperature: temp })
     }).then(function(r){ return r.json().catch(function(){ return {}; }); })
@@ -3596,6 +3671,37 @@ route();
   scrim.addEventListener("click", close);
   document.addEventListener("keydown", function(e){ if (e.key === "Escape") close(); });
 
+  /* ---- 外观：强调色预设 + 自定义取色，写本机，开机即套 ---- */
+  var accentBox = $("setAccent"), accentCustom = $("setAccentCustom");
+  function applyAccent(v){
+    var ac = window.__ACCENT_RESOLVE ? window.__ACCENT_RESOLVE(v) : null;
+    if (!ac) return;
+    var r = document.documentElement.style;
+    r.setProperty("--green", ac.base);
+    r.setProperty("--green2", ac.light);
+    r.setProperty("--green-d", ac.dark);
+  }
+  function paintAccent(){
+    var cur = store.get("cl_accent") || "green";
+    if (!accentBox) return;
+    accentBox.innerHTML = "";
+    (window.ACCENTS || []).forEach(function(a){
+      var b = document.createElement("button");
+      b.type = "button"; b.dataset.id = a.id;
+      b.innerHTML = "<i style=\"background:" + a.base + "\"></i>" + a.name;
+      b.classList.toggle("on", cur === a.id);
+      b.addEventListener("click", function(){ store.set("cl_accent", a.id); applyAccent(a.id); paintAccent(); });
+      accentBox.appendChild(b);
+    });
+    var ac = window.__ACCENT_RESOLVE ? window.__ACCENT_RESOLVE(cur) : null;
+    if (accentCustom) accentCustom.value = ac ? ac.base : "#2E5348";
+  }
+  if (accentCustom) accentCustom.addEventListener("input", function(){
+    var v = accentCustom.value;
+    store.set("cl_accent", v); applyAccent(v); paintAccent();
+  });
+  paintAccent();
+
   /* ---- 后端二选一：云端额度 / 自己的 API ---- */
   var beSeg = $("setBackend");
   function paintBe(){
@@ -3607,6 +3713,7 @@ route();
   beSeg.addEventListener("click", function(e){
     var b = e.target.closest("button[data-be]"); if (!b) return;
     store.set("cl_ai_backend", b.dataset.be); paintBe();
+    if (window.__paintNet) window.__paintNet();
   });
 
   /* ---- 云端：优先厂商 ---- */
@@ -3620,8 +3727,12 @@ route();
     prefBox.innerHTML = "";
     list.forEach(function(it){
       var n = it.name || "一家";
+      var st = (it.usable === true && !(it.fails > 0)) ? "ok" : (it.cooledUntil ? "cool" : "bad");
+      var tip = it.why || (st === "ok" ? "可用" : st === "cool" ? "冷却中" : "最近失败过");
       var b = document.createElement("button");
-      b.type = "button"; b.dataset.name = n; b.textContent = n;
+      b.type = "button"; b.dataset.name = n; b.title = tip;
+      var dot = document.createElement("i"); dot.className = "set-dot " + st; b.appendChild(dot);
+      b.appendChild(document.createTextNode(n));
       b.addEventListener("click", function(){
         var cur = store.get("cl_ai_pref") || "";
         if (cur === n) store.del("cl_ai_pref"); else store.set("cl_ai_pref", n);
@@ -3668,6 +3779,31 @@ route();
       if (window.toast) toast("地址和模型名已填，补上 Key 就能用");
     });
     pre.appendChild(b);
+  });
+
+  /* 自定义 API 连通测试：发一条最小请求，回显通不通与原因 */
+  var testBtn = $("setTest"), testOut = $("setTestOut");
+  function cfgReady(){ return !!(base.value.trim() && model.value.trim() && key.value.trim()); }
+  testBtn.addEventListener("click", function(){
+    if (!cfgReady()) { testOut.textContent = "先把地址、模型名、Key 填全再测。"; return; }
+    var url = base.value.trim().replace(/\s/g, "").replace(/\/+$/, "") + "/chat/completions";
+    testBtn.disabled = true; testOut.textContent = "测试中…";
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key.value.trim() },
+      body: JSON.stringify({ model: model.value.trim(), messages: [{ role: "user", content: "ping" }], max_tokens: 8 })
+    }).then(function(r){ return r.json().catch(function(){ return { _status: r.status }; }); })
+      .then(function(d){
+        testBtn.disabled = false;
+        if (d && d.choices && d.choices.length) { testOut.textContent = "通了：模型已响应，可以直接聊。"; }
+        else {
+          var raw = (d && (d.error && (d.error.message || d.error.code)) || d.message || d.code || ("HTTP " + (d._status || "?")));
+          testOut.textContent = "没通：" + String(raw).slice(0, 120);
+        }
+      }).catch(function(err){
+        testBtn.disabled = false;
+        testOut.textContent = "没通：" + (err.message || "网络 / 服务商禁止网页直连（CORS）");
+      });
   });
 
   /* ---- 语音：助手朗读开关 ---- */
@@ -3772,7 +3908,7 @@ route();
     if (b) b.click(); else if (window.toast) toast("这只形象不支持回原位");
   });
 
-  function paintAll(){ paintBe(); paintPref(); paintEff(); loadCfg(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); }
+  function paintAll(){ paintAccent(); paintBe(); paintPref(); paintEff(); loadCfg(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); }
 })();
 </script>
 
@@ -4337,7 +4473,7 @@ route();
     }));
     menu.appendChild(row("▦", "整页索引", "一页看全", function(){ close(); location.href = "ref-index.html"; }));
     menu.appendChild(row("⌫", "清空这段对话", "", function(){
-      var b = document.getElementById("botBody"); if (b) b.innerHTML = ""; close();
+      if (window.__CLEAR_HIST) window.__CLEAR_HIST(); else { var b = document.getElementById("botBody"); if (b) b.innerHTML = ""; } close();
     }));
     menu.appendChild(sep());
     menu.appendChild(row("←", "返回", "", function(){ pageMain(); }));
