@@ -3261,6 +3261,18 @@ route();
   try { hist = JSON.parse(store.get(HIST_KEY) || "[]") || []; } catch (e) { hist = []; }
   function saveHist(){ try { store.set(HIST_KEY, JSON.stringify(hist.slice(-30))); } catch (e) {} }
   window.__CLEAR_HIST = function(){ hist = []; saveHist(); if (body) body.innerHTML = ""; };
+  window.__EXPORT_HIST = function(){
+    if (!hist.length) { if (window.toast) toast("这段还没有记录"); return; }
+    try {
+      var blob = new Blob([JSON.stringify(hist, null, 2)], { type: "application/json" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "chat-hist.json";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+      if (window.toast) toast("已导出到本机下载目录");
+    } catch (e) { if (window.toast) toast("导出失败：" + (e.message || "浏览器限制")); }
+  };
 
   var RULES = [
     { k: ["我的文件夹", "我那一格", "我的库", "自己那", "个人文件夹", "学号"],
@@ -3436,6 +3448,12 @@ route();
   function retryBtn(q){
     var rb = document.createElement("button");
     rb.type = "button"; rb.className = "bot-copy"; rb.textContent = "重试";
+    rb.addEventListener("click", function(){ rb.remove(); askAI(q); });
+    body.appendChild(rb);
+  }
+  function regenBtn(q){
+    var rb = document.createElement("button");
+    rb.type = "button"; rb.className = "bot-copy"; rb.textContent = "再来一条";
     rb.addEventListener("click", function(){ rb.remove(); askAI(q); });
     body.appendChild(rb);
   }
@@ -3640,6 +3658,7 @@ route();
         /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
         if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
         speakReply(txt);
+        regenBtn(q);
       }
       else { throw new Error((d && d.e) || "服务器没回答"); }
       setBusy(false);
@@ -3674,6 +3693,7 @@ route();
       setMsg(wait, txt);
       if (botSub) botSub.textContent = " · 自己的 API（" + c.model + "）";
       speakReply(txt);
+      regenBtn(q);
       setBusy(false);
       body.scrollTop = body.scrollHeight;
     }).catch(function(err){
@@ -4558,6 +4578,7 @@ route();
       if (clickBtn("预览")) setTimeout(function(){ var d = document.getElementById("brwDevSwap"); if (d) d.click(); }, 900);
     }));
     menu.appendChild(row("▦", "整页索引", "一页看全", function(){ close(); location.href = "ref-index.html"; }));
+    menu.appendChild(row("⇩", "导出对话记录", "本机 JSON", function(){ close(); if (window.__EXPORT_HIST) window.__EXPORT_HIST(); }));
     menu.appendChild(row("⌫", "清空这段对话", "", function(){
       if (window.__CLEAR_HIST) window.__CLEAR_HIST(); else { var b = document.getElementById("botBody"); if (b) b.innerHTML = ""; } close();
     }));
