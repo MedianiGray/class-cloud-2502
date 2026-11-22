@@ -607,6 +607,10 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-act{align-self:flex-start;margin-top:-3px;border:1px solid color-mix(in srgb, var(--green) 32%, transparent);background:#fff;color:var(--green);
   font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;transition:background .15s,transform .15s}
 .bot-act:hover{background:rgba(62,125,95,.07);transform:translateY(-1px)}
+/* 回复气泡下的轻量小钮：复制 / 重试，不抢主操作按钮的样式 */
+.bot-copy{align-self:flex-start;margin-top:-2px;border:0;background:transparent;color:var(--ink3);
+  font-size:11px;padding:2px 8px;cursor:pointer;border-radius:8px}
+.bot-copy:hover{color:var(--green)}
 .bot-chips{display:flex;gap:7px;overflow-x:auto;padding:0 12px 10px;flex-wrap:nowrap}
 .bot-chips::-webkit-scrollbar{height:0}
 /* 输入框左边那颗「＋」和它拉出来的菜单：抄的是聊天软件的惯例，
@@ -757,6 +761,10 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   r.setProperty("--green", ac.base);
   r.setProperty("--green2", ac.light);
   r.setProperty("--green-d", ac.dark);
+  /* 字号档位：小 / 标准 / 大，开机即套，避免刷新后大小跳一下 */
+  var FS = { small:"0.92", normal:"1", large:"1.09" };
+  var fk = null; try { fk = localStorage.getItem("cl_font_scale"); } catch(e){}
+  r.zoom = FS[fk] || "1";
 })();
 </script>
 </head>
@@ -3122,7 +3130,13 @@ route();
       <div class="set-row"><span class="set-label">强调色（按钮、选中态、重点标记）</span></div>
       <div class="set-chips" id="setAccent"></div>
       <label class="set-color-row">自定义颜色<input id="setAccentCustom" type="color" value="#2E5348" aria-label="自定义强调色"></label>
-      <span class="set-note">底色仍是米色纸感；深色模式排在后面做，这一版先只换强调色。</span>
+      <div class="set-row" style="margin-top:12px"><span class="set-label">字号</span></div>
+      <div class="set-seg" id="setFontScale">
+        <button type="button" data-fs="small">小</button>
+        <button type="button" data-fs="normal">标准</button>
+        <button type="button" data-fs="large">大</button>
+      </div>
+      <span class="set-note">底色仍是米色纸感；深色模式排在后面做，这一版先只换强调色和字号。</span>
     </section>
     <section class="set-sec">
       <h4>对话模型</h4>
@@ -3158,6 +3172,7 @@ route();
       <details class="set-adv">
         <summary>自定义人设指令（一般不用改）</summary>
         <label>给助手的系统指令<textarea id="setSys" class="set-input set-ta" rows="4" placeholder="留空就用内置人设：话少、不编、只答学习资料和学校系统"></textarea></label>
+        <div class="set-chips" id="setSysPreset"></div>
         <span class="set-note">改坏了清空这个框就回到内置人设。</span>
       </details>
     </section>
@@ -3417,11 +3432,31 @@ route();
     });
     el.innerHTML = esc.replace(/\n/g, "<br>");
   }
+  function setMsg(el, text){ renderMsg(el, text); el.dataset.text = String(text); }
+  function retryBtn(q){
+    var rb = document.createElement("button");
+    rb.type = "button"; rb.className = "bot-copy"; rb.textContent = "重试";
+    rb.addEventListener("click", function(){ rb.remove(); askAI(q); });
+    body.appendChild(rb);
+  }
   function bubble(text, me){
     var m = document.createElement("div");
     m.className = "bot-msg " + (me ? "bot-me" : "bot-bot");
+    m.dataset.text = String(text);
     renderMsg(m, text);
     body.appendChild(m);
+    if (!me) {
+      var cp = document.createElement("button");
+      cp.type = "button"; cp.className = "bot-copy"; cp.textContent = "复制";
+      cp.addEventListener("click", function(){
+        var t = m.dataset.text || "";
+        function say(s){ if (window.toast) toast(s); }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(t).then(function(){ say("已复制"); }, function(){ say("浏览器不让自动复制，手动抄一下"); });
+        } else { say("这浏览器不支持自动复制，手动抄一下"); }
+      });
+      body.appendChild(cp);
+    }
     body.scrollTop = body.scrollHeight;
     if (body.dataset.boot) { hist.push({ me: !!me, text: String(text) }); saveHist(); }
     return m;
@@ -3565,7 +3600,16 @@ route();
   function speakReply(text){
     if (store.get("cl_ai_speak") === "1" && window.__speakText) window.__speakText(text);
   }
+  var busy = false;
+  function setBusy(v){
+    busy = v;
+    if (txt) txt.disabled = v;
+    var sb = form ? form.querySelector('button[type="submit"]') : null;
+    if (sb) sb.disabled = v;
+  }
   function askAI(q){
+    if (busy) return;
+    setBusy(true);
     var wait = bubble("我想想。", false);
     var be = store.get("cl_ai_backend") || "cloud";
     if (be === "custom" && customReady()) askCustom(q, wait);
@@ -3592,15 +3636,18 @@ route();
     }).then(function(d){
       if (d && d.d) {
         var txt = String(d.d).trim().slice(0, 220);
-        renderMsg(wait, txt);
+        setMsg(wait, txt);
         /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
         if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
         speakReply(txt);
       }
       else { throw new Error((d && d.e) || "服务器没回答"); }
+      setBusy(false);
       body.scrollTop = body.scrollHeight;
     }).catch(function(err){
-      wait.textContent = "联网没接上（" + (err.message || "网络") + "）。先按原来的答：" + NONE;
+      var msg = "联网没接上（" + (err.message || "网络") + "）。先按原来的答：" + NONE;
+      wait.textContent = msg; wait.dataset.text = msg;
+      retryBtn(q); setBusy(false);
       body.scrollTop = body.scrollHeight;
     });
   }
@@ -3624,12 +3671,15 @@ route();
         throw new Error(s + (bad ? "（Key 或模型名不对 / 余额不够）" : "（接口格式不对，检查地址是否以 /v1 结尾）"));
       }
       var txt = (d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d)).trim().slice(0, 220);
-      renderMsg(wait, txt);
+      setMsg(wait, txt);
       if (botSub) botSub.textContent = " · 自己的 API（" + c.model + "）";
       speakReply(txt);
+      setBusy(false);
       body.scrollTop = body.scrollHeight;
     }).catch(function(err){
-      wait.textContent = "自己的 API 没接上（" + (err.message || "网络 / CORS") + "）。先按原来的答：" + NONE;
+      var msg = "自己的 API 没接上（" + (err.message || "网络 / CORS") + "）。先按原来的答：" + NONE;
+      wait.textContent = msg; wait.dataset.text = msg;
+      retryBtn(q); setBusy(false);
       body.scrollTop = body.scrollHeight;
     });
   }
@@ -3701,6 +3751,24 @@ route();
     store.set("cl_accent", v); applyAccent(v); paintAccent();
   });
   paintAccent();
+
+  /* ---- 外观：字号档位，三档缩放，写本机 ---- */
+  var fsBox = $("setFontScale");
+  var FS = { small:"0.92", normal:"1", large:"1.09" };
+  function paintFont(){
+    var cur = store.get("cl_font_scale") || "normal";
+    if (!fsBox) return;
+    Array.prototype.slice.call(fsBox.querySelectorAll("button")).forEach(function(b){
+      b.classList.toggle("on", b.dataset.fs === cur);
+    });
+  }
+  if (fsBox) fsBox.addEventListener("click", function(e){
+    var b = e.target.closest("[data-fs]"); if (!b) return;
+    store.set("cl_font_scale", b.dataset.fs);
+    document.documentElement.style.zoom = FS[b.dataset.fs] || "1";
+    paintFont();
+  });
+  paintFont();
 
   /* ---- 后端二选一：云端额度 / 自己的 API ---- */
   var beSeg = $("setBackend");
@@ -3780,6 +3848,24 @@ route();
     });
     pre.appendChild(b);
   });
+
+  /* ---- 人设指令：本机保存，预设一键填 ---- */
+  var sysBox = $("setSys"), sysPreset = $("setSysPreset");
+  var SYS_PRESETS = [
+    { t: "内置", v: "" },
+    { t: "答疑助手", v: "你是班级门户里的学习答疑助手，面向同班同学。回答围绕课程、资料、考试安排和学校系统入口；不知道就明说，不编造；优先指出门户里对应的入口。" },
+    { t: "简短口语", v: "说话简短口语化，一两句把事说清，不堆套话；不知道就说不知道，不编。" },
+    { t: "严谨正式", v: "回答严谨有条理，先结论后说明；不确定的信息明确标注，不臆测；用规范书面语。" }
+  ];
+  function paintSys(){ sysBox.value = store.get("cl_ai_sys") || ""; }
+  sysBox.addEventListener("input", function(){ store.set("cl_ai_sys", sysBox.value); });
+  SYS_PRESETS.forEach(function(p){
+    var b = document.createElement("button");
+    b.type = "button"; b.textContent = p.t;
+    b.addEventListener("click", function(){ sysBox.value = p.v; store.set("cl_ai_sys", p.v); });
+    sysPreset.appendChild(b);
+  });
+  paintSys();
 
   /* 自定义 API 连通测试：发一条最小请求，回显通不通与原因 */
   var testBtn = $("setTest"), testOut = $("setTestOut");
@@ -3908,7 +3994,7 @@ route();
     if (b) b.click(); else if (window.toast) toast("这只形象不支持回原位");
   });
 
-  function paintAll(){ paintAccent(); paintBe(); paintPref(); paintEff(); loadCfg(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); }
+  function paintAll(){ paintAccent(); paintFont(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); }
 })();
 </script>
 
