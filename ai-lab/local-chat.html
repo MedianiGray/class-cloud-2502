@@ -213,6 +213,12 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     </div>
 
     <div class="field">
+      <label>场景快捷入口（每行一条，留空用默认，最多 12 条）</label>
+      <textarea id="chipsTa" rows="4" placeholder="一行一条标签，比如：软件开发"></textarea>
+      <div class="hint">可删掉用不上的类别、加上自己常问的；沿用内置名称仍带对应角色预设，自填的条目只把文字填进输入框、不改预设词。</div>
+    </div>
+
+    <div class="field">
       <label>带入上下文的历史轮数</label>
       <select id="historyLen">
         <option value="5">最近 5 轮</option>
@@ -270,6 +276,7 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
   </div>
   <div class="sheet-foot">
     <button class="btn" id="reloadModel" type="button">重新加载模型</button>
+    <button class="btn" id="exportBtn" type="button">导出对话 JSON</button>
     <button class="btn" id="clearBtn" type="button">清空对话</button>
     <button class="btn primary" id="saveSheet" type="button">保存设置</button>
   </div>
@@ -313,7 +320,8 @@ var defaults = {
   pitch: 1.25,
   fontScale: "normal",
   bgTone: "cream",
-  density: "comfort"
+  density: "comfort",
+  chips: null
 };
 
 /* 场景模板：能力入口先给角色预设与示例，真正回答走本机模型；可在设置里改 system */
@@ -556,7 +564,18 @@ function showOverlay(on){
   overlay.setAttribute("aria-hidden", on ? "false" : "true");
 }
 
-/* ---------- 场景模板 ---------- */
+/* ---------- 场景模板：内置默认，本机可按标签增删改 ---------- */
+var CHIP_MAX = 12;
+function readChipLabels(){
+  var arr = Array.isArray(cfg.chips) ? cfg.chips : null;
+  if (!arr) return SCENES.map(function(s){ return s.label; });
+  arr = arr.map(function(s){ return String(s == null ? "" : s).trim(); }).filter(Boolean).slice(0, CHIP_MAX);
+  return arr.length ? arr : SCENES.map(function(s){ return s.label; });
+}
+function sceneByLabel(label){
+  for (var i = 0; i < SCENES.length; i++) if (SCENES[i].label === label) return SCENES[i];
+  return null;
+}
 function paintScene(id){
   Array.prototype.slice.call(scenes.children).forEach(function(c){
     c.classList.toggle("on", c.dataset.id === id);
@@ -570,14 +589,33 @@ function applyScene(sc){
   paintScene(sc.id);
   input.focus();
 }
-SCENES.forEach(function(sc){
-  var b = document.createElement("button");
-  b.type = "button"; b.className = "chip"; b.dataset.id = sc.id; b.textContent = sc.label;
-  b.addEventListener("click", function(){ applyScene(sc); });
-  scenes.appendChild(b);
+function renderChips(){
+  scenes.innerHTML = "";
+  readChipLabels().forEach(function(label){
+    var sc = sceneByLabel(label);
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = label;
+    if (sc){
+      b.dataset.id = sc.id;
+      b.addEventListener("click", function(){ applyScene(sc); });
+    } else {
+      b.dataset.q = label;
+      b.addEventListener("click", function(){ input.value = label; input.focus(); });
+    }
+    scenes.appendChild(b);
+  });
+  var hit = SCENES.find(function(s){ return s.system === cfg.system; });
+  if (hit) paintScene(hit.id);
+}
+var chipsTa = $("chipsTa");
+function paintChipsTa(){ if (chipsTa) chipsTa.value = readChipLabels().join("\n"); }
+if (chipsTa) chipsTa.addEventListener("input", function(){
+  var arr = chipsTa.value.split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean).slice(0, CHIP_MAX);
+  cfg.chips = arr.length ? arr : null;
+  saveCfg(cfg);
+  renderChips();
 });
-var sceneHit = SCENES.find(function(s){ return s.system === cfg.system; });
-if (sceneHit) paintScene(sceneHit.id);
+renderChips();
 
 /* ---------- 模型加载 ---------- */
 async function ensureModel(){
@@ -739,6 +777,7 @@ function fillSheet(){
   paintFont();
   paintBg();
   paintDensity();
+  paintChipsTa();
 }
 function readSheet(){
   cfg.model = $("modelSel").value;
@@ -786,6 +825,15 @@ $("reloadModel").addEventListener("click", function(){
   ensureModel().catch(function(){});
 });
 $("clearBtn").addEventListener("click", function(){ history = []; saveHist(); renderHistory(); });
+$("exportBtn").addEventListener("click", function(){
+  var data = { exportedAt: new Date().toISOString(), model: cfg.model, history: history };
+  var blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "local-chat-" + Date.now() + ".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
 
 /* ---------- 事件 ---------- */
 input.addEventListener("input", function(){ sendBtn.disabled = busy || !input.value.trim(); });
