@@ -451,16 +451,16 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 :root{
   --warm:#C0845F; --warm2:#A87050; --cream:#FDF8F3;
   --r-lg:18px; --r-md:12px;
-  --sh-1:0 2px 6px rgba(120,92,64,.05);
-  --sh-2:0 10px 30px rgba(120,92,64,.09),0 2px 6px rgba(120,92,64,.05);
-  --sh-3:0 20px 50px rgba(120,92,64,.13),0 4px 12px rgba(120,92,64,.06);
+  --sh-1:0 2px 6px rgba(70,62,52,.06);
+  --sh-2:0 10px 28px rgba(70,62,52,.10),0 2px 6px rgba(70,62,52,.05);
+  --sh-3:0 18px 44px rgba(70,62,52,.14),0 4px 12px rgba(70,62,52,.06);
 }
 html{background:linear-gradient(163deg,#FAF6F1 0%,#F5EDE4 52%,#EFE7DC 100%)}
 body{background:transparent}
 /* 两枚漂浮光斑：一枚陶土、一枚深绿，缓慢呼吸 */
 body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:-1}
-body::before{width:44vw;height:44vw;left:-14vw;top:-12vw;background:rgba(192,132,95,.18);animation:glowA 10s ease-in-out infinite}
-body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72,.11);animation:glowB 12s ease-in-out infinite}
+body::before{width:44vw;height:44vw;left:-14vw;top:-12vw;background:rgba(192,132,95,.10);animation:glowA 10s ease-in-out infinite}
+body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72,.07);animation:glowB 12s ease-in-out infinite}
 @keyframes glowA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(2.2vw,3.2vh) scale(1.07)}}
 @keyframes glowB{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-3vw,2.4vh) scale(1.09)}}
 @media (prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
@@ -490,9 +490,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 /* 胶囊与大按钮：渐变 + 上浮 */
 .subnav a,.chip{background:rgba(255,255,255,.72);border-color:rgba(198,182,166,.5);border-radius:999px;backdrop-filter:blur(6px)}
 .subnav a:hover,.chip:hover{border-color:var(--green2);color:var(--green)}
-.subnav a.on,.chip.on{background:linear-gradient(135deg,#2E5348 0%,#3E7D5F 100%);border-color:transparent;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(46,83,72,.20)}
-.btn{border:0;border-radius:var(--r-md);background:linear-gradient(135deg,#2E5348 0%,#3E7D5F 100%);box-shadow:0 4px 14px rgba(46,83,72,.22);transition:transform .15s,box-shadow .15s}
-.btn:hover{background:linear-gradient(135deg,#274A3F 0%,#3E7D5F 100%);transform:translateY(-1px);box-shadow:0 9px 24px rgba(46,83,72,.26)}
+.subnav a.on,.chip.on{background:var(--green);border-color:transparent;color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(46,83,72,.18)}
+.btn{border:0;border-radius:var(--r-md);background:var(--green);box-shadow:0 2px 8px rgba(46,83,72,.16);transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{background:#263F36;transform:translateY(-1px);box-shadow:0 6px 16px rgba(46,83,72,.20)}
 .btn.ghost{background:rgba(255,255,255,.75);border:1px solid rgba(198,182,166,.55);box-shadow:var(--sh-1);color:var(--ink2)}
 .btn.ghost:hover{background:#fff;border-color:rgba(198,182,166,.85);color:var(--ink)}
 
@@ -572,13 +572,13 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 
 /* 云库小助手：右下角悬浮，纯前端规则应答，不联网、不存对话 */
 .bot-fab{position:fixed;right:18px;bottom:22px;width:54px;height:54px;border:0;border-radius:50%;
-  background:linear-gradient(160deg,#4E8E6E,#2F5F49);color:#fff;font-size:15px;font-weight:700;letter-spacing:.02em;
-  box-shadow:0 10px 26px rgba(47,95,73,.30);cursor:pointer;z-index:62;display:block;
-  transition:transform .18s,box-shadow .18s}
+  background:var(--green);color:#fff;font-size:15px;font-weight:700;letter-spacing:.02em;
+  box-shadow:0 8px 20px rgba(47,95,73,.26);cursor:pointer;z-index:62;display:block;
+  transition:transform .18s,box-shadow .18s,background .18s}
 /* 鱼只干宠物的事，这颗「问问」才是对话入口 —— 两个入口分开站，谁都不抢谁的点击 */
 .bot-fab.show{display:block}
-.bot-fab:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(47,95,73,.36)}
-.bot-fab.on{background:linear-gradient(160deg,#A87050,#8A5638)}
+.bot-fab:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(47,95,73,.30)}
+.bot-fab.on{background:var(--warm2)}
 
 /* 导航长在鱼弹出的这块面板里：点鱼就等于点「问问」，面板 = 导航 + 问答，一个东西齐全 */
 .bot-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px 10px 7px;border-bottom:1px solid rgba(198,182,166,.30);background:#FFFDFB}
@@ -587,7 +587,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-nav a.on{background:#2F5F49;color:#fff}
 .bot-panel{position:fixed;left:18px;bottom:88px;width:min(358px,calc(100vw - 32px));max-height:min(66vh,470px);
   display:flex;flex-direction:column;background:#FFFDFB;border:1px solid rgba(198,182,166,.46);border-radius:18px;
-  box-shadow:0 20px 50px rgba(120,90,60,.24);z-index:63;overflow:hidden}
+  box-shadow:0 18px 44px rgba(60,52,44,.18);z-index:63;overflow:hidden}
 .bot-panel.off{display:none}
 .bot-head{display:flex;align-items:center;gap:8px;padding:12px 14px;
   border-bottom:1px solid rgba(198,182,166,.32);background:rgba(250,246,241,.7)}
@@ -615,7 +615,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 .bot-plus.on{background:#2F5F49;border-color:#2F5F49;color:#fff}
 .bot-menu{position:absolute;left:8px;right:8px;bottom:64px;z-index:6;display:none;
   background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:14px;padding:6px;
-  box-shadow:0 18px 44px rgba(60,42,28,.20),0 2px 6px rgba(60,42,28,.06);max-height:58%;overflow-y:auto}
+  box-shadow:0 16px 38px rgba(60,52,44,.16),0 2px 6px rgba(60,52,44,.06);max-height:58%;overflow-y:auto}
 .bot-menu.on{display:block}
 .bot-menu .mh{font-size:11px;color:var(--ink3);letter-spacing:.06em;padding:6px 10px 4px}
 .bot-menu button{display:flex;width:100%;align-items:center;gap:9px;padding:9px 10px;border:0;background:transparent;
@@ -632,7 +632,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   background:#FEFBF7;font-size:13.5px;color:var(--ink)}
 .bot-input input:focus{outline:none;border-color:var(--green2);box-shadow:0 0 0 3px rgba(62,125,95,.13)}
 .bot-input button{flex:none;height:38px;padding:0 15px;border:0;border-radius:12px;color:#fff;font-size:13px;font-weight:600;
-  background:linear-gradient(160deg,#4E8E6E,#2F5F49);cursor:pointer}
+  background:var(--green);cursor:pointer}
 /* 手机：小助手不再整屏，改回悬浮卡；桌宠的动作直接长在卡里，一件事只用一个界面 */
 .bot-scrim{position:fixed;inset:0;background:rgba(34,28,22,.34);z-index:62;display:none}
 @media (max-width:720px){
@@ -640,9 +640,9 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   .bot-panel{left:10px;right:auto;top:auto;bottom:calc(74px + env(safe-area-inset-bottom));
     width:calc(100vw - 20px);max-width:calc(100vw - 20px);
     height:min(72vh,540px);max-height:none;border-radius:18px;z-index:66;display:flex;flex-direction:column;
-    overflow:hidden;box-shadow:0 22px 56px rgba(60,42,28,.26),0 2px 8px rgba(60,42,28,.10)}
+    overflow:hidden;box-shadow:0 20px 50px rgba(60,52,44,.22),0 2px 8px rgba(60,52,44,.08)}
   .bot-panel.off{display:none}
-  .bot-head{padding:12px 14px 10px;background:linear-gradient(160deg,#FFFDFB,#FAF3EA);flex:none;
+  .bot-head{padding:12px 14px 10px;background:#FFFDFB;flex:none;
     cursor:grab;touch-action:none;user-select:none}
   .bot-head:active{cursor:grabbing}
   .bot-title{font-size:15px}
@@ -663,7 +663,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
    跟云库小助手的对话卡彻底分开 —— 那边只说话，这边只干宠物的事 */
 .pet-bar{position:fixed;z-index:70;display:none;align-items:center;gap:2px;padding:5px;
   background:#FFFDFB;border:1px solid rgba(198,182,166,.55);border-radius:14px;
-  box-shadow:0 14px 34px rgba(60,42,28,.18),0 2px 6px rgba(60,42,28,.06);
+  box-shadow:0 12px 28px rgba(60,52,44,.16),0 2px 6px rgba(60,52,44,.06);
   max-width:calc(100vw - 16px);overflow-x:auto;scrollbar-width:none;
   left:12px;bottom:96px;top:auto}
 .pet-bar::-webkit-scrollbar{height:0;display:none}
