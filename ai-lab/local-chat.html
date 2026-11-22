@@ -203,6 +203,8 @@ body.sheet-open .sheet{transform:translateX(0)}
 import { pipeline, env, TextStreamer } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1";
 
 var LS = "lab_local_v1";
+var HIST = "lab_local_hist_v1";
+var HIST_MAX = 30;
 var $ = function(id){ return document.getElementById(id); };
 
 /* 可选本地模型：repo 为 Transformers.js 兼容的 ONNX 仓库 */
@@ -252,9 +254,15 @@ function loadCfg(){
   return Object.assign({}, defaults, cfg);
 }
 function saveCfg(cfg){ try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch(e){} }
+function loadHist(){
+  try { var h = JSON.parse(localStorage.getItem(HIST) || "[]"); return Array.isArray(h) ? h.slice(-HIST_MAX) : []; } catch(e){ return []; }
+}
+function saveHist(){
+  try { localStorage.setItem(HIST, JSON.stringify(history.slice(-HIST_MAX))); } catch(e){}
+}
 
 var cfg = loadCfg();
-var history = [];
+var history = loadHist();
 var generator = null;
 var loadingPromise = null;
 var busy = false;
@@ -525,6 +533,7 @@ async function fillReply(bubble){
     var last = history[history.length - 1];
     if (last && last.role === "assistant") last.content = reply;
     else history.push({ role: "assistant", content: reply });
+    saveHist();
     setStatus("就绪", "on");
   } catch(e){
     setBubbleText(bubble, "出错了：" + ((e && e.message) || e));
@@ -540,6 +549,7 @@ async function send(raw){
   busy = true; setBusy(true);
   addMsg("user", text);
   history.push({ role: "user", content: text });
+  saveHist();
   var bubble = addMsg("assistant", "…", assistantActs());
   await fillReply(bubble);
 }
@@ -608,7 +618,7 @@ $("reloadModel").addEventListener("click", function(){
   generator = null; activeModelId = null; closeSheet();
   ensureModel().catch(function(){});
 });
-$("clearBtn").addEventListener("click", function(){ history = []; renderHistory(); });
+$("clearBtn").addEventListener("click", function(){ history = []; saveHist(); renderHistory(); });
 
 /* ---------- 事件 ---------- */
 input.addEventListener("input", function(){ sendBtn.disabled = busy || !input.value.trim(); });

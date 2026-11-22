@@ -228,6 +228,8 @@ body.sheet-open .sheet{transform:translateX(0)}
 (function(){
   "use strict";
   var LS = "lab_cloud_v1";
+  var HIST = "lab_cloud_hist_v1";
+  var HIST_MAX = 30;
   var $ = function(id){ return document.getElementById(id); };
 
   var defaults = {
@@ -262,9 +264,20 @@ body.sheet-open .sheet{transform:translateX(0)}
   function saveCfg(cfg){
     try { localStorage.setItem(LS, JSON.stringify(cfg)); } catch(e){}
   }
+  function loadHist(){
+    try { var h = JSON.parse(localStorage.getItem(HIST) || "[]"); return Array.isArray(h) ? h.slice(-HIST_MAX) : []; } catch(e){ return []; }
+  }
+  function saveHist(){
+    var snap = history.slice(-HIST_MAX);
+    try { localStorage.setItem(HIST, JSON.stringify(snap)); return; } catch(e){}
+    try {
+      var stripped = snap.map(function(m){ var c = Object.assign({}, m); delete c.image; return c; });
+      localStorage.setItem(HIST, JSON.stringify(stripped));
+    } catch(e2){}
+  }
 
   var cfg = loadCfg();
-  var history = [];
+  var history = loadHist();
   var busy = false;
   var pendingImage = "";
 
@@ -585,6 +598,7 @@ body.sheet-open .sheet{transform:translateX(0)}
       var last = history[history.length - 1];
       if (last && last.role === "assistant") last.content = reply;
       else history.push({ role: "assistant", content: reply });
+      saveHist();
       setStatus("已回复", "on");
     } catch (e){
       var msg = (e && e.message) || String(e);
@@ -602,6 +616,7 @@ body.sheet-open .sheet{transform:translateX(0)}
     busy = true; setBusy(true);
     addMsg("user", text, null, img);
     history.push({ role: "user", content: text, image: img || undefined });
+    saveHist();
     clearPendingImage();
     var bubble = addMsg("assistant", "…", assistantActs());
     await fillReply(bubble);
@@ -641,7 +656,7 @@ body.sheet-open .sheet{transform:translateX(0)}
   });
 
   $("clearBtn").addEventListener("click", function(){
-    history = []; clearPendingImage(); renderHistory(); setStatus("已清空", "");
+    history = []; clearPendingImage(); saveHist(); renderHistory(); setStatus("已清空", "");
   });
   $("exportBtn").addEventListener("click", function(){
     var data = { exportedAt: new Date().toISOString(), mode: cfg.mode, history: history };
