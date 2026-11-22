@@ -115,6 +115,12 @@ body.sheet-open .sheet{transform:translateX(0)}
 .field input[type=range]{width:100%}
 .btn-sm{height:34px;padding:0 12px;border:1px solid var(--line2);background:var(--card);border-radius:var(--r-sm);font-size:13px;color:var(--ink2);flex:none}
 .btn-sm:hover{border-color:var(--green2);color:var(--green2)}
+
+/* 紧凑密度：收窄气泡内边距与对话间距 */
+html[data-density="compact"] .wrap{padding-top:12px}
+html[data-density="compact"] .chat{gap:9px}
+html[data-density="compact"] .msg .bubble{padding:8px 10px}
+html[data-density="compact"] .scenes{padding-bottom:4px}
 .note{font-size:12px;color:var(--ink3);line-height:1.6;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
 .note b{color:var(--ink2)}
 .sheet-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
@@ -130,12 +136,25 @@ body.sheet-open .sheet{transform:translateX(0)}
 }
 </style>
 <script>
-/* 字号档位开机即套，避免刷新后大小跳一下 */
+/* 底色 / 字号 / 密度开机即套，避免刷新后跳一下 */
 (function(){
+  var BGTONES = [
+    {id:"cream", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5"},
+    {id:"white", paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC"},
+    {id:"gray",  paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1"}
+  ];
+  window.__BG_TONES = BGTONES;
+  function resolveBg(v){ for(var i=0;i<BGTONES.length;i++) if(BGTONES[i].id===v) return BGTONES[i]; return BGTONES[0]; }
+  window.__BG_RESOLVE = resolveBg;
   try {
     var c = JSON.parse(localStorage.getItem("lab_cloud_v1") || "{}") || {};
     var FS = { small:"0.92", normal:"1", large:"1.09" };
-    document.documentElement.style.zoom = FS[c.fontScale] || "1";
+    var r = document.documentElement.style;
+    var bg = resolveBg(c.bgTone);
+    r.setProperty("--paper", bg.paper); r.setProperty("--paper2", bg.paper2);
+    r.setProperty("--card", bg.card); r.setProperty("--line", bg.line); r.setProperty("--line2", bg.line2);
+    r.zoom = FS[c.fontScale] || "1";
+    document.documentElement.dataset.density = c.density === "compact" ? "compact" : "comfort";
   } catch(e){}
 })();
 </script>
@@ -249,6 +268,23 @@ body.sheet-open .sheet{transform:translateX(0)}
       </div>
     </div>
 
+    <div class="field">
+      <label>页面底色</label>
+      <div class="seg" id="bgSeg">
+        <button type="button" data-bg="cream">奶油纸</button>
+        <button type="button" data-bg="white">米白</button>
+        <button type="button" data-bg="gray">雾灰</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>卡片密度</label>
+      <div class="seg" id="densitySeg">
+        <button type="button" data-den="comfort">舒适</button>
+        <button type="button" data-den="compact">紧凑</button>
+      </div>
+    </div>
+
     <div class="note">
       <b>边界</b>：这是本地实验页，对话记录只存在这台设备的浏览器里；清掉浏览器数据就没了。模型回答可能出错，重要通知、成绩、财务事项仍以学校官方渠道为准。
     </div>
@@ -280,7 +316,9 @@ body.sheet-open .sheet{transform:translateX(0)}
     voice: "",
     rate: 1.0,
     pitch: 1.25,
-    fontScale: "normal"
+    fontScale: "normal",
+    bgTone: "cream",
+    density: "comfort"
   };
 
   /* 场景模板：能力入口先给角色预设与示例，真正回答走模型；可在设置里改 system */
@@ -449,6 +487,26 @@ body.sheet-open .sheet{transform:translateX(0)}
       b.classList.toggle("on", b.dataset.fs === cfg.fontScale);
     });
   }
+  function applyBg(v){
+    var bg = window.__BG_RESOLVE ? window.__BG_RESOLVE(v) : null;
+    if (!bg) return;
+    var r = document.documentElement.style;
+    r.setProperty("--paper", bg.paper); r.setProperty("--paper2", bg.paper2);
+    r.setProperty("--card", bg.card); r.setProperty("--line", bg.line); r.setProperty("--line2", bg.line2);
+  }
+  function paintBg(){
+    var box = $("bgSeg"); if (!box) return;
+    Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
+      b.classList.toggle("on", b.dataset.bg === cfg.bgTone);
+    });
+  }
+  function applyDensity(v){ document.documentElement.dataset.density = v === "compact" ? "compact" : "comfort"; }
+  function paintDensity(){
+    var box = $("densitySeg"); if (!box) return;
+    Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
+      b.classList.toggle("on", b.dataset.den === cfg.density);
+    });
+  }
 
   /* ---------- 图片附件（仅直连支持看图的模型） ---------- */
   function clearPendingImage(){
@@ -530,6 +588,8 @@ body.sheet-open .sheet{transform:translateX(0)}
     $("rateEl").value = cfg.rate;
     $("pitchEl").value = cfg.pitch;
     paintFont();
+    paintBg();
+    paintDensity();
     paintMode();
   }
   function paintMode(){
@@ -567,6 +627,14 @@ body.sheet-open .sheet{transform:translateX(0)}
   $("fontSeg").addEventListener("click", function(e){
     var b = e.target.closest("[data-fs]"); if (!b) return;
     cfg.fontScale = b.dataset.fs; applyFont(); paintFont(); saveCfg(cfg);
+  });
+  $("bgSeg").addEventListener("click", function(e){
+    var b = e.target.closest("[data-bg]"); if (!b) return;
+    cfg.bgTone = b.dataset.bg; applyBg(b.dataset.bg); paintBg(); saveCfg(cfg);
+  });
+  $("densitySeg").addEventListener("click", function(e){
+    var b = e.target.closest("[data-den]"); if (!b) return;
+    cfg.density = b.dataset.den; applyDensity(b.dataset.den); paintDensity(); saveCfg(cfg);
   });
   $("saveSheet").addEventListener("click", function(){
     var oldMode = cfg.mode, oldModel = cfg.model;
@@ -778,6 +846,10 @@ body.sheet-open .sheet{transform:translateX(0)}
   /* ---------- 启动 ---------- */
   applyFont();
   paintFont();
+  applyBg(cfg.bgTone);
+  paintBg();
+  applyDensity(cfg.density);
+  paintDensity();
   renderHistory();
   setStatus(cfg.mode === "proxy" ? "代理模式，待发送" : "直连模式，待发送", cfg.apiKey || cfg.proxyUrl ? "on" : "");
   input.focus();
