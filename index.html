@@ -135,7 +135,7 @@ html.is-embed .envbar{display:none}
 
 /* ---------- 双入口 ---------- */
 .entries{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:38px}
-.entry{background:var(--card);padding:22px 20px 20px;display:flex;flex-direction:column;gap:8px;transition:background .16s}
+.entry{background:var(--card);padding:22px 20px 20px;display:flex;flex-direction:column;gap:8px;transition:background .16s;text-align:left;width:100%}
 .entry:hover{background:#fff}
 .entry-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3)}
 .entry-t{font-size:20px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
@@ -488,7 +488,7 @@ html[data-density="compact"] .tpl-card .tpl-b{padding:12px 15px 14px;gap:11px}
   .hero{grid-template-columns:1.7fr 1fr;gap:64px;margin-bottom:44px}
   .member-grid{grid-template-columns:repeat(5,1fr)}
   .cell{min-height:86px}
-  .entries{grid-template-columns:repeat(4,1fr)}
+  .entries{grid-template-columns:repeat(3,1fr)}
   .portal-list{grid-template-columns:1fr 1fr;column-gap:0}
   .p-item{border-right:1px solid var(--line)}
   .p-item:nth-child(2n){border-right:0;padding-right:0;padding-left:13px}
@@ -890,8 +890,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       <a href="#/main" data-v="main">概览</a>
       <a href="#/res" data-v="res">资料库</a>
       <a href="#/library" data-v="library">成员索引</a>
-      <a href="#/portal" data-v="portal">学校信息</a>
-      <a href="#/admin" data-v="admin">高级与维护</a>
+      <a href="#/more" data-v="admin">更多</a>
     </nav>
     <div class="bar-tools">
       <button class="icon-btn" id="lockBtn" title="退出并重新验证">
@@ -924,9 +923,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     <div class="mini-nav">
       <a href="https://www.kdocs.cn/folder/ctjLDPYcTofa" target="_blank" rel="noopener">交作业 <span class="mn-d">共享社区 · 上传与提交</span></a>
       <button data-go="#/library">班级云库 <span class="mn-d">共享库 · 45 个成员文件夹</span></button>
-      <button data-go="#/notice">通知待办 <span class="mn-d">事项 · 截止 · 已办勾选</span></button>
-      <button data-go="#/templates">写材料 <span class="mn-d">通知 · 新闻稿 · 总结 · 申请书 · 方案</span></button>
-      <button data-go="#/portal">学校信息 <span class="mn-d">学工 · VPN · 官网</span></button>
+      <button data-go="#/more">更多 <span class="mn-d">待办 · 材料 · 入口 · 设置</span></button>
       <a href="./more.html">十件事</a>
     </div>
 
@@ -1076,6 +1073,64 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     <div class="notice-stats" id="noticeStats"></div>
     <div class="notice-list" id="noticeList"></div>
     <p class="portal-xlink">条目由班委维护进静态数组；要交什么、找谁对接，先看成员索引页的「班委分工」。</p>
+  </div>
+</section>
+
+<!-- ===== 视图：更多（聚合分类） ===== -->
+<section class="view" id="view-more">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">更多</h1>
+      <p class="page-lead">不常直接挂在首页的工具和设置都收在这里，按分类点开。首页只留交作业、班级云库和资料这几个最高频的入口。</p>
+    </div>
+
+    <div class="portal-group">
+      <div class="group-h"><h3>班级事务</h3><span>提醒 · 材料 · 办事入口</span></div>
+      <div class="entries">
+        <button class="entry" data-go="#/notice">
+          <span class="entry-k">NOTICE</span>
+          <span class="entry-t">通知待办</span>
+          <span class="entry-d">近期事项与截止时间，勾选已办只存本机</span>
+          <span class="entry-go">打开</span>
+        </button>
+        <button class="entry" data-go="#/templates">
+          <span class="entry-k">TPL</span>
+          <span class="entry-t">写材料</span>
+          <span class="entry-d">文书骨架与活动配套表，一键复制</span>
+          <span class="entry-go">打开</span>
+        </button>
+        <button class="entry" data-go="#/portal">
+          <span class="entry-k">PORTAL</span>
+          <span class="entry-t">学校入口</span>
+          <span class="entry-d">学工、VPN、官网与文件仓库</span>
+          <span class="entry-go">打开</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="portal-group">
+      <div class="group-h"><h3>权限与维护</h3><span>说明 · 设置 · 交接</span></div>
+      <div class="entries">
+        <button class="entry" data-go="#/access">
+          <span class="entry-k">ACCESS</span>
+          <span class="entry-t">权限说明</span>
+          <span class="entry-d">三层权限结构与网页文档的关系</span>
+          <span class="entry-go">查看</span>
+        </button>
+        <button class="entry" data-go="#/plus">
+          <span class="entry-k">PLUS</span>
+          <span class="entry-t">高级功能</span>
+          <span class="entry-d">AI 工具台、传输助手、虚拟机与远程协助</span>
+          <span class="entry-go">打开</span>
+        </button>
+        <button class="entry" data-go="#/maint">
+          <span class="entry-k">MAINT</span>
+          <span class="entry-t">部署维护</span>
+          <span class="entry-d">改名册、换口令、交接与常见问题</span>
+          <span class="entry-go">查看</span>
+        </button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1361,7 +1416,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端（已收口到浏览器本地）</b>　WPS 按请求头 UA 分两套壳，UA 只有浏览器能改，所以换端不做代理、不做服务器。手机：浏览器菜单勾「请求桌面版网站」；电脑：<span class="mono">Ctrl+Shift+M</span> 选 iPhone。云函数里 <span class="mono">/proxy/wps</span> 那条路由留着没删，但页面不再调用。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>预览右上角的「换端」</b>　只有一颗钮，点了按当前设备给一句对应做法，不加载代理页、也不假装切换。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
-        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 六颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、通知待办（<span class="mono">#/notice</span>，事项与截止）、写材料（<span class="mono">#/templates</span>，文书与配套表骨架）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 四颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、更多（<span class="mono">#/more</span>，聚合通知待办 / 写材料 / 学校入口 / 权限 / 高级功能 / 维护）、十件事（<span class="mono">./more.html</span>）。通知待办、写材料、学校信息这些不常直接用的页面都收进 <span class="mono">#/more</span> 分组，不在首页摆胶囊。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。页面静下来两秒后才加载；<span class="mono">prefers-reduced-motion</span> 下不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>联网兜底的云端函数（可选）</b>　桌宠双击聊天面板还没做，目前只说本机台词；右下角「问问」的联网兜底走云端函数 <span class="mono">proxy/tcb/index.js</span>。模型 Key 只能存在函数环境变量里，<b>绝不能填进页面</b>——公开仓库写进来等于谁都能拿去烧额度。函数带了四道闸：只认班级站来源、每来源每天 40 次、历史 6 条每条 400 字、输出 240 tokens。<b>别给桌宠碎碎念接 AI</b>，那是定时自动说一句，接上就是定时烧额度，台词留在本地池。</div></div>
@@ -1438,7 +1493,7 @@ git push</div>
   <div class="wrap" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;width:100%">
     <span id="footMeta">GXAU · 网络工程技术（本）2502 · 2026</span>
     <div class="foot-links">
-      <a href="#/library">云库</a><a href="#/notice">待办</a><a href="#/portal">入口</a><a href="#/access">权限</a><a href="#/maint">维护</a><a href="./more.html">十件事</a>
+      <a href="#/library">云库</a><a href="#/more">更多</a><a href="#/access">权限</a><a href="#/maint">维护</a><a href="./more.html">十件事</a>
     </div>
   </div>
 </footer>
@@ -1621,7 +1676,7 @@ if (EMBED) {
   bar.innerHTML = '<a href="#/main" data-k="home"><i>&#9783;</i>概览</a>' +
                   '<a href="#/library" data-k="library"><i>&#9787;</i>索引</a>' +
                   '<a href="#/res" data-k="res"><i>&#9776;</i>资料</a>' +
-                  '<a href="#/plus" data-k="plus"><i>&#9881;</i>高级</a>';
+                  '<a href="#/more" data-k="more"><i>&#9881;</i>更多</a>';
   if (document.body) document.body.appendChild(bar);
   else document.addEventListener("DOMContentLoaded", function(){ document.body.appendChild(bar); });
 }
@@ -1831,7 +1886,7 @@ function brwPush(url){
   brw.hist = [url];
   brw.hi = 0;
   const inHash = (location.hash || "").replace(/^#/, "");
-  brw.localHash = ["/library", "/res", "/home", "/portal", "/notice", "/templates"].indexOf(inHash) >= 0 ? location.hash : "#/library";
+  brw.localHash = ["/library", "/res", "/home", "/portal", "/notice", "/templates", "/more"].indexOf(inHash) >= 0 ? location.hash : "#/library";
   document.getElementById("brw").classList.add("on");
   document.getElementById("brw").setAttribute("aria-hidden", "false");
   brwRender();
@@ -2300,19 +2355,20 @@ function initGate(){
 }
 
 /* ==================== 路由 ==================== */
-/* 八个视图合并成两页：main = 概览（原工作台并入）/ 成员索引 / 学校入口 / 资料库；
-   admin = 权限说明 / 高级功能 / 部署维护。旧链接（#/desk 等）仍可用，落到所属页并对准那个分区。 */
+/* 视图分两组：main = 概览 / 成员索引 / 资料库（首页只留高频入口）；
+   admin（「更多」）= 聚合概览 / 通知待办 / 写材料 / 学校入口 / 权限说明 / 高级功能 / 部署维护。
+   旧链接（#/desk、#/notice、#/templates、#/portal 等）仍可用，落到所属页并对准那个分区。 */
 const GROUPS = {
-  main:  ["home", "library", "notice", "templates", "portal", "res"],
-  admin: ["access", "plus", "maint"]
+  main:  ["home", "library", "res"],
+  admin: ["more", "notice", "templates", "portal", "access", "plus", "maint"]
 };
 const ALIAS = {};
 Object.keys(GROUPS).forEach(function(g){ GROUPS[g].forEach(function(k){ ALIAS[k] = g; }); });
 ALIAS.desk = "main";   /* 旧的「工作台」已经并进概览，老链接仍然进得来 */
 const GROUPS_NAMES = ["main", "admin"];
 const SUBS = {
-  main:  [["home", "概览"], ["library", "成员索引"], ["notice", "通知待办"], ["templates", "写材料"], ["portal", "学校入口"], ["res", "资料库"]],
-  admin: [["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
+  main:  [["home", "概览"], ["library", "成员索引"], ["res", "资料库"]],
+  admin: [["more", "更多"], ["notice", "通知待办"], ["templates", "写材料"], ["portal", "学校入口"], ["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
 };
 
 function paintDevNote(){
@@ -2354,7 +2410,7 @@ function applyFold(k, folded){
 function paintSubnav(group, focus){
   const box = document.getElementById("subnav");
   if (!box) return;
-  /* main 组四项顶栏都有，页内不再摆第二排；组内导航只留给 admin */
+  /* main 组顶栏都有，页内不再摆第二排；组内导航只留给 admin（更多） */
   box.style.display = (group === "main") ? "none" : "";
   const cur = focus || GROUPS[group][0];
   box.innerHTML = SUBS[group].map(function(p){
@@ -2369,8 +2425,8 @@ function route(){
   const group = GROUPS[raw] ? raw : (ALIAS[raw] || "main");
   let focus = GROUPS[raw] ? null : (ALIAS[raw] ? raw : null);
   if (focus === "desk") focus = "home";   /* 工作台已并入概览 */
-  /* main 组的四个视图各自是一页（顶栏五项已经直达），只有 admin 仍做组内折叠。
-     首页（#/main）只显示概览本身，不再把成员索引 / 学校入口 / 资料库也铺进来 */
+  /* main 组的视图各自是一页（顶栏直达），只有 admin 仍做组内折叠。
+     首页（#/main）只显示概览本身，不再把成员索引 / 资料库也铺进来 */
   const mainSingle = (group === "main");
   const mainKey = focus || GROUPS.main[0];
   GROUPS_NAMES.forEach(function(g){
@@ -2380,14 +2436,16 @@ function route(){
       el.classList.toggle("on", mainSingle ? (g === group && k === mainKey) : (g === group));
     });
   });
-  /* 当前态要认「组」也认「组里的具体页」：四个内容页同属 main 组，
+  /* 当前态要认「组」也认「组里的具体页」：main 组各页同属一组，
      只看 group 会把 #/res 也点亮成「概览」 */
   const curKey = focus || group;
+  const navKey = group === "admin" ? "admin" : curKey;
   Array.prototype.forEach.call(document.querySelectorAll("#nav a"), function(a){
-    a.classList.toggle("on", a.dataset.v === curKey);
+    a.classList.toggle("on", a.dataset.v === navKey);
   });
+  const tabKey = group === "admin" ? "more" : (focus || GROUPS[group][0]);
   Array.prototype.forEach.call(document.querySelectorAll(".m-tabbar a"), function(a){
-    a.classList.toggle("on", (a.dataset.k || "") === (focus || GROUPS[group][0]));
+    a.classList.toggle("on", (a.dataset.k || "") === tabKey);
   });
   paintSubnav(group, focus);
   /* 折叠只留给 admin：main 的每一页都独占一屏，没有需要收起来的东西 */
@@ -2400,7 +2458,7 @@ function route(){
   const plusOn = document.getElementById("view-plus");
   if (plusOn && plusOn.classList.contains("on") && typeof relayCheck === "function") relayCheck();
   paintDevNote();
-  document.title = group === "admin" ? "高级与维护 · 班级云库" : "班级云库 · 网络工程技术（本）2502班";
+  document.title = group === "admin" ? "更多 · 班级云库" : "班级云库 · 网络工程技术（本）2502班";
   const target = focus ? document.getElementById("view-" + focus) : null;
   if (target) target.scrollIntoView({ block:"start" });
   else window.scrollTo(0, 0);
@@ -3757,7 +3815,7 @@ route();
         { t: "复制备用", c: "ftp://10.0.91.200" }
       ] },
     { k: ["怎么用", "从哪开始", "第一次", "不会用", "上手", "入门"],
-      a: "两步：首页中间填学号后三位进你那一格；要资料点上面那张大卡，要办事就点下面那排小按钮（班级云库 / 学校信息 / 十件事）。想找某个人，去成员索引点格子。",
+      a: "两步：首页中间填学号后三位进你那一格；要资料点上面那张大卡，常用办事点下面那排小按钮（交作业 / 班级云库 / 更多 / 十件事）；通知待办、写材料、学校入口都收在「更多」里。想找某个人，去成员索引点格子。",
       acts: [{ t: "回首页", h: "#/home" }, { t: "去成员索引", h: "#/library" }] },
     { k: ["现在在哪", "这是哪", "什么页", "我在哪", "当前页"],
       a: function(){ return "你在「" + viewName() + "」，这一区有 " + hereCount() + " 个能点的入口。"; },
@@ -3769,7 +3827,7 @@ route();
   var NONE = "这句我没答上来。我能答：你的文件夹、课表、VPN 和学校系统、装到桌面、口令、名册、资料、FTP、这只鱼、怎么上手。别的去班群问更快。";
 
   /* 让它是 agent 而不是气泡：这三个函数是它的手脚 */
-  var VIEW_NAME = { home:"概览", library:"成员索引", templates:"写材料", portal:"学校入口", res:"资料库", access:"访问权限", plus:"高级功能", maint:"维护手册" };
+  var VIEW_NAME = { home:"概览", library:"成员索引", more:"更多", notice:"通知待办", templates:"写材料", portal:"学校入口", res:"资料库", access:"访问权限", plus:"高级功能", maint:"维护手册" };
   function viewName(){
     var h = (location.hash || "").replace(/^#\//, "");
     var key = h.split("/")[0] || "home";
@@ -4877,8 +4935,8 @@ route();
       fab = document.getElementById("botFab");
   if (!d || !panel) return;
   var items = [["#/main","概览","main"],["#/res","资料库","res"],
-               ["#/library","成员索引","library"],["#/notice","通知待办","notice"],["#/portal","学校信息","portal"],
-               ["#/admin","高级与维护","admin"],["ref-index.html","整页索引","idx"]];
+               ["#/library","成员索引","library"],["#/more","更多","admin"],
+               ["ref-index.html","整页索引","idx"]];
   d.innerHTML = items.map(function(t){
     return '<a href="' + t[0] + '" data-k="' + t[2] + '">' + t[1] + '</a>';
   }).join("");
