@@ -161,6 +161,13 @@ html.is-embed .envbar{display:none}
 .shared-card h3{font-size:17.5px;font-weight:700;letter-spacing:-.01em;line-height:1.35;margin-bottom:5px}
 .shared-card p{font-size:13.5px;color:var(--ink2);margin-bottom:12px}
 .link-acts{display:flex;flex-wrap:wrap;gap:8px}
+.officer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.officer-card{border:1px solid var(--line);background:var(--card);padding:14px 15px;border-radius:var(--r-md)}
+.officer-card h4{font-size:14.5px;font-weight:700;margin-bottom:6px}
+.officer-card .o-duty{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:8px}
+.officer-card .o-channel{font-size:12.5px;color:var(--ink3);display:flex;gap:6px;align-items:center}
+.officer-card .o-channel b{color:var(--ink2);font-weight:600}
+.officer-card .o-holder{font-size:12px;color:var(--ink3);margin-top:5px}
 
 .member-grid{display:block;border-top:1px solid var(--line2)}
 .cell{display:flex;align-items:center;gap:11px;padding:10px 2px;border-bottom:1px solid var(--line);min-height:54px;cursor:pointer;transition:background .13s}
@@ -930,6 +937,11 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
       </div>
     </div>
 
+    <div class="officer-wrap">
+      <div class="patch-head"><span>班委分工 · 有事找谁</span><span>只记职务与职责，不存姓名；负责人与尾号由班委补充</span></div>
+      <div class="officer-grid" id="officerGrid"></div>
+    </div>
+
     <div class="patch">
       <div class="patch-head"><span>成员端口 · 45</span><span id="patchTip">点一格，跳到索引里那一格</span></div>
       <div class="patchbar" id="patchbar"></div>
@@ -1305,7 +1317,7 @@ const MEMBERS = [
       <h3>七、改什么，改哪里</h3>
       <p>页面是单文件，所有可改项都在 <span class="mono">index.html</span> 末尾的脚本区。</p>
       <div class="steps">
-        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。</div></div>
+        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。班委分工改旁边的 <span class="mono">OFFICERS</span> 数组：<span class="mono">role</span> 职务、<span class="mono">duty</span> 职责、<span class="mono">channel</span> 对接出口；不填姓名，负责人留空由班委补。</div></div>
         <div class="step"><span class="step-n">02</span><div><b>换口令</b>　<span class="mono">GATE_CODE</span>。现在是纯前端校验，挡的是随手点开的人，不是安全措施；换了之后记得在班群说明。</div></div>
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
@@ -1488,6 +1500,17 @@ const MEMBERS = [
 const SHARED = { name:"【班级云库】广西农职大网络工程技术（本）2502班", slug:"ceMSyJ9Ww4NJ" };
 const ROOT   = { name:"【独立私人别墅】班级同学的独立权限文件夹", slug:"cdXOHoG80mkJ" };
 
+/* 班委分工：只写职务与职责，不存姓名与联系方式；负责人由班委在数组里补，对接先走班群 @职务。 */
+const OFFICERS = [
+  { role:"班长",     duty:"统筹班级日常事务，通知上传下达，对接辅导员与各班委", channel:"班群 @班长" },
+  { role:"副班长",   duty:"协助班长，分管专项事务，班长不在时代为联络",           channel:"班群 @副班长" },
+  { role:"学习委员", duty:"课程资料归集、作业收缴提醒、学习相关通知与答疑对接",     channel:"班群 @学委" },
+  { role:"生活委员", duty:"班费、物资采购与日常福利、同学生活事务对接",           channel:"班群 @生活委员" },
+  { role:"文体委员", duty:"文艺体育活动组织、赛事与班级活动协调",                 channel:"班群 @文体委员" },
+  { role:"宣传委员", duty:"通知公告排版、活动记录与稿件、对外宣传口径",           channel:"班群 @宣传委员" },
+  { role:"团支书",   duty:"团务事务、思想汇报、评优推优与团组织对接",             channel:"班群 @团支书" }
+];
+
 const PORTALS = [
   { g:"校内业务系统", note:"需校园网或 VPN", items:[
     { t:"智慧学工 · 学生端", u:"https://xgxtsudent.gxnzd.com.cn/Student/Page/StudentHome.html",
@@ -1609,6 +1632,17 @@ function openUrl(u){
 }
 
 /* ==================== 名册渲染 ==================== */
+function renderOfficers(){
+  const grid = document.getElementById("officerGrid"); if (!grid) return;
+  grid.innerHTML = OFFICERS.map(function(o){
+    return '<div class="officer-card">' +
+      '<h4>' + o.role + '</h4>' +
+      '<p class="o-duty">' + o.duty + '</p>' +
+      '<div class="o-channel"><b>对接</b>' + o.channel + '</div>' +
+      '<div class="o-holder">负责人：待班委补充</div>' +
+    '</div>';
+  }).join("");
+}
 function currentList(){
   const q = state.q.trim().toLowerCase().replace(/尾号|学号|后三位|成员/g, "").trim();
   let list = MEMBERS.map((m, i) => Object.assign({}, m, { _i:i, _p:pad2(i + 1) }));
@@ -1628,6 +1662,7 @@ function currentList(){
 const ICON_COPY = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="11" height="11"/><path d="M15 9V5H4v11h4"/></svg>';
 
 function renderGrid(){
+  renderOfficers();
   const list = currentList();
   document.getElementById("countTxt").textContent = state.q
     ? "命中 " + list.length + " / " + MEMBERS.length + " 个成员空间"
@@ -3526,8 +3561,8 @@ route();
     { k: ["姓名", "名册", "名单", "谁是谁", "隐私"],
       a: "名册只存学号后三位和文件夹地址，故意不放姓名 —— 网页是公开的，整份名单不该跟着上网。" },
     { k: ["班委", "找谁", "管理员", "维护", "谁做"],
-      a: "班务去班群问；门户本身的技术维护找学委。页面壳在 GitHub Pages，文件在 WPS；对话兜底走云端额度，本站不存班级文件。",
-      act: { t: "看维护手册", h: "#/maint" } },
+      a: "班务先看成员索引页的「班委分工」表，按职务找对接出口；门户本身的技术维护找学委。页面壳在 GitHub Pages，文件在 WPS；对话兜底走云端额度，本站不存班级文件。",
+      acts: [{ t: "看班委分工", h: "#/library" }, { t: "看维护手册", h: "#/maint" }] },
     { k: ["资料", "四级", "真题", "题库", "考试", "资源"],
       a: "资料库页是校内资源站的入口，考试、题库、网盘都在那一栏。",
       act: { t: "去资料库", h: "#/res" } },
