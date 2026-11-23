@@ -234,6 +234,7 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     <div class="field">
       <label>助手预设词（system）</label>
       <textarea id="systemPrompt" placeholder="你是一个简洁实用的助手，回答用中文，先给结论再补充说明。"></textarea>
+      <div class="seg" id="sysPreset"></div>
     </div>
 
     <div class="field">
@@ -340,6 +341,14 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     { id: "daily", label: "事务效率", system: "你是一名效率助手，帮忙拆解重复性事务、安排待办与日程思路。回答给出可执行的清单和优先级，定时、邮件等具体操作以系统官方功能为准。", example: "帮我把这些日常事务整理成待办清单和优先级：" },
     { id: "data", label: "数据洞察", system: "你是一名数据分析助手，擅长整理数据口径、设计计算思路并用通俗方式解释结论。图表只给方案与口径，具体数值以真实数据为准。", example: "这批数据我想看出趋势和异常，帮我设计分析口径和图表思路：" },
     { id: "multi", label: "多模态创作", system: "你是一名创意策划助手，擅长描述图片、视频、3D 内容的构思与提示词方向。具体出图、出视频需对接相应生成工具，这里先给文案与方案。", example: "帮我把这个创意方向写成可交给生成工具的画面/视频提示词：" }
+  ];
+
+  /* 人设一键预设：空值表示回落默认 system，填框后仍可手改 */
+  var SYS_PRESETS = [
+    { t: "默认", v: "" },
+    { t: "答疑助手", v: "你是一名耐心的答疑助手，回答先给结论再讲思路；不知道就明说，不编造；涉及步骤时给出可复现的操作顺序。" },
+    { t: "简短口语", v: "说话简短口语化，一两句把事说清，不堆套话；不知道就说不知道，不编。" },
+    { t: "严谨正式", v: "回答严谨有条理，先结论后说明；不确定的信息明确标注，不臆测；用规范书面语。" }
   ];
 
   function loadCfg(){
@@ -598,6 +607,7 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     paintBg();
     paintDensity();
     paintChipsTa();
+    paintSysPreset();
     paintMode();
   }
   function paintMode(){
@@ -675,6 +685,7 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     $("systemPrompt").value = sc.system;
     input.value = sc.example;
     paintScene(sc.id);
+    paintSysPreset();
     input.focus();
   }
   function renderChips(){
@@ -704,6 +715,34 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     renderChips();
   });
   renderChips();
+
+  /* ---------- 人设一键预设 ---------- */
+  function paintSysPreset(){
+    var box = $("sysPreset"); if (!box) return;
+    var cur = cfg.system || "";
+    Array.prototype.slice.call(box.children).forEach(function(b, i){
+      var p = SYS_PRESETS[i]; if (!p) return;
+      b.classList.toggle("on", p.v === "" ? cur === defaults.system : cur === p.v);
+    });
+  }
+  function renderSysPreset(){
+    var box = $("sysPreset"); if (!box) return;
+    box.innerHTML = "";
+    SYS_PRESETS.forEach(function(p){
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = p.t;
+      b.addEventListener("click", function(){
+        var val = p.v || defaults.system;
+        cfg.system = val;
+        $("systemPrompt").value = val;
+        saveCfg(cfg);
+        paintSysPreset();
+      });
+      box.appendChild(b);
+    });
+    paintSysPreset();
+  }
+  renderSysPreset();
 
   /* ---------- 请求 ---------- */
   function buildMessages(){
