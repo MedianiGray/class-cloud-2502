@@ -191,6 +191,30 @@ html.is-embed .envbar{display:none}
 .notice-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .notice-note{font-size:12.5px;color:var(--ink3);line-height:1.6}
 
+/* ---------- 收集台账 / 档案交接 ---------- */
+.ledger-form{border:1px solid var(--line);background:var(--card);padding:15px 17px;margin-bottom:16px}
+.ledger-form .p-grid{margin-bottom:12px}
+.ledger-form label{display:block;font-size:12px;color:var(--ink3)}
+.ledger-list{display:flex;flex-direction:column;gap:10px}
+.ledger-card{border:1px solid var(--line);background:var(--card);padding:14px 16px;border-radius:var(--r-md);display:flex;flex-direction:column;gap:7px}
+.ledger-card.done{opacity:.56}
+.ledger-top{display:flex;gap:11px;align-items:flex-start;min-width:0}
+.ledger-main{flex:1;min-width:0}
+.ledger-title{font-size:15px;font-weight:700;line-height:1.4}
+.ledger-card.done .ledger-title{text-decoration:line-through;color:var(--ink3)}
+.ledger-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--ink3);margin-top:4px}
+.ledger-meta b{color:var(--ink2);font-weight:600}
+.ledger-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.arch-list{display:flex;flex-direction:column;border:1px solid var(--line);background:var(--card)}
+.arch-row{display:grid;grid-template-columns:130px 1fr;gap:6px 14px;padding:13px 15px;border-bottom:1px solid var(--line)}
+.arch-row:last-child{border-bottom:0}
+.arch-cat{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--ink3);padding-top:2px}
+.arch-body{min-width:0}
+.arch-name{font-size:14.5px;font-weight:700;line-height:1.4}
+.arch-meta{display:flex;flex-wrap:wrap;gap:3px 13px;font-size:12.5px;color:var(--ink3);margin-top:3px}
+.arch-meta b{color:var(--ink2);font-weight:600}
+@media (max-width:560px){ .arch-row{grid-template-columns:1fr;gap:4px} }
+
 .member-grid{display:block;border-top:1px solid var(--line2)}
 .cell{display:flex;align-items:center;gap:11px;padding:10px 2px;border-bottom:1px solid var(--line);min-height:54px;cursor:pointer;transition:background .13s}
 .cell:hover{background:#fff}
@@ -1076,6 +1100,69 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   </div>
 </section>
 
+<!-- ===== 视图：收集台账 ===== -->
+<section class="view" id="view-ledger">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">收集台账</h1>
+      <p class="page-lead">收名单、回执、信息汇总时先用这里的表头骨架；下面的本机台账记最小条目（尾号 / 事项 / 状态 / 备注），只存在这台设备上，可导出 JSON。姓名不进网页，签到与实名名单只在线下或纸质表填写；在线多人汇总排阶段二。</p>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">收集表模板</span><span class="task-meta">表头骨架 · 一键复制</span></div>
+      <div class="task-b">
+        <div class="tpl-list" id="ledgerTplList"></div>
+      </div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">本机台账</span><span class="task-meta">只存本机 · 可导出</span></div>
+      <div class="task-b">
+        <div class="ledger-form">
+          <div class="p-grid">
+            <label>学号后三位<input id="lgNo" class="p-in" inputmode="numeric" maxlength="3" placeholder="如 238"></label>
+            <label>事项<input id="lgItem" class="p-in" placeholder="如 回执 / 照片 / 报名表"></label>
+            <label>备注<input id="lgNote" class="p-in" placeholder="选填，如未交原因、补交时间"></label>
+          </div>
+          <div class="link-acts">
+            <button class="btn btn-sm" id="lgAdd">记一条</button>
+            <button class="btn btn-sm ghost" id="lgExport">导出台账 JSON</button>
+            <button class="btn btn-sm ghost" id="lgClear">清空本机台账</button>
+          </div>
+        </div>
+        <div class="ledger-list" id="ledgerList"></div>
+      </div>
+    </div>
+    <p class="portal-xlink">台账只做本机记录与交接导出，不替代官方收集表；正式名单、成绩与完整学号仍以班群和学校渠道为准。</p>
+  </div>
+</section>
+
+<!-- ===== 视图：档案与交接 ===== -->
+<section class="view" id="view-archive">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">档案与交接</h1>
+      <p class="page-lead">班级档案按学期和类别归位，换届交接时照清单逐项对点。目录是静态骨架，位置对照共享库实际目录补；清单可导出 JSON 留给下一任。云端归档排阶段二。</p>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">档案目录</span><span class="task-meta">按学期 / 类别</span></div>
+      <div class="task-b"><div class="arch-list" id="archiveDirs"></div></div>
+    </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">换届交接清单</span><span class="task-meta">资料 · 账号 · 遗留待办</span></div>
+      <div class="task-b">
+        <div class="arch-list" id="handoverList"></div>
+        <div class="link-acts" style="margin-top:12px">
+          <button class="btn btn-sm ghost" id="archExport">导出交接清单 JSON</button>
+        </div>
+      </div>
+    </div>
+    <p class="portal-xlink">账号归属与权限写清由谁持有、怎么交接；门户页面本身不存账号密码，敏感凭证走线下或官方渠道交接。</p>
+  </div>
+</section>
+
 <!-- ===== 视图：更多（聚合分类） ===== -->
 <section class="view" id="view-more">
   <div class="wrap">
@@ -1104,6 +1191,18 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
           <span class="entry-t">学校入口</span>
           <span class="entry-d">学工、VPN、官网与文件仓库</span>
           <span class="entry-go">打开</span>
+        </button>
+        <button class="entry" data-go="#/ledger">
+          <span class="entry-k">LEDGER</span>
+          <span class="entry-t">收集台账</span>
+          <span class="entry-d">收集表骨架与本机最小台账，可导出</span>
+          <span class="entry-go">打开</span>
+        </button>
+        <button class="entry" data-go="#/archive">
+          <span class="entry-k">ARCHIVE</span>
+          <span class="entry-t">档案交接</span>
+          <span class="entry-d">档案目录与换届交接清单，可导出</span>
+          <span class="entry-go">查看</span>
         </button>
       </div>
     </div>
@@ -1408,7 +1507,7 @@ const MEMBERS = [
       <h3>七、改什么，改哪里</h3>
       <p>页面是单文件，所有可改项都在 <span class="mono">index.html</span> 末尾的脚本区。</p>
       <div class="steps">
-        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。班委分工改旁边的 <span class="mono">OFFICERS</span> 数组：<span class="mono">role</span> 职务、<span class="mono">duty</span> 职责、<span class="mono">channel</span> 对接出口；不填姓名，负责人留空由班委补。通知待办改 <span class="mono">NOTICES</span> 数组：<span class="mono">id</span> 稳定键、<span class="mono">title</span> 事项、<span class="mono">due</span> 截止（<span class="mono">YYYY-MM-DD</span>，留空表示待定）、<span class="mono">src</span> 来源、<span class="mono">link</span> 出口；已办勾选只存本机 <span class="mono">cl_notice_done_v1</span>，不上传。</div></div>
+        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。班委分工改旁边的 <span class="mono">OFFICERS</span> 数组：<span class="mono">role</span> 职务、<span class="mono">duty</span> 职责、<span class="mono">channel</span> 对接出口；不填姓名，负责人留空由班委补。通知待办改 <span class="mono">NOTICES</span> 数组：<span class="mono">id</span> 稳定键、<span class="mono">title</span> 事项、<span class="mono">due</span> 截止（<span class="mono">YYYY-MM-DD</span>，留空表示待定）、<span class="mono">src</span> 来源、<span class="mono">link</span> 出口；已办勾选只存本机 <span class="mono">cl_notice_done_v1</span>，不上传。收集表表头骨架在 <span class="mono">LEDGER_TPLS</span> 数组；本机台账条目存 <span class="mono">cl_ledger_v1</span>（尾号 / 事项 / 状态 / 备注），可导出 JSON。档案目录在 <span class="mono">ARCHIVE_DIRS</span>，交接清单在 <span class="mono">HANDOVER</span>，交接勾选存本机 <span class="mono">cl_handover_v1</span>，清单可导出 JSON。</div></div>
         <div class="step"><span class="step-n">02</span><div><b>换口令</b>　<span class="mono">GATE_CODE</span>。现在是纯前端校验，挡的是随手点开的人，不是安全措施；换了之后记得在班群说明。</div></div>
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
@@ -1886,7 +1985,7 @@ function brwPush(url){
   brw.hist = [url];
   brw.hi = 0;
   const inHash = (location.hash || "").replace(/^#/, "");
-  brw.localHash = ["/library", "/res", "/home", "/portal", "/notice", "/templates", "/more"].indexOf(inHash) >= 0 ? location.hash : "#/library";
+  brw.localHash = ["/library", "/res", "/home", "/portal", "/notice", "/templates", "/ledger", "/archive", "/more"].indexOf(inHash) >= 0 ? location.hash : "#/library";
   document.getElementById("brw").classList.add("on");
   document.getElementById("brw").setAttribute("aria-hidden", "false");
   brwRender();
@@ -2287,6 +2386,229 @@ function renderNotice(){
 
 renderNotice();
 
+/* ==================== 收集台账（模板骨架 + 本机最小台账） ==================== */
+const LEDGER_KEY = "cl_ledger_v1";
+const LEDGER_TPLS = [
+  { id:"roster", title:"名单收集表", use:"统计人数、分组与必要联系方式；姓名只在线下表单填",
+    body:[
+      "序号  学号后三位  姓名  联系方式  分组 / 备注",
+      "",
+      "（姓名、联系方式不录入公开网页；本表线下填写后归入共享库）"
+    ],
+    tips:[
+      "进网页台账的只留学号后三位；",
+      "联系方式按最小必要收集，不在公开页留存。"
+    ] },
+  { id:"receipt", title:"回执登记表", use:"通知签收、材料回收、确认到会",
+    body:[
+      "序号  学号后三位  事项  回执状态  时间  备注",
+      "",
+      "回执状态：已交 / 未交 / 补交"
+    ],
+    tips:[
+      "按事项逐人登记，未交的在本机台账单独标记；",
+      "正式回执以纸质表或官方收集表为准。"
+    ] },
+  { id:"info", title:"信息汇总表", use:"统计特长、住宿、籍贯等办这件事必需的信息",
+    body:[
+      "序号  学号后三位  字段一  字段二  备注",
+      "",
+      "字段按实际收集项确定，不填与事项无关的隐私"
+    ],
+    tips:[
+      "只收办这件事必需的字段；",
+      "敏感信息不进公开网页。"
+    ] }
+];
+const LEDGER_STATE = { todo:"待办", doing:"进行", done:"完成" };
+const LEDGER_NEXT = { todo:"doing", doing:"done", done:"todo" };
+
+function ledgerItems(){
+  try { return JSON.parse(store.get(LEDGER_KEY) || "[]") || []; } catch(e){ return []; }
+}
+function saveLedger(arr){ store.set(LEDGER_KEY, JSON.stringify(arr)); }
+
+function renderLedgerTpls(){
+  const host = document.getElementById("ledgerTplList");
+  if (!host) return;
+  host.innerHTML = LEDGER_TPLS.map(function(t, i){
+    return '<div class="tpl-card">' +
+      '<div class="tpl-h"><h3>' + t.title + '</h3><span class="tpl-use">' + t.use + '</span></div>' +
+      '<div class="tpl-b">' +
+        '<pre class="tpl-body">' + t.body.join("\n") + '</pre>' +
+        '<ul class="tpl-tips">' + t.tips.map(function(x){ return '<li>' + x + '</li>'; }).join("") + '</ul>' +
+        '<div class="tpl-acts"><button class="btn btn-sm ghost" data-ledger-copy="' + i + '">复制表头骨架</button></div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function renderLedger(){
+  const host = document.getElementById("ledgerList");
+  if (!host) return;
+  const arr = ledgerItems();
+  if (!arr.length) {
+    host.innerHTML = '<div class="empty"><h4>本机台账暂无条目</h4><p>在上面记一条：尾号、事项、备注，状态默认待办。记录只存这台设备。</p></div>';
+    return;
+  }
+  const rank = { todo:0, doing:1, done:2 };
+  arr.sort(function(a,b){ return (rank[a.status] || 0) - (rank[b.status] || 0); });
+  host.innerHTML = arr.map(function(it){
+    const st = LEDGER_STATE[it.status] || "待办";
+    const meta = '<span><b>尾号</b>' + (it.no || "未填") + '</span>' +
+      '<span><b>记录于</b>' + (it.at || "—") + '</span>';
+    return '<div class="ledger-card' + (it.status === "done" ? " done" : "") + '">' +
+      '<div class="ledger-top">' +
+        '<div class="ledger-main">' +
+          '<div class="ledger-title">' + it.item + '</div>' +
+          '<div class="ledger-meta">' + meta + '</div>' +
+          (it.note ? '<div class="ledger-meta"><span><b>备注</b>' + it.note + '</span></div>' : "") +
+        '</div>' +
+        '<span class="n-state ' + it.status + '">' + st + '</span>' +
+      '</div>' +
+      '<div class="ledger-acts">' +
+        '<button class="btn btn-sm ghost" data-lg-cycle="' + it.id + '">切换状态</button>' +
+        '<button class="btn btn-sm ghost" data-lg-del="' + it.id + '">删除</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+(function(){
+  const addBtn = document.getElementById("lgAdd");
+  if (!addBtn) return;
+  const noEl = document.getElementById("lgNo");
+  const itemEl = document.getElementById("lgItem");
+  const noteEl = document.getElementById("lgNote");
+  addBtn.addEventListener("click", function(){
+    const item = itemEl.value.trim();
+    if (!item) { toast("先填事项"); itemEl.focus(); return; }
+    let no = (noEl.value || "").replace(/\D/g, "").slice(-3);
+    const arr = ledgerItems();
+    const today = new Date();
+    const at = today.getFullYear() + "-" + pad2(today.getMonth() + 1) + "-" + pad2(today.getDate());
+    arr.push({ id: Date.now() + "", no: no, item: item, note: noteEl.value.trim(), status: "todo", at: at });
+    saveLedger(arr);
+    noEl.value = ""; itemEl.value = ""; noteEl.value = "";
+    renderLedger();
+    toast("已记一条");
+  });
+  document.getElementById("ledgerList").addEventListener("click", function(e){
+    const cyc = e.target.closest("[data-lg-cycle]");
+    if (cyc) {
+      const arr = ledgerItems();
+      const hit = arr.find(function(x){ return x.id === cyc.dataset.lgCycle; });
+      if (hit) { hit.status = LEDGER_NEXT[hit.status] || "todo"; saveLedger(arr); renderLedger(); }
+      return;
+    }
+    const del = e.target.closest("[data-lg-del]");
+    if (del) {
+      const arr = ledgerItems().filter(function(x){ return x.id !== del.dataset.lgDel; });
+      saveLedger(arr); renderLedger(); toast("已删除");
+    }
+  });
+  document.getElementById("lgExport").addEventListener("click", function(){
+    const arr = ledgerItems();
+    if (!arr.length) { toast("台账是空的，没有可导出的内容"); return; }
+    const blob = new Blob([JSON.stringify({ exported: "class-cloud-2502 ledger", count: arr.length, items: arr }, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ledger.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(a.href);
+    toast("已导出台账 JSON");
+  });
+  document.getElementById("lgClear").addEventListener("click", function(){
+    if (!ledgerItems().length) { toast("台账已经是空的"); return; }
+    if (confirm("清空本机台账？导出过的记录不受影响，本机这份会删掉。")) {
+      saveLedger([]); renderLedger(); toast("本机台账已清空");
+    }
+  });
+})();
+
+renderLedgerTpls();
+renderLedger();
+
+/* ==================== 档案目录与换届交接清单 ==================== */
+const HANDOVER_KEY = "cl_handover_v1";
+const ARCHIVE_DIRS = [
+  { cat:"学期材料", name:"每学期通知、总结、评优推优材料", loc:"共享库 · 学期文件夹", owner:"学委 / 团支书", status:"持续归档" },
+  { cat:"活动记录", name:"活动方案、新闻稿、照片与配套表", loc:"共享库 · 活动文件夹", owner:"宣传 / 文体委员", status:"持续归档" },
+  { cat:"学习资料", name:"课程资料、题库、实训成果", loc:"共享库 · 专业学习库", owner:"学委", status:"持续补全" },
+  { cat:"个人材料", name:"证书扫描件、个人申报材料", loc:"个人 WPS 文件夹", owner:"本人", status:"本人维护" }
+];
+const HANDOVER = [
+  { id:"repo",    item:"班级共享库与成员文件夹", loc:"WPS 共享库与成员索引", owner:"学委", note:"交接管理员权限，核对 45 格目录齐全" },
+  { id:"site",    item:"门户页面与代码仓库", loc:"GitHub Pages 仓库 class-cloud-2502", owner:"技术维护（学委）", note:"交接仓库权限与部署方式，步骤看部署维护页" },
+  { id:"records", item:"通知与台账记录", loc:"本机台账导出 JSON + 共享库归档", owner:"对应班委", note:"换届前导出本机台账与历史通知归入档案目录" },
+  { id:"account", item:"账号与凭证", loc:"线下 / 官方渠道交接", owner:"对应班委", note:"门户网页不存密码；账号归属逐项写明持有人" },
+  { id:"leftover",item:"遗留待办", loc:"按交接清单逐条列出", owner:"下一任班委", note:"未完成事项、在途材料、待补的人员分工" }
+];
+
+function handoverDoneMap(){
+  try { return JSON.parse(store.get(HANDOVER_KEY) || "{}") || {}; } catch(e){ return {}; }
+}
+
+function renderArchive(){
+  const dHost = document.getElementById("archiveDirs");
+  if (dHost) {
+    dHost.innerHTML = ARCHIVE_DIRS.map(function(d){
+      return '<div class="arch-row">' +
+        '<div class="arch-cat">' + d.cat + '</div>' +
+        '<div class="arch-body">' +
+          '<div class="arch-name">' + d.name + '</div>' +
+          '<div class="arch-meta"><span><b>位置</b>' + d.loc + '</span><span><b>责任人</b>' + d.owner + '</span><span><b>状态</b>' + d.status + '</span></div>' +
+        '</div>' +
+      '</div>';
+    }).join("");
+  }
+  const hHost = document.getElementById("handoverList");
+  if (!hHost) return;
+  const doneMap = handoverDoneMap();
+  hHost.innerHTML = HANDOVER.map(function(h){
+    const done = !!doneMap[h.id];
+    return '<div class="arch-row' + (done ? " done" : "") + '" data-hid="' + h.id + '">' +
+      '<div class="arch-cat"><label style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" class="notice-check" data-hcheck="' + h.id + '"' + (done ? " checked" : "") + ' aria-label="标记已交接">交接</label></div>' +
+      '<div class="arch-body">' +
+        '<div class="arch-name">' + h.item + '</div>' +
+        '<div class="arch-meta"><span><b>位置</b>' + h.loc + '</span><span><b>归属</b>' + h.owner + '</span></div>' +
+        '<div class="arch-meta"><span><b>说明</b>' + h.note + '</span></div>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+(function(){
+  const host = document.getElementById("handoverList");
+  if (!host) return;
+  host.addEventListener("change", function(e){
+    const cb = e.target.closest("[data-hcheck]");
+    if (!cb) return;
+    const map = handoverDoneMap();
+    if (cb.checked) map[cb.dataset.hcheck] = 1; else delete map[cb.dataset.hcheck];
+    store.set(HANDOVER_KEY, JSON.stringify(map));
+    renderArchive();
+  });
+  const exp = document.getElementById("archExport");
+  if (exp) exp.addEventListener("click", function(){
+    const doneMap = handoverDoneMap();
+    const payload = {
+      exported: "class-cloud-2502 handover",
+      dirs: ARCHIVE_DIRS,
+      handover: HANDOVER.map(function(h){ return Object.assign({}, h, { handed: !!doneMap[h.id] }); })
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "handover.json";
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(a.href);
+    toast("已导出交接清单 JSON");
+  });
+})();
+
+renderArchive();
+
 function openRepo(r){
   openDetail({
     kind:"repo",
@@ -2360,7 +2682,7 @@ function initGate(){
    旧链接（#/desk、#/notice、#/templates、#/portal 等）仍可用，落到所属页并对准那个分区。 */
 const GROUPS = {
   main:  ["home", "library", "res"],
-  admin: ["more", "notice", "templates", "portal", "access", "plus", "maint"]
+  admin: ["more", "notice", "templates", "portal", "ledger", "archive", "access", "plus", "maint"]
 };
 const ALIAS = {};
 Object.keys(GROUPS).forEach(function(g){ GROUPS[g].forEach(function(k){ ALIAS[k] = g; }); });
@@ -2368,7 +2690,7 @@ ALIAS.desk = "main";   /* 旧的「工作台」已经并进概览，老链接仍
 const GROUPS_NAMES = ["main", "admin"];
 const SUBS = {
   main:  [["home", "概览"], ["library", "成员索引"], ["res", "资料库"]],
-  admin: [["more", "更多"], ["notice", "通知待办"], ["templates", "写材料"], ["portal", "学校入口"], ["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
+  admin: [["more", "更多"], ["notice", "通知待办"], ["templates", "写材料"], ["portal", "学校入口"], ["ledger", "收集台账"], ["archive", "档案交接"], ["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
 };
 
 function paintDevNote(){
@@ -2569,6 +2891,8 @@ document.getElementById("chips").addEventListener("click", e => {
 document.addEventListener("click", e => {
   const tc = e.target.closest("[data-tpl-copy]");
   if (tc) { copyText(TEMPLATES[+tc.dataset.tplCopy].body.join("\n")); return; }
+  const lc = e.target.closest("[data-ledger-copy]");
+  if (lc) { copyText(LEDGER_TPLS[+lc.dataset.ledgerCopy].body.join("\n")); return; }
   const rp = e.target.closest("[data-repo]");
   if (rp) {
     const r = REPOS.filter(x => x.key === rp.dataset.repo)[0];
@@ -3781,6 +4105,12 @@ route();
     { k: ["通知", "新闻稿", "稿子", "总结", "申请书", "自荐", "方案", "写材料", "材料", "模板", "分工表", "物资", "签到", "配套表"],
       a: "写材料那页放了常用文书和活动配套表的骨架与填写要点：通知、新闻稿、总结、申请书、活动方案，以及分工 / 物资 / 签到 / 收尾配套表。复制骨架换成实际内容即可；这里只给框架，成稿和对外口径由班委和本人确认。",
       act: { t: "去写材料", h: "#/templates" } },
+    { k: ["台账", "收集表", "回执", "登记表", "信息汇总", "汇总表", "没交齐", "收缴登记"],
+      a: "收集台账页放了名单、回执、信息汇总三类表头骨架，可复制；下面的本机台账记尾号、事项、状态和备注，只存这台设备，能导出 JSON。姓名不进网页，实名名单只在线下表单填。",
+      act: { t: "去收集台账", h: "#/ledger" } },
+    { k: ["档案", "交接", "换届", "归档", "存档", "下一任", "留给下一任"],
+      a: "档案与交接页按学期和类别列了档案目录，换届交接清单逐项写清资料位置、账号归属、责任人和遗留待办，可导出 JSON 留给下一任。账号密码不在网页里存，走线下或官方渠道交接。",
+      act: { t: "去档案交接", h: "#/archive" } },
 
     /* 下面这几条让它能动手，不再只是答话：带人走、开那一格、复制地址、管宠物 */
     { k: ["鱼", "宠物", "桌宠", "大肥鱼", "奶龙", "养一只", "叫出来", "收起来"],
@@ -3827,7 +4157,7 @@ route();
   var NONE = "这句我没答上来。我能答：你的文件夹、课表、VPN 和学校系统、装到桌面、口令、名册、资料、FTP、这只鱼、怎么上手。别的去班群问更快。";
 
   /* 让它是 agent 而不是气泡：这三个函数是它的手脚 */
-  var VIEW_NAME = { home:"概览", library:"成员索引", more:"更多", notice:"通知待办", templates:"写材料", portal:"学校入口", res:"资料库", access:"访问权限", plus:"高级功能", maint:"维护手册" };
+  var VIEW_NAME = { home:"概览", library:"成员索引", more:"更多", notice:"通知待办", templates:"写材料", portal:"学校入口", ledger:"收集台账", archive:"档案交接", res:"资料库", access:"访问权限", plus:"高级功能", maint:"维护手册" };
   function viewName(){
     var h = (location.hash || "").replace(/^#\//, "");
     var key = h.split("/")[0] || "home";
