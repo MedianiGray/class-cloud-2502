@@ -1059,7 +1059,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">写材料</h1>
-      <p class="page-lead">班级常用文书的骨架和填写要点：通知、新闻稿、总结、申请书、活动方案。这里只给框架和提醒，不替人写成稿；对外发布的口径由班委和本人确认，正式材料以学校官方通知为准。</p>
+      <p class="page-lead">班级常用文书与活动配套表的骨架和填写要点：通知、新闻稿、总结、申请书、活动方案，以及分工 / 物资 / 签到 / 收尾配套表。这里只给框架和提醒，不替人写成稿；对外发布的口径由班委和本人确认，正式材料以学校官方通知为准。</p>
     </div>
     <div class="tpl-list" id="tplList"></div>
     <p class="portal-xlink">模板里的〔〕是占位提示，换成实际内容再用；写完的材料按归档要求存进共享库对应目录。</p>
@@ -1361,7 +1361,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端（已收口到浏览器本地）</b>　WPS 按请求头 UA 分两套壳，UA 只有浏览器能改，所以换端不做代理、不做服务器。手机：浏览器菜单勾「请求桌面版网站」；电脑：<span class="mono">Ctrl+Shift+M</span> 选 iPhone。云函数里 <span class="mono">/proxy/wps</span> 那条路由留着没删，但页面不再调用。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>预览右上角的「换端」</b>　只有一颗钮，点了按当前设备给一句对应做法，不加载代理页、也不假装切换。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
-        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 六颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、通知待办（<span class="mono">#/notice</span>，事项与截止）、写材料（<span class="mono">#/templates</span>，五类文书骨架）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 六颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、通知待办（<span class="mono">#/notice</span>，事项与截止）、写材料（<span class="mono">#/templates</span>，文书与配套表骨架）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。页面静下来两秒后才加载；<span class="mono">prefers-reduced-motion</span> 下不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>联网兜底的云端函数（可选）</b>　桌宠双击聊天面板还没做，目前只说本机台词；右下角「问问」的联网兜底走云端函数 <span class="mono">proxy/tcb/index.js</span>。模型 Key 只能存在函数环境变量里，<b>绝不能填进页面</b>——公开仓库写进来等于谁都能拿去烧额度。函数带了四道闸：只认班级站来源、每来源每天 40 次、历史 6 条每条 400 字、输出 240 tokens。<b>别给桌宠碎碎念接 AI</b>，那是定时自动说一句，接上就是定时烧额度，台词留在本地池。</div></div>
@@ -2099,6 +2099,36 @@ const TEMPLATES = [
       "分工落到具体的人，流程写清时长；",
       "物资与经费单列，先确认来源再办；",
       "活动后留照片和总结，按归档位置存回共享库。"
+    ] },
+  { id:"event-kit", title:"活动配套表", use:"方案之外的分工、物资、签到与收尾核对",
+    body:[
+      "〔活动名称〕配套表",
+      "",
+      "一、人员分工",
+      "事项                负责人（职务 / 尾号）    对接事项",
+      "主持 / 开场",
+      "现场组织 / 签到",
+      "物资 / 场地",
+      "拍照 / 记录",
+      "收尾 / 归档",
+      "",
+      "二、物资清单",
+      "物资    数量    来源 / 借还    备注",
+      "",
+      "三、签到表表头（纸质或线下收集，姓名不上公开网页）",
+      "序号    学号后三位    姓名    到场时间    签名",
+      "",
+      "四、收尾核对",
+      "[ ] 物资清点归还，场地复原",
+      "[ ] 照片 / 记录归档到共享库对应目录",
+      "[ ] 费用 / 班费收支登记",
+      "[ ] 活动总结 / 新闻稿跟进",
+      "[ ] 未完成事项转交下一任或班委"
+    ],
+    tips:[
+      "分工落到具体人；签到姓名只在线下或纸质表填写，不进公开网页；",
+      "物资先确认来源与借还时间，费用单列；",
+      "收尾逐项打勾，材料按归档位置存回共享库。"
     ] }
 ];
 
@@ -3690,8 +3720,8 @@ route();
     { k: ["待办", "截止", "要交", "什么时候交", "催办", "事项", "清单", "没交", "还差什么"],
       a: "通知待办页把近期要办的事按截止时间排出来，勾「已办」只记在这台设备上；正式通知以班群和学校官方为准。",
       act: { t: "去通知待办", h: "#/notice" } },
-    { k: ["通知", "新闻稿", "稿子", "总结", "申请书", "自荐", "方案", "写材料", "材料", "模板"],
-      a: "写材料那页放了五类常用文书的骨架和填写要点：通知、新闻稿、总结、申请书、活动方案。复制骨架换成实际内容即可；这里只给框架，成稿和对外口径由班委和本人确认。",
+    { k: ["通知", "新闻稿", "稿子", "总结", "申请书", "自荐", "方案", "写材料", "材料", "模板", "分工表", "物资", "签到", "配套表"],
+      a: "写材料那页放了常用文书和活动配套表的骨架与填写要点：通知、新闻稿、总结、申请书、活动方案，以及分工 / 物资 / 签到 / 收尾配套表。复制骨架换成实际内容即可；这里只给框架，成稿和对外口径由班委和本人确认。",
       act: { t: "去写材料", h: "#/templates" } },
 
     /* 下面这几条让它能动手，不再只是答话：带人走、开那一格、复制地址、管宠物 */
