@@ -169,6 +169,28 @@ html.is-embed .envbar{display:none}
 .officer-card .o-channel b{color:var(--ink2);font-weight:600}
 .officer-card .o-holder{font-size:12px;color:var(--ink3);margin-top:5px}
 
+/* ---------- 通知待办 ---------- */
+.notice-stats{display:flex;flex-wrap:wrap;gap:14px 22px;padding:12px 0 16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.notice-stat .ns-n{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--green)}
+.notice-stat .ns-l{font-size:12px;color:var(--ink3)}
+.notice-list{display:grid;gap:12px}
+.notice-card{border:1px solid var(--line);background:var(--card);padding:15px 16px;border-radius:var(--r-md);display:flex;flex-direction:column;gap:8px}
+.notice-card.done{opacity:.56}
+.notice-top{display:flex;gap:11px;align-items:flex-start;min-width:0}
+.notice-check{flex:none;margin-top:2px;width:18px;height:18px;accent-color:var(--green)}
+.notice-main{flex:1;min-width:0}
+.notice-title{font-size:15px;font-weight:700;line-height:1.4}
+.notice-card.done .notice-title{text-decoration:line-through;color:var(--ink3)}
+.notice-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--ink3);margin-top:4px}
+.notice-meta b{color:var(--ink2);font-weight:600}
+.n-state{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:2px 9px;border:1px solid var(--line2);border-radius:10px;flex:none}
+.n-state.todo{color:var(--ink2)}
+.n-state.near{color:var(--amber);border-color:var(--amber)}
+.n-state.overdue{color:var(--red);border-color:var(--red)}
+.n-state.done{color:var(--green);border-color:var(--green2)}
+.notice-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.notice-note{font-size:12.5px;color:var(--ink3);line-height:1.6}
+
 .member-grid{display:block;border-top:1px solid var(--line2)}
 .cell{display:flex;align-items:center;gap:11px;padding:10px 2px;border-bottom:1px solid var(--line);min-height:54px;cursor:pointer;transition:background .13s}
 .cell:hover{background:#fff}
@@ -902,6 +924,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     <div class="mini-nav">
       <a href="https://www.kdocs.cn/folder/ctjLDPYcTofa" target="_blank" rel="noopener">交作业 <span class="mn-d">共享社区 · 上传与提交</span></a>
       <button data-go="#/library">班级云库 <span class="mn-d">共享库 · 45 个成员文件夹</span></button>
+      <button data-go="#/notice">通知待办 <span class="mn-d">事项 · 截止 · 已办勾选</span></button>
       <button data-go="#/templates">写材料 <span class="mn-d">通知 · 新闻稿 · 总结 · 申请书 · 方案</span></button>
       <button data-go="#/portal">学校信息 <span class="mn-d">学工 · VPN · 官网</span></button>
       <a href="./more.html">十件事</a>
@@ -1040,6 +1063,19 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     </div>
     <div class="tpl-list" id="tplList"></div>
     <p class="portal-xlink">模板里的〔〕是占位提示，换成实际内容再用；写完的材料按归档要求存进共享库对应目录。</p>
+  </div>
+</section>
+
+<!-- ===== 视图：通知待办 ===== -->
+<section class="view" id="view-notice">
+  <div class="wrap">
+    <div class="page-head">
+      <h1 class="page-h1">通知待办</h1>
+      <p class="page-lead">近期要办的事按截止时间排在这里。勾「已办」只记在这台设备上，不上传；正式通知以班群和学校官方为准，这里只是提醒和指引。</p>
+    </div>
+    <div class="notice-stats" id="noticeStats"></div>
+    <div class="notice-list" id="noticeList"></div>
+    <p class="portal-xlink">条目由班委维护进静态数组；要交什么、找谁对接，先看成员索引页的「班委分工」。</p>
   </div>
 </section>
 
@@ -1317,7 +1353,7 @@ const MEMBERS = [
       <h3>七、改什么，改哪里</h3>
       <p>页面是单文件，所有可改项都在 <span class="mono">index.html</span> 末尾的脚本区。</p>
       <div class="steps">
-        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。班委分工改旁边的 <span class="mono">OFFICERS</span> 数组：<span class="mono">role</span> 职务、<span class="mono">duty</span> 职责、<span class="mono">channel</span> 对接出口；不填姓名，负责人留空由班委补。</div></div>
+        <div class="step"><span class="step-n">01</span><div><b>加人 / 删人</b>　<span class="mono">MEMBERS</span> 数组；<span class="mono">no</span> 只填学号后三位，<span class="mono">slug</span> 取 WPS 文件夹地址末尾那段。加一行即可，成员索引、端口色块、学号直达都会自动跟着变。班委分工改旁边的 <span class="mono">OFFICERS</span> 数组：<span class="mono">role</span> 职务、<span class="mono">duty</span> 职责、<span class="mono">channel</span> 对接出口；不填姓名，负责人留空由班委补。通知待办改 <span class="mono">NOTICES</span> 数组：<span class="mono">id</span> 稳定键、<span class="mono">title</span> 事项、<span class="mono">due</span> 截止（<span class="mono">YYYY-MM-DD</span>，留空表示待定）、<span class="mono">src</span> 来源、<span class="mono">link</span> 出口；已办勾选只存本机 <span class="mono">cl_notice_done_v1</span>，不上传。</div></div>
         <div class="step"><span class="step-n">02</span><div><b>换口令</b>　<span class="mono">GATE_CODE</span>。现在是纯前端校验，挡的是随手点开的人，不是安全措施；换了之后记得在班群说明。</div></div>
         <div class="step"><span class="step-n">03</span><div><b>学校入口 / 校内资源</b>　<span class="mono">PORTALS</span> / <span class="mono">RESOURCES</span> 两个数组。</div></div>
         <div class="step"><span class="step-n">04</span><div><b>分区顺序与折叠</b>　<span class="mono">GROUPS</span>（分组）、<span class="mono">SUBS</span>（分区中文名）、<span class="mono">ALIAS</span>（旧链接兼容）。改顺序只动 <span class="mono">GROUPS</span>，不要改 <span class="mono">id</span>。</div></div>
@@ -1325,7 +1361,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">06</span><div><b>换端（已收口到浏览器本地）</b>　WPS 按请求头 UA 分两套壳，UA 只有浏览器能改，所以换端不做代理、不做服务器。手机：浏览器菜单勾「请求桌面版网站」；电脑：<span class="mono">Ctrl+Shift+M</span> 选 iPhone。云函数里 <span class="mono">/proxy/wps</span> 那条路由留着没删，但页面不再调用。</div></div>
         <div class="step"><span class="step-n">07</span><div><b>预览右上角的「换端」</b>　只有一颗钮，点了按当前设备给一句对应做法，不加载代理页、也不假装切换。</div></div>
         <div class="step"><span class="step-n">08</span><div><b>顶部提示条文案</b>　<span class="mono">#envbar</span> 那段脚本里的三个 <span class="mono">show(...)</span> 分支：微信 / QQ、安卓安装、iOS 手动添加。</div></div>
-        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 五颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、写材料（<span class="mono">#/templates</span>，五类文书骨架）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
+        <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 六颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、通知待办（<span class="mono">#/notice</span>，事项与截止）、写材料（<span class="mono">#/templates</span>，五类文书骨架）、学校信息（<span class="mono">#/portal</span>）、十件事（<span class="mono">./more.html</span>）。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。页面静下来两秒后才加载；<span class="mono">prefers-reduced-motion</span> 下不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
         <div class="step"><span class="step-n">12</span><div><b>联网兜底的云端函数（可选）</b>　桌宠双击聊天面板还没做，目前只说本机台词；右下角「问问」的联网兜底走云端函数 <span class="mono">proxy/tcb/index.js</span>。模型 Key 只能存在函数环境变量里，<b>绝不能填进页面</b>——公开仓库写进来等于谁都能拿去烧额度。函数带了四道闸：只认班级站来源、每来源每天 40 次、历史 6 条每条 400 字、输出 240 tokens。<b>别给桌宠碎碎念接 AI</b>，那是定时自动说一句，接上就是定时烧额度，台词留在本地池。</div></div>
@@ -1402,7 +1438,7 @@ git push</div>
   <div class="wrap" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;width:100%">
     <span id="footMeta">GXAU · 网络工程技术（本）2502 · 2026</span>
     <div class="foot-links">
-      <a href="#/library">云库</a><a href="#/portal">入口</a><a href="#/access">权限</a><a href="#/maint">维护</a><a href="./more.html">十件事</a>
+      <a href="#/library">云库</a><a href="#/notice">待办</a><a href="#/portal">入口</a><a href="#/access">权限</a><a href="#/maint">维护</a><a href="./more.html">十件事</a>
     </div>
   </div>
 </footer>
@@ -1795,7 +1831,7 @@ function brwPush(url){
   brw.hist = [url];
   brw.hi = 0;
   const inHash = (location.hash || "").replace(/^#/, "");
-  brw.localHash = ["/library", "/res", "/home", "/portal"].indexOf(inHash) >= 0 ? location.hash : "#/library";
+  brw.localHash = ["/library", "/res", "/home", "/portal", "/notice", "/templates"].indexOf(inHash) >= 0 ? location.hash : "#/library";
   document.getElementById("brw").classList.add("on");
   document.getElementById("brw").setAttribute("aria-hidden", "false");
   brwRender();
@@ -2081,6 +2117,91 @@ function renderTemplates(){
   }).join("");
 }
 
+/* ==================== 通知待办（静态条目，完成态存本机） ==================== */
+const NOTICE_KEY = "cl_notice_done_v1";
+const NOTICES = [
+  { id:"demo-1", title:"〔示例〕按时提交本周作业 / 实训报告", due:"", src:"班群通知", link:"#/res",
+    note:"占位条目，班委按实际通知替换；截止时间按 YYYY-MM-DD 填，留空表示时间待定。" }
+];
+
+function noticeDoneMap(){
+  try { return JSON.parse(store.get(NOTICE_KEY) || "{}") || {}; } catch(e){ return {}; }
+}
+function noticeState(n, done){
+  if (done) return "done";
+  if (!n.due) return "todo";
+  var today = new Date(); today.setHours(0,0,0,0);
+  var due = new Date(n.due + "T00:00:00");
+  if (isNaN(due.getTime())) return "todo";
+  var diff = Math.round((due - today) / 86400000);
+  if (diff < 0) return "overdue";
+  if (diff <= 3) return "near";
+  return "todo";
+}
+const NOTICE_STATE = { todo:"待办", near:"临近", overdue:"已过期", done:"已办" };
+
+function renderNotice(){
+  var host = document.getElementById("noticeList");
+  var stats = document.getElementById("noticeStats");
+  if (!host) return;
+  var doneMap = noticeDoneMap();
+  var rows = NOTICES.map(function(n){
+    var done = !!doneMap[n.id];
+    return { n:n, done:done, state:noticeState(n, done) };
+  });
+  var rank = { overdue:0, near:1, todo:2, done:3 };
+  rows.sort(function(a,b){
+    if (rank[a.state] !== rank[b.state]) return rank[a.state] - rank[b.state];
+    return (a.n.due || "9999").localeCompare(b.n.due || "9999");
+  });
+  var c = { todo:0, near:0, overdue:0, done:0 };
+  rows.forEach(function(r){ c[r.state]++; });
+  if (stats) stats.innerHTML =
+    '<div class="notice-stat"><span class="ns-n">' + c.todo + '</span><span class="ns-l">待办</span></div>' +
+    '<div class="notice-stat"><span class="ns-n">' + (c.near + c.overdue) + '</span><span class="ns-l">临近 / 过期</span></div>' +
+    '<div class="notice-stat"><span class="ns-n">' + c.done + '</span><span class="ns-l">已办</span></div>';
+  if (!rows.length) {
+    host.innerHTML = '<div class="empty"><h4>暂无待办事项</h4><p>班委录入通知条目后，会按截止时间排在这里。</p></div>';
+    return;
+  }
+  host.innerHTML = rows.map(function(r){
+    var n = r.n, st = NOTICE_STATE[r.state];
+    var dueTxt = n.due || "时间待定";
+    var act = "";
+    if (n.link) {
+      if (n.link.indexOf("#/") === 0) act = '<button class="btn btn-sm ghost" data-go="' + n.link + '">去对应入口</button>';
+      else act = '<button class="btn btn-sm ghost" data-ext="' + n.link + '">打开来源</button>';
+    }
+    return '<div class="notice-card' + (r.done ? " done" : "") + '">' +
+      '<div class="notice-top">' +
+        '<input type="checkbox" class="notice-check" data-nid="' + n.id + '"' + (r.done ? " checked" : "") + ' aria-label="标记已办">' +
+        '<div class="notice-main">' +
+          '<div class="notice-title">' + n.title + '</div>' +
+          '<div class="notice-meta"><span><b>截止</b>' + dueTxt + '</span><span><b>来源</b>' + n.src + '</span></div>' +
+        '</div>' +
+        '<span class="n-state ' + r.state + '">' + st + '</span>' +
+      '</div>' +
+      (n.note ? '<p class="notice-note">' + n.note + '</p>' : "") +
+      (act ? '<div class="notice-acts">' + act + '</div>' : "") +
+    '</div>';
+  }).join("");
+}
+
+(function(){
+  var host = document.getElementById("noticeList");
+  if (!host) return;
+  host.addEventListener("change", function(e){
+    var cb = e.target.closest("[data-nid]");
+    if (!cb) return;
+    var map = noticeDoneMap();
+    if (cb.checked) map[cb.dataset.nid] = 1; else delete map[cb.dataset.nid];
+    store.set(NOTICE_KEY, JSON.stringify(map));
+    renderNotice();
+  });
+})();
+
+renderNotice();
+
 function openRepo(r){
   openDetail({
     kind:"repo",
@@ -2152,7 +2273,7 @@ function initGate(){
 /* 八个视图合并成两页：main = 概览（原工作台并入）/ 成员索引 / 学校入口 / 资料库；
    admin = 权限说明 / 高级功能 / 部署维护。旧链接（#/desk 等）仍可用，落到所属页并对准那个分区。 */
 const GROUPS = {
-  main:  ["home", "library", "templates", "portal", "res"],
+  main:  ["home", "library", "notice", "templates", "portal", "res"],
   admin: ["access", "plus", "maint"]
 };
 const ALIAS = {};
@@ -2160,7 +2281,7 @@ Object.keys(GROUPS).forEach(function(g){ GROUPS[g].forEach(function(k){ ALIAS[k]
 ALIAS.desk = "main";   /* 旧的「工作台」已经并进概览，老链接仍然进得来 */
 const GROUPS_NAMES = ["main", "admin"];
 const SUBS = {
-  main:  [["home", "概览"], ["library", "成员索引"], ["templates", "写材料"], ["portal", "学校入口"], ["res", "资料库"]],
+  main:  [["home", "概览"], ["library", "成员索引"], ["notice", "通知待办"], ["templates", "写材料"], ["portal", "学校入口"], ["res", "资料库"]],
   admin: [["access", "权限说明"], ["plus", "高级功能"], ["maint", "部署维护"]]
 };
 
@@ -3566,6 +3687,9 @@ route();
     { k: ["资料", "四级", "真题", "题库", "考试", "资源"],
       a: "资料库页是校内资源站的入口，考试、题库、网盘都在那一栏。",
       act: { t: "去资料库", h: "#/res" } },
+    { k: ["待办", "截止", "要交", "什么时候交", "催办", "事项", "清单", "没交", "还差什么"],
+      a: "通知待办页把近期要办的事按截止时间排出来，勾「已办」只记在这台设备上；正式通知以班群和学校官方为准。",
+      act: { t: "去通知待办", h: "#/notice" } },
     { k: ["通知", "新闻稿", "稿子", "总结", "申请书", "自荐", "方案", "写材料", "材料", "模板"],
       a: "写材料那页放了五类常用文书的骨架和填写要点：通知、新闻稿、总结、申请书、活动方案。复制骨架换成实际内容即可；这里只给框架，成稿和对外口径由班委和本人确认。",
       act: { t: "去写材料", h: "#/templates" } },
@@ -4723,7 +4847,7 @@ route();
       fab = document.getElementById("botFab");
   if (!d || !panel) return;
   var items = [["#/main","概览","main"],["#/res","资料库","res"],
-               ["#/library","成员索引","library"],["#/portal","学校信息","portal"],
+               ["#/library","成员索引","library"],["#/notice","通知待办","notice"],["#/portal","学校信息","portal"],
                ["#/admin","高级与维护","admin"],["ref-index.html","整页索引","idx"]];
   d.innerHTML = items.map(function(t){
     return '<a href="' + t[0] + '" data-k="' + t[2] + '">' + t[1] + '</a>';
