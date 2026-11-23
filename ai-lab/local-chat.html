@@ -32,7 +32,7 @@ button{font:inherit;cursor:pointer}
 .dot.on{background:var(--good);box-shadow:0 0 0 4px rgba(47,125,91,.15)}
 .dot.err{background:var(--bad);box-shadow:0 0 0 4px rgba(156,78,82,.15)}
 .dot.load{background:var(--green2);box-shadow:0 0 0 4px rgba(62,125,95,.15)}
-.icon-btn{border:1px solid var(--line);background:var(--paper);color:var(--ink2);border-radius:var(--r-sm);padding:7px 11px;display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.icon-btn{border:1px solid var(--line);background:var(--paper);color:var(--ink2);border-radius:var(--r-sm);padding:7px 11px;display:inline-flex;align-items:center;gap:6px;font-size:13px;text-decoration:none;flex:none}
 .icon-btn:hover{background:#fff;border-color:var(--line2)}
 
 .wrap{flex:1;display:flex;flex-direction:column;max-width:880px;width:100%;margin:0 auto;padding:18px 16px 10px;min-height:0}
@@ -179,6 +179,8 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
   </div>
   <div class="spacer"></div>
   <div class="status"><span class="dot" id="led"></span><span id="statusText">模型未加载</span></div>
+  <a class="icon-btn" href="index.html" title="返回实验目录">目录</a>
+  <a class="icon-btn" href="../index.html" title="回到班级云库">主站</a>
   <button class="icon-btn" id="openSheet" type="button" aria-label="设置">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     设置

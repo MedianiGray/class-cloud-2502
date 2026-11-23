@@ -16,6 +16,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.65;min-height:100vh}
 .wrap{max-width:880px;margin:0 auto;padding:32px 18px 40px}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--green2);text-decoration:none;margin-bottom:16px}
+.back:hover{color:var(--green)}
 .head{margin-bottom:24px}
 .head .kicker{font-family:var(--mono);font-size:12px;color:var(--green2);letter-spacing:.08em}
 .head h1{font-size:24px;font-weight:700;letter-spacing:-.01em;margin:6px 0 8px}
@@ -38,10 +40,11 @@ body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMac
 </head>
 <body>
 <main class="wrap">
+  <a class="back" href="../index.html">← 回到班级云库</a>
   <div class="head">
     <div class="kicker">AI-LAB · 静态页实验</div>
     <h1>两个对话实验</h1>
-    <p>这里的页面都是纯静态 HTML，跑不了模型本身：一个把界面接到外部接口的算力，一个把模型下载到本机浏览器里跑。两者互不依赖，也不属于班级云库主站。</p>
+    <p>这里的页面都是纯静态 HTML，跑不了模型本身：一个把界面接到外部接口的算力，一个把模型下载到本机浏览器里跑。两者互不依赖，是收在主站「更多 → 高级功能」里的旁路实验，不承担班级办事责任。</p>
   </div>
 
   <div class="grid">
