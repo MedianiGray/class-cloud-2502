@@ -9,7 +9,7 @@
 :root{
   --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5; --line:#CDD2C9; --line2:#B9C0B5;
   --ink:#1F2A26; --ink2:#46544E; --ink3:#7A857E;
-  --green:#2E5348; --green2:#3E7D5F; --good:#2F7D5B; --bad:#9C4E52;
+  --green:#2E5348; --green2:#3E7D5F; --green-d:#263F36; --good:#2F7D5B; --bad:#9C4E52;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --r-md:14px; --r-sm:9px;
 }
@@ -79,6 +79,10 @@ body.sheet-open .sheet{transform:translateX(0)}
 .seg{display:flex;gap:6px;flex-wrap:wrap}
 .seg button{border:1px solid var(--line2);background:var(--card);border-radius:999px;padding:7px 13px;font-size:13px;color:var(--ink2)}
 .seg button.on{background:var(--green);border-color:var(--green);color:#F3F7F4}
+.seg button i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.seg button.on i{background:#fff !important}
+.color-row{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13px;color:var(--ink3)}
+.color-row input[type=color]{flex:none;width:44px;height:30px;padding:2px;border:1px solid var(--line2);border-radius:10px;background:var(--card);cursor:pointer}
 .voice-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .voice-row select{flex:1;min-width:0}
 .field input[type=range]{width:100%}
@@ -116,8 +120,32 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
 }
 </style>
 <script>
-/* 底色 / 字号 / 密度开机即套，避免刷新后跳一下 */
+/* 底色 / 字号 / 密度 / 强调色开机即套，避免刷新后跳一下 */
 (function(){
+  var ACCENTS = [
+    {id:"green", name:"墨绿", base:"#2E5348", light:"#3E7D5F", dark:"#263F36"},
+    {id:"blue",  name:"靛蓝", base:"#2F4A6E", light:"#4A6E96", dark:"#243B58"},
+    {id:"teal",  name:"青灰", base:"#35656B", light:"#558A90", dark:"#284E53"},
+    {id:"navy",  name:"藏青", base:"#27384C", light:"#43587A", dark:"#1D2B3B"},
+    {id:"clay",  name:"陶棕", base:"#A87050", light:"#C0845F", dark:"#8A5638"},
+    {id:"orange",name:"暖橘", base:"#B06A35", light:"#CB8450", dark:"#8E5227"},
+    {id:"rose",  name:"豆沙红", base:"#9C4E52", light:"#B8686C", dark:"#7D3E42"},
+    {id:"plum",  name:"酱紫", base:"#5B4A7A", light:"#7A6899", dark:"#473A5E"},
+    {id:"sage",  name:"抹茶", base:"#6E8A5E", light:"#88A476", dark:"#566D49"}
+  ];
+  function shade(hex, f){
+    var n=parseInt(hex.slice(1),16), r=n>>16&255, g=n>>8&255, b=n&255, t=f>0?255:0, p=Math.abs(f);
+    r=Math.round(r+(t-r)*p); g=Math.round(g+(t-g)*p); b=Math.round(b+(t-b)*p);
+    return "#"+[r,g,b].map(function(x){return x.toString(16).padStart(2,"0");}).join("");
+  }
+  function resolveAccent(v){
+    if(!v) return ACCENTS[0];
+    var i; for(i=0;i<ACCENTS.length;i++) if(ACCENTS[i].id===v) return ACCENTS[i];
+    if(/^#[0-9a-fA-F]{6}$/.test(v)) return {id:"custom", base:v, light:shade(v,.18), dark:shade(v,-.16)};
+    return ACCENTS[0];
+  }
+  window.__ACCENTS = ACCENTS;
+  window.__ACCENT_RESOLVE = resolveAccent;
   var BGTONES = [
     {id:"cream", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5"},
     {id:"white", paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC"},
@@ -133,6 +161,8 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     var bg = resolveBg(c.bgTone);
     r.setProperty("--paper", bg.paper); r.setProperty("--paper2", bg.paper2);
     r.setProperty("--card", bg.card); r.setProperty("--line", bg.line); r.setProperty("--line2", bg.line2);
+    var ac = resolveAccent(c.accent);
+    r.setProperty("--green", ac.base); r.setProperty("--green2", ac.light); r.setProperty("--green-d", ac.dark);
     r.zoom = FS[c.fontScale] || "1";
     document.documentElement.dataset.density = c.density === "compact" ? "compact" : "comfort";
   } catch(e){}
@@ -252,6 +282,12 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     </div>
 
     <div class="field">
+      <label>强调色（按钮、选中态、重点标记）</label>
+      <div class="seg" id="accentSeg"></div>
+      <label class="color-row">自定义颜色<input id="accentCustom" type="color" value="#2E5348" aria-label="自定义强调色"></label>
+    </div>
+
+    <div class="field">
       <label>页面底色</label>
       <div class="seg" id="bgSeg">
         <button type="button" data-bg="cream">奶油纸</button>
@@ -322,6 +358,7 @@ var defaults = {
   fontScale: "normal",
   bgTone: "cream",
   density: "comfort",
+  accent: "green",
   chips: null
 };
 
@@ -495,6 +532,29 @@ function paintBg(){
   Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
     b.classList.toggle("on", b.dataset.bg === cfg.bgTone);
   });
+}
+function applyAccent(v){
+  var ac = window.__ACCENT_RESOLVE ? window.__ACCENT_RESOLVE(v) : null;
+  if (!ac) return;
+  var r = document.documentElement.style;
+  r.setProperty("--green", ac.base); r.setProperty("--green2", ac.light); r.setProperty("--green-d", ac.dark);
+}
+function paintAccent(){
+  var box = $("accentSeg"); if (!box) return;
+  box.innerHTML = "";
+  (window.__ACCENTS || []).forEach(function(a){
+    var b = document.createElement("button");
+    b.type = "button"; b.dataset.id = a.id;
+    b.innerHTML = '<i style="background:' + a.base + '"></i>' + a.name;
+    b.classList.toggle("on", cfg.accent === a.id);
+    b.addEventListener("click", function(){
+      cfg.accent = a.id; applyAccent(a.id); paintAccent(); saveCfg(cfg);
+    });
+    box.appendChild(b);
+  });
+  var ac = window.__ACCENT_RESOLVE ? window.__ACCENT_RESOLVE(cfg.accent) : null;
+  var custom = $("accentCustom");
+  if (custom) custom.value = ac ? ac.base : "#2E5348";
 }
 function applyDensity(v){ document.documentElement.dataset.density = v === "compact" ? "compact" : "comfort"; }
 function paintDensity(){
@@ -815,6 +875,7 @@ function fillSheet(){
   paintFont();
   paintBg();
   paintDensity();
+  paintAccent();
   paintChipsTa();
   paintSysPreset();
 }
@@ -851,6 +912,10 @@ $("bgSeg").addEventListener("click", function(e){
 $("densitySeg").addEventListener("click", function(e){
   var b = e.target.closest("[data-den]"); if (!b) return;
   cfg.density = b.dataset.den; applyDensity(b.dataset.den); paintDensity(); saveCfg(cfg);
+});
+var accentCustom = $("accentCustom");
+if (accentCustom) accentCustom.addEventListener("input", function(){
+  cfg.accent = accentCustom.value; applyAccent(cfg.accent); paintAccent(); saveCfg(cfg);
 });
 $("saveSheet").addEventListener("click", function(){
   var modelChanged = cfg.model !== $("modelSel").value || cfg.host !== $("hostSel").value;
@@ -893,6 +958,8 @@ fillSheet();
 applyFont();
 applyBg(cfg.bgTone);
 applyDensity(cfg.density);
+applyAccent(cfg.accent);
+paintAccent();
 if (!navigator.gpu){
   setStatus("WebGPU 不可用，将走 WASM（较慢）", "");
 } else {
