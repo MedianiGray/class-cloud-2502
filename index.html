@@ -149,6 +149,19 @@ html.is-embed .envbar{display:none}
 #search{flex:1;min-width:0;height:42px;border:0;background:none;font-size:16px;color:var(--ink);font-family:inherit}
 #search:focus{outline:none}
 .search-box:focus-within{border-color:var(--green2);outline:2px solid rgba(62,125,95,.25)}
+
+.gh-wrap{margin-top:22px;display:grid;gap:16px}
+.gh-group{border:1px solid var(--line);background:var(--card);border-radius:var(--r-md);overflow:hidden}
+.gh-head{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:8px}
+.gh-n{font-size:11px;color:var(--ink3);font-weight:400;background:var(--paper2);border-radius:10px;padding:1px 8px}
+.gh-list{display:grid}
+.gh-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.gh-item:last-child{border-bottom:0}
+.gh-item:hover{background:var(--paper)}
+.gh-mid{flex:1;min-width:0}
+.gh-title{font-size:14px}
+.gh-sub{font-size:12px;color:var(--ink3);margin-top:2px;line-height:1.5}
+.gh-go{color:var(--ink3);flex:none}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid var(--line2);background:var(--card);padding:7px 12px;font-size:13px;color:var(--ink2)}
 .chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
@@ -1001,7 +1014,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     <div class="toolbar">
       <div class="search-box">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
-        <input id="search" type="search" placeholder="输入尾号或序号，如 312 / 23" aria-label="搜索成员">
+        <input id="search" type="search" placeholder="搜成员尾号 / 序号，也能找资料、模板、入口" aria-label="全局搜索">
       </div>
       <div class="chips" id="chips">
         <button class="chip on" data-s="no">按尾号</button>
@@ -1015,6 +1028,8 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
     </div>
 
     <div class="member-grid" id="memberGrid"></div>
+
+    <div id="globalHits"></div>
 
     <div style="margin-top:20px">
       <div class="shared-card" style="border-color:var(--line2);margin-bottom:0">
@@ -1848,8 +1863,64 @@ function currentList(){
 
 const ICON_COPY = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="11" height="11"/><path d="M15 9V5H4v11h4"/></svg>';
 
+function searchGlobal(raw){
+  const q = String(raw || "").trim().toLowerCase();
+  const groups = [];
+  if (!q) return groups;
+  const hit = (...fields) => fields.some(f => String(f || "").toLowerCase().indexOf(q) > -1);
+
+  const repos = REPOS.filter(r => r.st !== "dead" && hit(r.name, r.note, r.meta))
+    .map(r => ({ title:r.name, sub:r.note, hash:"#/res" }));
+  if (repos.length) groups.push({ g:"资料 · 源库", items:repos });
+
+  const res = RESOURCES.filter(r => r.st !== "dead" && hit(r.t, r.h, r.c))
+    .map(r => ({ title:r.t, sub:r.h + " · " + r.c, hash:"#/res" }));
+  if (res.length) groups.push({ g:"资料 · 资源站", items:res });
+
+  const tpl = TEMPLATES.filter(t => hit(t.title, t.use))
+    .map(t => ({ title:t.title, sub:t.use, hash:"#/templates" }));
+  if (tpl.length) groups.push({ g:"写材料模板", items:tpl });
+
+  const portals = [];
+  PORTALS.forEach(gr => (gr.items || []).forEach(p => {
+    if (hit(p.t, p.d, p.b)) portals.push({ title:p.t, sub:p.d, hash:"#/portal" });
+  }));
+  if (portals.length) groups.push({ g:"学校入口", items:portals });
+
+  const notes = NOTICES.filter(n => hit(n.title, n.note, n.src))
+    .map(n => ({ title:n.title, sub:n.src, hash:"#/notice" }));
+  if (notes.length) groups.push({ g:"通知待办", items:notes });
+
+  const off = OFFICERS.filter(o => hit(o.role, o.duty, o.channel))
+    .map(o => ({ title:o.role, sub:o.duty, hash:"#/library" }));
+  if (off.length) groups.push({ g:"班委分工", items:off });
+
+  return groups;
+}
+
+function renderGlobalHits(raw){
+  const box = document.getElementById("globalHits");
+  if (!box) return;
+  const groups = searchGlobal(raw);
+  if (!groups.length) { box.innerHTML = ""; return; }
+  box.innerHTML = '<div class="gh-wrap">' + groups.map(gr =>
+    '<div class="gh-group">' +
+      '<div class="gh-head">' + gr.g + ' <span class="gh-n">' + gr.items.length + '</span></div>' +
+      '<div class="gh-list">' + gr.items.map(it =>
+        '<a class="gh-item" href="' + it.hash + '">' +
+          '<div class="gh-mid"><div class="gh-title">' + it.title + '</div>' +
+          (it.sub ? '<div class="gh-sub">' + it.sub + '</div>' : '') +
+          '</div>' +
+          '<span class="gh-go">' + ICON_GO + '</span>' +
+        '</a>').join("") +
+      '</div>' +
+    '</div>'
+  ).join("") + '</div>';
+}
+
 function renderGrid(){
   renderOfficers();
+  renderGlobalHits(state.q);
   const list = currentList();
   document.getElementById("countTxt").textContent = state.q
     ? "命中 " + list.length + " / " + MEMBERS.length + " 个成员空间"
