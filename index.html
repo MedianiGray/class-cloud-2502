@@ -256,6 +256,7 @@ html.is-embed .envbar{display:none}
 #view-plus .task-b label{display:block;font-size:12px;color:var(--ink3);margin-bottom:12px}
 #view-plus .task-b label b{color:var(--ink);font-weight:600}
 .qr-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:120px;padding:18px;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink3);font-size:12.5px;text-align:center}
+.brw-qr{background:#FBFBF7}
 .qr-box canvas,.qr-box img{display:block}
 .p-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .p-pane{display:none}
@@ -834,6 +835,130 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 @media (max-width:720px){ body{overflow-x:hidden} }
 @media (max-width:760px){ .nav{display:none} }
 
+/* ==================== 深色档覆写（html[data-theme="dark"]）====================
+   浅色源码保持不动；本块只在深色档翻转暖白卡片、输入框、描边与阴影。
+   注入菜单(dfy)、个别 JS 内联底色等次级项遗留后续补。 */
+html[data-theme="dark"]{
+  --field:#202723; --card-hover:#2C3530;
+  --sh-1:0 2px 6px rgba(0,0,0,.25);
+  --sh-2:0 10px 28px rgba(0,0,0,.34),0 2px 6px rgba(0,0,0,.20);
+  --sh-3:0 18px 44px rgba(0,0,0,.42),0 4px 12px rgba(0,0,0,.24);
+}
+html[data-theme="dark"]{background:#1A201D}
+html[data-theme="dark"] body{background:transparent}
+html[data-theme="dark"] body::before{background:rgba(192,132,95,.06)}
+html[data-theme="dark"] body::after{background:rgba(62,125,95,.06)}
+
+/* 顶栏 / 口令页 */
+html[data-theme="dark"] #topbar{background:rgba(26,32,29,.86);border-bottom-color:var(--line);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+html[data-theme="dark"] #gate{background:linear-gradient(163deg,#1A201D 0%,#202723 100%)}
+html[data-theme="dark"] .gate-card{background:var(--card);border-color:var(--line2)}
+
+/* 卡片与面板暖白翻深 */
+html[data-theme="dark"] .entry,
+html[data-theme="dark"] .shared-card,
+html[data-theme="dark"] .qr-box,
+html[data-theme="dark"] .p-out,
+html[data-theme="dark"] .p-item,
+html[data-theme="dark"] .seat-row,
+html[data-theme="dark"] .line-link,
+html[data-theme="dark"] .ai-g,
+html[data-theme="dark"] .fold-head,
+html[data-theme="dark"] .quick,
+html[data-theme="dark"] .officer-card,
+html[data-theme="dark"] .gh-group,
+html[data-theme="dark"] .tpl-card,
+html[data-theme="dark"] .doc-row,
+html[data-theme="dark"] .cell-copy,
+html[data-theme="dark"] .dp-fields,
+html[data-theme="dark"] .preview-slot,
+html[data-theme="dark"] .pv-acts,
+html[data-theme="dark"] .dev{background:var(--card);border-color:var(--line)}
+html[data-theme="dark"] .entry:hover,
+html[data-theme="dark"] .cell:hover,
+html[data-theme="dark"] .p-item:hover,
+html[data-theme="dark"] .line-link:hover{background:var(--card-hover)}
+
+/* 输入框与控件暖白翻深 */
+html[data-theme="dark"] .search-box,
+html[data-theme="dark"] #gateInput,
+html[data-theme="dark"] .p-in,
+html[data-theme="dark"] .set-select,
+html[data-theme="dark"] .set-input,
+html[data-theme="dark"] .set-color-row input[type=color],
+html[data-theme="dark"] #homeNo{background:var(--field);border-color:var(--line2);color:var(--ink)}
+html[data-theme="dark"] .subnav a,
+html[data-theme="dark"] .chip,
+html[data-theme="dark"] .mini-nav a,
+html[data-theme="dark"] .mini-nav button,
+html[data-theme="dark"] .btn.ghost{background:var(--card);border-color:var(--line2);color:var(--ink2)}
+html[data-theme="dark"] .btn.ghost:hover,
+html[data-theme="dark"] .mini-nav a:hover,
+html[data-theme="dark"] .mini-nav button:hover{background:var(--card-hover);color:var(--ink);border-color:var(--line2)}
+html[data-theme="dark"] .set-modal input[type=range]{background:transparent}
+html[data-theme="dark"] .set-modal input[type=range]::-webkit-slider-runnable-track{background:var(--line2)}
+html[data-theme="dark"] .set-modal input[type=range]::-webkit-slider-thumb{background:var(--ink)}
+html[data-theme="dark"] .brw-tab.on{background:var(--card);color:var(--ink)}
+
+/* 助手对话卡 / 桌宠条 */
+html[data-theme="dark"] .bot-panel,
+html[data-theme="dark"] .bot-head,
+html[data-theme="dark"] .bot-nav,
+html[data-theme="dark"] .bot-input,
+html[data-theme="dark"] .bot-menu,
+html[data-theme="dark"] .pet-bar{background:var(--card);border-color:var(--line2)}
+html[data-theme="dark"] .bot-bot{background:var(--paper2);color:var(--ink)}
+html[data-theme="dark"] .bot-act,
+html[data-theme="dark"] .bot-plus,
+html[data-theme="dark"] .bot-net{background:var(--card);border-color:var(--line2);color:var(--ink2)}
+html[data-theme="dark"] .bot-menu button:hover,
+html[data-theme="dark"] .pet-bar button:active{background:var(--paper2)}
+html[data-theme="dark"] .bot-chips button,
+html[data-theme="dark"] .set-chips button{background:var(--field);border-color:var(--line2);color:var(--ink2)}
+html[data-theme="dark"] .bot-input input{background:var(--field);border-color:var(--line2);color:var(--ink)}
+html[data-theme="dark"] .pet-bar button{color:var(--ink)}
+html[data-theme="dark"] .bot-me{background:color-mix(in srgb, var(--green2) 22%, transparent);color:#DCEBE1}
+
+/* 设置面板 */
+html[data-theme="dark"] .set-modal{background:var(--card);border-color:var(--line2)}
+html[data-theme="dark"] .set-head,
+html[data-theme="dark"] .set-sec{border-bottom-color:var(--line)}
+
+/* 状态角标 / 范例底 / 提示框 */
+html[data-theme="dark"] .p-badge.warn,
+html[data-theme="dark"] .p-badge.verify{background:#3A3320;border-color:#6B5A2E}
+html[data-theme="dark"] .p-badge.dead{background:#3A2622;border-color:#6E3B32}
+html[data-theme="dark"] .warn-box{background:#2E2A1C;border-color:#6B5A2E;color:#E4D3A3}
+html[data-theme="dark"] .tpl-body{background:var(--paper2)}
+html[data-theme="dark"] .tpl-body.sample{background:#2E2A1F;border-color:#5A4D2E}
+html[data-theme="dark"] .p-drop.on{background:color-mix(in srgb, var(--green2) 16%, transparent)}
+
+/* 轻提示浮层 */
+html[data-theme="dark"] #toast{background:var(--card);color:var(--ink);border:1px solid var(--line2)}
+
+/* 内嵌浏览器模拟器壳 */
+html[data-theme="dark"] .brw,
+html[data-theme="dark"] .brw-stage,
+html[data-theme="dark"] .brw-frame{background:var(--card)}
+html[data-theme="dark"] .brw-top,
+html[data-theme="dark"] .brw-bar{background:var(--paper2)}
+html[data-theme="dark"] .brw-tab,
+html[data-theme="dark"] .brw-new,
+html[data-theme="dark"] .brw-ico,
+html[data-theme="dark"] .brw-close,
+html[data-theme="dark"] .brw-dev,
+html[data-theme="dark"] .brw-book,
+html[data-theme="dark"] .brw-book button,
+html[data-theme="dark"] .brw-tip,
+html[data-theme="dark"] .brw-tip button,
+html[data-theme="dark"] .brw-qr,
+html[data-theme="dark"] .brw-hint{background:var(--field);color:var(--ink2);border-color:var(--line)}
+html[data-theme="dark"] .brw-addr input{background:var(--field);color:var(--ink2)}
+
+/* 深色滚动条 */
+html[data-theme="dark"] *{scrollbar-color:rgba(160,170,160,.35) transparent}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.30)}
+
 </style>
 <script>
 /* 外观：开机先套用本机存的强调色，避免刷新闪一下默认绿 */
@@ -869,25 +994,41 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   r.setProperty("--green2", ac.light);
   r.setProperty("--green-d", ac.dark);
 
-  /* 整站底色三档：奶油纸 / 米白 / 雾灰；只换纸面色系，墨色线条不动 */
+  /* 整站底色四档：奶油纸 / 米白 / 雾灰 / 深色；浅色三档墨色不动，深色档连墨色一起翻 */
   var BGTONES = [
-    {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5"},
-    {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC"},
-    {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1"}
+    {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5",
+     ink:"#17211D", ink2:"#4C594F", ink3:"#87918A"},
+    {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC",
+     ink:"#17211D", ink2:"#4C594F", ink3:"#87918A"},
+    {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1",
+     ink:"#17211D", ink2:"#4C594F", ink3:"#87918A"},
+    {id:"dark",  name:"深色",   paper:"#1A201D", paper2:"#222925", card:"#252D28", line:"#38423B", line2:"#4A554D",
+     ink:"#E8EBE5", ink2:"#B6BFB5", ink3:"#879189"}
   ];
   function resolveBg(v){
     var i; for(i=0;i<BGTONES.length;i++) if(BGTONES[i].id===v) return BGTONES[i];
     return BGTONES[0];
   }
+  function systemDark(){
+    try { return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; } catch(e){ return false; }
+  }
+  function resolveBgReal(v){
+    if (v === "auto") return systemDark() ? resolveBg("dark") : resolveBg("cream");
+    return resolveBg(v);
+  }
   window.BGTONES = BGTONES;
-  window.__BG_RESOLVE = resolveBg;
+  window.__BG_RESOLVE = resolveBgReal;
   var bgSaved = null; try { bgSaved = localStorage.getItem("cl_bg"); } catch(e){}
-  var bg = resolveBg(bgSaved);
+  var bg = resolveBgReal(bgSaved);
   r.setProperty("--paper", bg.paper);
   r.setProperty("--paper2", bg.paper2);
   r.setProperty("--card", bg.card);
   r.setProperty("--line", bg.line);
   r.setProperty("--line2", bg.line2);
+  r.setProperty("--ink", bg.ink);
+  r.setProperty("--ink2", bg.ink2);
+  r.setProperty("--ink3", bg.ink3);
+  document.documentElement.dataset.theme = bg.id === "dark" ? "dark" : "light";
   /* 字号档位：小 / 标准 / 大，开机即套，避免刷新后大小跳一下 */
   var FS = { small:"0.92", normal:"1", large:"1.09" };
   var fk = null; try { fk = localStorage.getItem("cl_font_scale"); } catch(e){}
@@ -2173,7 +2314,7 @@ function brwQrPanel(url){
   if (p) { p.remove(); return; }
   p = document.createElement("div");
   p.className = "brw-qr";
-  p.style.cssText = "padding:26px;background:#FBFBF7;border-bottom:1px solid var(--line);text-align:center";
+  p.style.cssText = "padding:26px;border-bottom:1px solid var(--line);text-align:center";
   p.innerHTML = '<div class="qr-box" style="margin:0 auto 12px"></div>' +
     '<div style="font-size:12px;color:var(--ink3)">手机相机扫这个码，就是真手机身份，WPS 会给移动版</div>';
   const stage = document.getElementById("brwStage");
@@ -3028,7 +3169,10 @@ patchbar.addEventListener("click", e => {
     const cell = grid.querySelector('.cell[data-i="' + i + '"]');
     if (!cell) return;
     cell.scrollIntoView({ behavior:"smooth", block:"center" });
-    cell.style.background = "#fff";
+    var hl = document.documentElement.dataset.theme === "dark"
+      ? (getComputedStyle(document.documentElement).getPropertyValue('--card-hover').trim() || "#2C3530")
+      : "#fff";
+    cell.style.background = hl;
     setTimeout(() => { cell.style.background = ""; }, 1600);
   }, 90);
 });
@@ -3925,9 +4069,11 @@ route();
       <label class="set-color-row">自定义颜色<input id="setAccentCustom" type="color" value="#2E5348" aria-label="自定义强调色"></label>
       <div class="set-row" style="margin-top:12px"><span class="set-label">页面底色（整站背景与卡片）</span></div>
       <div class="set-seg" id="setBgTone">
+        <button type="button" data-bg="auto">跟随系统</button>
         <button type="button" data-bg="cream">奶油纸</button>
         <button type="button" data-bg="white">米白</button>
         <button type="button" data-bg="gray">雾灰</button>
+        <button type="button" data-bg="dark">深色</button>
       </div>
       <div class="set-row" style="margin-top:12px"><span class="set-label">字号</span></div>
       <div class="set-seg" id="setFontScale">
@@ -3940,7 +4086,7 @@ route();
         <button type="button" data-den="comfort">舒适</button>
         <button type="button" data-den="compact">紧凑</button>
       </div>
-      <span class="set-note">深色模式排在后面做；这一版可换强调色、页面底色、字号和密度，改动都只存在本机。</span>
+      <span class="set-note">强调色、页面底色（含深色与跟随系统）、字号和密度的改动都只存在本机；选「跟随系统」时按电脑当前的深浅模式自动切换。</span>
     </section>
     <section class="set-sec">
       <h4>对话模型</h4>
@@ -4698,6 +4844,10 @@ route();
     r.setProperty("--card", bg.card);
     r.setProperty("--line", bg.line);
     r.setProperty("--line2", bg.line2);
+    r.setProperty("--ink", bg.ink);
+    r.setProperty("--ink2", bg.ink2);
+    r.setProperty("--ink3", bg.ink3);
+    document.documentElement.dataset.theme = bg.id === "dark" ? "dark" : "light";
   }
   function paintBg(){
     var cur = store.get("cl_bg") || "cream";
@@ -4711,6 +4861,12 @@ route();
     store.set("cl_bg", b.dataset.bg); applyBg(b.dataset.bg); paintBg();
   });
   paintBg();
+  if (window.matchMedia) {
+    var mq = matchMedia("(prefers-color-scheme: dark)");
+    var onScheme = function(){ if (store.get("cl_bg") === "auto") { applyBg("auto"); paintBg(); } };
+    if (mq.addEventListener) mq.addEventListener("change", onScheme);
+    else if (mq.addListener) mq.addListener(onScheme);
+  }
 
   /* ---- 后端二选一：云端额度 / 自己的 API ---- */
   var beSeg = $("setBackend");
