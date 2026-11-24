@@ -468,6 +468,10 @@ iframe.preview{width:100%;height:440px;border:0;display:block;background:#fff}
 .tpl-tips{display:grid;gap:6px;padding-left:18px;font-size:13px;color:var(--ink2);line-height:1.65}
 .tpl-tips li::marker{color:var(--green2)}
 .tpl-acts{display:flex;flex-wrap:wrap;gap:8px}
+.tpl-sample{display:grid;gap:9px;border-left:2px solid var(--amber);padding-left:12px}
+.tpl-sample-h{font-size:12px;font-weight:600;color:var(--amber);display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.tpl-sample-h span{font-size:11px;font-weight:400;color:var(--ink3)}
+.tpl-body.sample{background:#FBF6EA;border-color:#EAD9B8}
 
 /* ---------- 卡片密度档位（紧凑 / 舒适，本机记忆） ---------- */
 html[data-density="compact"] .entry{padding:15px 16px 14px}
@@ -2268,6 +2272,17 @@ const TEMPLATES = [
       "时间、地点、对象写全，截止时间单独成行；",
       "口径与班群、学校通知保持一致，不另造说法；",
       "正式通知以班委和学校官方发布为准。"
+    ],
+    sample:[
+      "【通知】关于收交本周实训报告的通知",
+      "各位同学：",
+      "本周课程实训报告需统一收齐后提交，请按下面要求完成。",
+      "一、提交内容：本周实训报告（纸质稿一份，电子稿交个人文件夹对应目录）。",
+      "二、提交方式：纸质稿于周三〔日期〕18:00 前交给学习委员；电子稿按共享库「专业学习资料」目录命名上传。",
+      "三、注意事项：报告写清姓名尾号与班级，未按时提交的请在班群说明原因。",
+      "如有疑问，在班群里联系学习委员。",
+      "",
+      "学习委员　〔日期〕"
     ] },
   { id:"news", title:"活动新闻稿", use:"活动结束后发班群、公众号或上报材料",
     body:[
@@ -2284,6 +2299,15 @@ const TEMPLATES = [
       "时间、地点、人物、事件齐全，先结论后过程；",
       "成效写可核实的结果，不堆形容词；照片另附；",
       "对外发布前由班委审核。"
+    ],
+    sample:[
+      "网络安全主题班会顺利开展",
+      "",
+      "11 月〔X〕日，网络工程技术（本）2502 班在〔教室〕开展了网络安全主题班会。本次班会围绕日常上网中的账号保护、信息识别与规范用网展开。",
+      "班会先由班委结合案例讲解常见的钓鱼链接、弱口令与个人信息泄露风险，随后同学们就自己遇到的可疑情况进行了交流。",
+      "本次班会帮助同学们理清了日常用网中需要注意的环节，也为后续班级信息安全提醒打下基础。后续将根据情况把相关资料补充到共享库。",
+      "",
+      "（撰稿：〔姓名〕　审核：〔班委〕）"
     ] },
   { id:"summary", title:"学期 / 活动总结", use:"学期末或活动后梳理情况、成效、不足与下一步",
     body:[
@@ -2303,6 +2327,19 @@ const TEMPLATES = [
       "先列事实再评价，不足写具体、不空泛；",
       "数据与事例能对应到共享库里的记录；",
       "定稿后归档到共享库对应目录。"
+    ],
+    sample:[
+      "本学期学习委员工作总结",
+      "",
+      "一、基本情况：本学期负责班级课程作业与实训材料的收发、学习相关通知转达，并配合班委做好共享库资料归集。",
+      "二、完成情况：",
+      "1. 按课程节点收发作业与实训报告，登记提交情况并在班群提醒未交同学。",
+      "2. 维护共享库专业学习资料目录，整理课程配套材料与操作演示。",
+      "三、成效与亮点：作业提交提醒形成固定节点，共享库目录按课程分类，找材料更直接。",
+      "四、存在的不足：个别材料收集不够及时，部分资料归档口径还不统一；与同学的沟通有时只在群内留言，跟进不够细。",
+      "五、下一步安排：继续按节点提醒收交，补齐缺失资料的目录说明，配合班委完善共享库分类。",
+      "",
+      "学习委员　〔日期〕"
     ] },
   { id:"apply", title:"申请书 / 自荐材料", use:"评奖评优、竞选、项目申报等个人申请",
     body:[
@@ -2324,6 +2361,21 @@ const TEMPLATES = [
       "对照评选条件逐条写，一条事迹对应一条结果；",
       "事迹要可核实，不夸大、不虚构；",
       "证书扫描件存进个人文件夹，按要求随材料附上。"
+    ],
+    sample:[
+      "申请书",
+      "",
+      "尊敬的评审老师：",
+      "我是网络工程技术（本）2502 班〔姓名〕，学号后三位〔___〕。现申请〔奖项名称〕。",
+      "一、个人基本情况：在校期间完成各门课程学习，担任〔班委职务 / 无〕，参与班级与专业相关活动。",
+      "二、主要成绩与事迹：",
+      "1. 学习方面：按要求完成课程作业与实训，相关材料存于个人文件夹。",
+      "2. 集体方面：参与〔活动 / 分工〕，承担〔具体事项〕。",
+      "三、申报理由：对照评选条件，在〔学习 / 纪律 / 服务集体〕方面符合申报要求，具体情况以可核实的材料为准。",
+      "四、承诺与配合：本人所填材料均真实，如有需要将按要求补充证明材料。",
+      "恳请审核。",
+      "",
+      "申请人：〔姓名〕　日期：〔___〕"
     ] },
   { id:"plan", title:"活动方案", use:"办班会、比赛、团建、志愿服务前的安排",
     body:[
@@ -2343,6 +2395,20 @@ const TEMPLATES = [
       "分工落到具体的人，流程写清时长；",
       "物资与经费单列，先确认来源再办；",
       "活动后留照片和总结，按归档位置存回共享库。"
+    ],
+    sample:[
+      "班级网络技术分享小会方案",
+      "",
+      "一、活动目的：结合专业学习，让同学们交流常用工具与操作经验，互相补充学习资料。",
+      "二、时间地点：〔日期〕〔时段〕，〔教室 / 线上会议号〕。",
+      "三、参与对象：网络工程技术（本）2502 班全体同学，预计〔__〕人。",
+      "四、流程安排：",
+      "1. 开场与介绍（10 分钟，负责人：〔班委〕）。",
+      "2. 同学依次分享一个常用工具或操作要点（每人 5—8 分钟，负责人：〔主持人〕）。",
+      "3. 现场交流与答疑（15 分钟）。",
+      "五、分工与物资：主持与签到由〔__〕负责，记录拍照由〔__〕负责；物资仅需教室投影与纸笔，无额外经费支出。",
+      "六、注意事项：提前确认教室使用，签到留痕；分享内容不涉及敏感信息。",
+      "七、收尾与归档：照片与分享要点整理后存入共享库「学校相关的事宜」目录，活动后写简短总结。"
     ] },
   { id:"event-kit", title:"活动配套表", use:"方案之外的分工、物资、签到与收尾核对",
     body:[
@@ -2380,10 +2446,17 @@ function renderTemplates(){
   const host = document.getElementById("tplList");
   if (!host) return;
   host.innerHTML = TEMPLATES.map(function(t, i){
+    const sample = t.sample ?
+      '<div class="tpl-sample">' +
+        '<div class="tpl-sample-h">脱敏范例<span>仅供参考，成稿以本人 / 班委确认为准</span></div>' +
+        '<pre class="tpl-body sample">' + t.sample.join("\n") + '</pre>' +
+        '<div class="tpl-acts"><button class="btn btn-sm ghost" data-tpl-sample="' + i + '">复制范例</button></div>' +
+      '</div>' : '';
     return '<div class="tpl-card">' +
       '<div class="tpl-h"><h3>' + t.title + '</h3><span class="tpl-use">' + t.use + '</span></div>' +
       '<div class="tpl-b">' +
         '<pre class="tpl-body">' + t.body.join("\n") + '</pre>' +
+        sample +
         '<ul class="tpl-tips">' + t.tips.map(function(x){ return '<li>' + x + '</li>'; }).join("") + '</ul>' +
         '<div class="tpl-acts"><button class="btn btn-sm ghost" data-tpl-copy="' + i + '">复制骨架</button></div>' +
       '</div>' +
@@ -2981,6 +3054,8 @@ document.getElementById("chips").addEventListener("click", e => {
 document.addEventListener("click", e => {
   const tc = e.target.closest("[data-tpl-copy]");
   if (tc) { copyText(TEMPLATES[+tc.dataset.tplCopy].body.join("\n")); return; }
+  const ts = e.target.closest("[data-tpl-sample]");
+  if (ts) { copyText(TEMPLATES[+ts.dataset.tplSample].sample.join("\n")); return; }
   const lc = e.target.closest("[data-ledger-copy]");
   if (lc) { copyText(LEDGER_TPLS[+lc.dataset.ledgerCopy].body.join("\n")); return; }
   const rp = e.target.closest("[data-repo]");
