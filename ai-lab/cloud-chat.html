@@ -41,7 +41,7 @@ a{color:var(--green2)}
   border-radius:var(--r-sm);padding:7px 11px;display:inline-flex;align-items:center;gap:6px;font-size:13px;
   text-decoration:none;flex:none;
 }
-.icon-btn:hover{background:#fff;border-color:var(--line2)}
+.icon-btn:hover{background:var(--card);border-color:var(--line2)}
 
 /* 对话区 */
 .wrap{flex:1;display:flex;flex-direction:column;max-width:880px;width:100%;margin:0 auto;padding:18px 16px 10px;min-height:0}
@@ -139,6 +139,12 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
   .msg .who{flex-basis:48px;font-size:10.5px}
   .msg .bubble{max-width:90%}
 }
+
+/* ==================== 深色档覆写（html[data-theme="dark"]）====================
+   浅色源码保持不动；卡片/输入框/描边随 CSS 变量翻转，本块只收写死底色的次级项。 */
+html[data-theme="dark"] .preview .rm{background:var(--bad);color:#F3F7F4}
+html[data-theme="dark"] *{scrollbar-color:rgba(160,170,160,.35) transparent}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.30)}
 </style>
 <script>
 /* 底色 / 字号 / 密度 / 强调色开机即套，避免刷新后跳一下 */
@@ -168,24 +174,29 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
   window.__ACCENTS = ACCENTS;
   window.__ACCENT_RESOLVE = resolveAccent;
   var BGTONES = [
-    {id:"cream", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5"},
-    {id:"white", paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC"},
-    {id:"gray",  paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1"}
+    {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5", ink:"#1F2A26", ink2:"#46544E", ink3:"#7A857E"},
+    {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC", ink:"#1F2A26", ink2:"#46544E", ink3:"#7A857E"},
+    {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1", ink:"#1F2A26", ink2:"#46544E", ink3:"#7A857E"},
+    {id:"dark",  name:"深色",   paper:"#1A201D", paper2:"#222925", card:"#252D28", line:"#38423B", line2:"#4A554D", ink:"#E8EBE5", ink2:"#B6BFB5", ink3:"#879189"}
   ];
   window.__BG_TONES = BGTONES;
   function resolveBg(v){ for(var i=0;i<BGTONES.length;i++) if(BGTONES[i].id===v) return BGTONES[i]; return BGTONES[0]; }
-  window.__BG_RESOLVE = resolveBg;
+  function systemDark(){ try { return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; } catch(e){ return false; } }
+  function resolveBgReal(v){ if (v === "auto") return systemDark() ? resolveBg("dark") : resolveBg("cream"); return resolveBg(v); }
+  window.__BG_RESOLVE = resolveBgReal;
   try {
     var c = JSON.parse(localStorage.getItem("lab_cloud_v1") || "{}") || {};
     var FS = { small:"0.92", normal:"1", large:"1.09" };
     var r = document.documentElement.style;
-    var bg = resolveBg(c.bgTone);
+    var bg = resolveBgReal(c.bgTone);
     r.setProperty("--paper", bg.paper); r.setProperty("--paper2", bg.paper2);
     r.setProperty("--card", bg.card); r.setProperty("--line", bg.line); r.setProperty("--line2", bg.line2);
+    r.setProperty("--ink", bg.ink); r.setProperty("--ink2", bg.ink2); r.setProperty("--ink3", bg.ink3);
     var ac = resolveAccent(c.accent);
     r.setProperty("--green", ac.base); r.setProperty("--green2", ac.light); r.setProperty("--green-d", ac.dark);
     r.zoom = FS[c.fontScale] || "1";
     document.documentElement.dataset.density = c.density === "compact" ? "compact" : "comfort";
+    document.documentElement.dataset.theme = bg.id === "dark" ? "dark" : "light";
   } catch(e){}
 })();
 </script>
@@ -317,9 +328,11 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     <div class="field">
       <label>页面底色</label>
       <div class="seg" id="bgSeg">
+        <button type="button" data-bg="auto">跟随系统</button>
         <button type="button" data-bg="cream">奶油纸</button>
         <button type="button" data-bg="white">米白</button>
         <button type="button" data-bg="gray">雾灰</button>
+        <button type="button" data-bg="dark">深色</button>
       </div>
     </div>
 
@@ -549,6 +562,8 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     var r = document.documentElement.style;
     r.setProperty("--paper", bg.paper); r.setProperty("--paper2", bg.paper2);
     r.setProperty("--card", bg.card); r.setProperty("--line", bg.line); r.setProperty("--line2", bg.line2);
+    r.setProperty("--ink", bg.ink); r.setProperty("--ink2", bg.ink2); r.setProperty("--ink3", bg.ink3);
+    document.documentElement.dataset.theme = bg.id === "dark" ? "dark" : "light";
   }
   function paintBg(){
     var box = $("bgSeg"); if (!box) return;
@@ -714,6 +729,12 @@ html[data-density="compact"] .scenes{padding-bottom:4px}
     var b = e.target.closest("[data-bg]"); if (!b) return;
     cfg.bgTone = b.dataset.bg; applyBg(b.dataset.bg); paintBg(); saveCfg(cfg);
   });
+  if (window.matchMedia) {
+    var mqLabCloud = matchMedia("(prefers-color-scheme: dark)");
+    var onLabCloudScheme = function(){ if (cfg.bgTone === "auto") { applyBg("auto"); paintBg(); } };
+    if (mqLabCloud.addEventListener) mqLabCloud.addEventListener("change", onLabCloudScheme);
+    else if (mqLabCloud.addListener) mqLabCloud.addListener(onLabCloudScheme);
+  }
   $("densitySeg").addEventListener("click", function(e){
     var b = e.target.closest("[data-den]"); if (!b) return;
     cfg.density = b.dataset.den; applyDensity(b.dataset.den); paintDensity(); saveCfg(cfg);
