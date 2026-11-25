@@ -2551,7 +2551,7 @@ const TEMPLATES = [
       "六、注意事项：提前确认教室使用，签到留痕；分享内容不涉及敏感信息。",
       "七、收尾与归档：照片与分享要点整理后存入共享库「学校相关的事宜」目录，活动后写简短总结。"
     ] },
-  { id:"event-kit", title:"活动配套表", use:"方案之外的分工、物资、签到与收尾核对",
+  { id:"event-kit", title:"活动配套表", use:"方案之外的分工、物资、签到与收尾核对", outline:false,
     body:[
       "〔活动名称〕配套表",
       "",
@@ -2583,6 +2583,10 @@ const TEMPLATES = [
     ] }
 ];
 
+function tplOutlinePrompt(t){
+  return "我要写一篇「" + t.title + "」。请按这类班级文书给我列一份提纲：分条写出结构顺序、每一部分要写什么和需要注意的要点；只列提纲和提示，先不要写成完整成稿，需要填的具体信息用〔〕占位留给我自己补。";
+}
+
 function renderTemplates(){
   const host = document.getElementById("tplList");
   if (!host) return;
@@ -2593,13 +2597,15 @@ function renderTemplates(){
         '<pre class="tpl-body sample">' + t.sample.join("\n") + '</pre>' +
         '<div class="tpl-acts"><button class="btn btn-sm ghost" data-tpl-sample="' + i + '">复制范例</button></div>' +
       '</div>' : '';
+    const askBtn = t.outline === false ? '' :
+      '<button class="btn btn-sm ghost" data-tpl-ask="' + i + '">让助手列提纲</button>';
     return '<div class="tpl-card">' +
       '<div class="tpl-h"><h3>' + t.title + '</h3><span class="tpl-use">' + t.use + '</span></div>' +
       '<div class="tpl-b">' +
         '<pre class="tpl-body">' + t.body.join("\n") + '</pre>' +
         sample +
         '<ul class="tpl-tips">' + t.tips.map(function(x){ return '<li>' + x + '</li>'; }).join("") + '</ul>' +
-        '<div class="tpl-acts"><button class="btn btn-sm ghost" data-tpl-copy="' + i + '">复制骨架</button></div>' +
+        '<div class="tpl-acts">' + askBtn + '<button class="btn btn-sm ghost" data-tpl-copy="' + i + '">复制骨架</button></div>' +
       '</div>' +
     '</div>';
   }).join("");
@@ -3196,6 +3202,12 @@ document.getElementById("chips").addEventListener("click", e => {
 
 /* 共享库 / 总目录按钮 */
 document.addEventListener("click", e => {
+  const ta = e.target.closest("[data-tpl-ask]");
+  if (ta) {
+    const tt = TEMPLATES[+ta.dataset.tplAsk];
+    if (tt && window.__BOT_ASK) window.__BOT_ASK(tplOutlinePrompt(tt));
+    return;
+  }
   const tc = e.target.closest("[data-tpl-copy]");
   if (tc) { copyText(TEMPLATES[+tc.dataset.tplCopy].body.join("\n")); return; }
   const ts = e.target.closest("[data-tpl-sample]");
@@ -4556,28 +4568,33 @@ route();
     if (/叫出来|叫回|出来吧|回来吧/.test(q)) { petCall("back"); return; }
     if (/收了|收起来|藏起来/.test(q) && /宠物|它|鱼|形象/.test(q)) { petCall("off"); return; }
 
-    for (i = 0; i < RULES.length && !hit; i++) {
-      for (j = 0; j < RULES[i].k.length; j++) {
-        if (s.indexOf(RULES[i].k[j].toLowerCase()) >= 0) { hit = RULES[i]; break; }
+    /* 提纲 / 大纲类请求是要模型按文书类型搭框架，本地规则库只存静态骨架指引，
+       不截胡；跳过规则匹配和站内目录检索，直接交给联网兜底（没开联网就回离线提示） */
+    var outline = /提纲|大纲/.test(q);
+    if (!outline) {
+      for (i = 0; i < RULES.length && !hit; i++) {
+        for (j = 0; j < RULES[i].k.length; j++) {
+          if (s.indexOf(RULES[i].k[j].toLowerCase()) >= 0) { hit = RULES[i]; break; }
+        }
       }
-    }
-    if (hit) {
-      text = (typeof hit.a === "function") ? hit.a() : hit.a;
-      bubble(text, false);
-      if (hit.act) actBtn(hit.act);
-      var many = (typeof hit.acts === "function") ? hit.acts() : hit.acts;
-      if (many) for (i = 0; i < many.length; i++) actBtn(many[i]);
-      return;
-    }
+      if (hit) {
+        text = (typeof hit.a === "function") ? hit.a() : hit.a;
+        bubble(text, false);
+        if (hit.act) actBtn(hit.act);
+        var many = (typeof hit.acts === "function") ? hit.acts() : hit.acts;
+        if (many) for (i = 0; i < many.length; i++) actBtn(many[i]);
+        return;
+      }
 
-    /* 规则没命中，就去站内目录真搜一遍 —— 别一句「没学会」把人推回班群 */
-    var found = findRes(q.replace(/搜一下|搜|找一下|找|有没有|在哪|哪里|的|了|吗|呢/g, "").trim());
-    if (found.length) {
-      bubble("站内目录里有这些。点开先进学校门户，登录后再在站内点它 —— 校外不走这一步进不去内网。", false);
-      for (i = 0; i < found.length; i++) {
-        actBtn({ t: "去门户开「" + found[i].t + "」", o: found[i].u });
+      /* 规则没命中，就去站内目录真搜一遍 —— 别一句「没学会」把人推回班群 */
+      var found = findRes(q.replace(/搜一下|搜|找一下|找|有没有|在哪|哪里|的|了|吗|呢/g, "").trim());
+      if (found.length) {
+        bubble("站内目录里有这些。点开先进学校门户，登录后再在站内点它 —— 校外不走这一步进不去内网。", false);
+        for (i = 0; i < found.length; i++) {
+          actBtn({ t: "去门户开「" + found[i].t + "」", o: found[i].u });
+        }
+        return;
       }
-      return;
     }
 
     /* 规则和站内目录都没答上来。只有你自己开了「联网」才交给模型；
@@ -4617,7 +4634,8 @@ route();
     "2. 不编。站内确实没有的东西就明说「这个我不清楚，问学委去」，不要瞎猜链接和地址。",
     "3. 能提到的入口仅限站内：首页资料卡和小胶囊、成员索引（按学号后三位找格子）、共享库；不要自己造链接。",
     "4. 只答学习、资料、学校系统这类事；不聊政治，不评价老师同学，不替人写作业。",
-    "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼；用户追问时接着上一句答，别重复自我介绍。"
+    "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼；用户追问时接着上一句答，别重复自我介绍。",
+    "6. 涉及通知、新闻稿、总结、申请书、活动方案这类班级文书，只给提纲、结构顺序和要点提示，不替人写成完整成稿；具体事实、措辞和占位信息由本人 / 班委自己填。"
   ].join("\n");
   function sysPrompt(){ var c = store.get("cl_ai_sys"); return c && c.trim() ? c.trim() : AI_SYS; }
   /* 多轮上下文：把本机最近几轮一起带上，才能接着上一句聊；系统提示单独放最前。
@@ -4746,6 +4764,8 @@ route();
     var b = e.target.closest("[data-q]");
     if (b) ask(b.getAttribute("data-q"));
   });
+  /* 供写材料等模块带着指定问题唤起面板：打开问问并直接发问，不另起第二套对话界面 */
+  window.__BOT_ASK = function(q){ toggle(true); ask(q); };
 })();
 </script>
 
