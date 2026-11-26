@@ -1685,6 +1685,37 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
         <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">透明背景的 PNG 压成 JPEG 会铺白底；GIF 动图只保留第一帧。需要保留透明或动图的，先别用这张卡。</p>
       </div>
     </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">09 · 文本批处理</span><span class="task-meta">浏览器内清洗 · 复制或下载 txt</span></div>
+      <div class="task-b">
+        <p>收上来的名单、签到、通知草稿粘贴进来，一次性去掉首尾空格、空行、重复行，再做查找替换。处理只在这台电脑的页面内存里进行，<b>不上传、不改本机文件</b>；结果可直接复制或下载成 txt。</p>
+
+        <label>原文（每行一条）<textarea id="txIn" class="p-in p-ta" rows="6" placeholder="粘贴多行文本；也可以把 .txt 文件直接拖进来"></textarea></label>
+
+        <div class="eyebrow" style="margin:10px 0 8px">清洗规则（点开生效）</div>
+        <div class="chips" style="margin-bottom:12px">
+          <button type="button" class="chip on" id="txTrim">去每行首尾空格</button>
+          <button type="button" class="chip on" id="txBlank">删除空行</button>
+          <button type="button" class="chip" id="txCollapse">行内多空格合一</button>
+          <button type="button" class="chip" id="txDedup">整行去重</button>
+        </div>
+
+        <div class="p-row">
+          <label>查找<input id="txFind" class="p-in" placeholder="要被替换掉的文字（留空不替换）"></label>
+          <label>替换为<input id="txRepl" class="p-in" placeholder="留空表示删掉这段文字"></label>
+        </div>
+
+        <div class="link-acts">
+          <button class="btn btn-sm" id="txRun">处理文本</button>
+          <button class="btn btn-sm ghost" id="txCopy">复制结果</button>
+          <button class="btn btn-sm ghost" id="txDownload">下载 txt</button>
+          <button class="btn btn-sm ghost" id="txClear">清空</button>
+        </div>
+        <div class="p-out" id="txOut">粘贴文本后点「处理文本」，这里会预览清洗后的结果与前后行数。文本不上传，只在这台电脑的页面内存里过一遍。</div>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">查找替换按普通文字匹配，不是正则表达式；去重按整行完全相同判定，保留第一次出现的那条。</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -4254,6 +4285,146 @@ function initImageCompress(){
   icRender();
 }
 
+/* ==================== 09 · 文本批处理 ==================== */
+const txState = {
+  result: "",
+  stats: null,
+  rules: { trim: true, blank: true, collapse: false, dedup: false }
+};
+
+function txEsc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+  });
+}
+
+function txProcess(src){
+  const find = document.getElementById("txFind").value;
+  const repl = document.getElementById("txRepl").value;
+  const lines = src.split(/\r?\n/);
+  let work = lines.map(function(line){
+    let l = line;
+    if (txState.rules.trim) l = l.trim();
+    if (txState.rules.collapse) l = l.replace(/[ \t]+/g, " ").trim();
+    if (find) l = l.split(find).join(repl);
+    return l;
+  });
+  let blankN = 0, dupN = 0;
+  if (txState.rules.blank){
+    blankN = work.filter(function(l){ return l === ""; }).length;
+    work = work.filter(function(l){ return l !== ""; });
+  }
+  if (txState.rules.dedup){
+    const seen = {}; const before = work.length;
+    work = work.filter(function(l){ if (seen[l]) return false; seen[l] = true; return true; });
+    dupN = before - work.length;
+  }
+  return { origN: lines.length, outN: work.length, blankN: blankN, dupN: dupN, out: work.join("\n") };
+}
+
+function txRender(stats){
+  const out = document.getElementById("txOut");
+  if (!out) return;
+  const src = document.getElementById("txIn").value;
+  if (!src.trim() && !txState.result){
+    out.textContent = "粘贴文本后点「处理文本」，这里会预览清洗后的结果与前后行数。文本不上传，只在这台电脑的页面内存里过一遍。";
+    return;
+  }
+  if (!txState.result){
+    out.textContent = "还没有结果；点「处理文本」开始清洗。";
+    return;
+  }
+  const resLines = txState.result ? txState.result.split(/\r?\n/) : [];
+  const MAX = 100;
+  let html = '<div class="mono" style="font-size:12px;line-height:1.9;white-space:pre-wrap;word-break:break-all">';
+  resLines.slice(0, MAX).forEach(function(l){ html += txEsc(l) + "\n"; });
+  if (resLines.length > MAX) html += "……（其余 " + (resLines.length - MAX) + " 行已省略，复制或下载可得完整结果）\n";
+  html += "</div>";
+  const s = stats || txState.stats;
+  if (s){
+    html += '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.9">' +
+      "<b>" + s.origN + " 行 → " + s.outN + " 行</b>" +
+      (s.blankN ? "，去掉空行 " + s.blankN : "") +
+      (s.dupN ? "，去掉重复行 " + s.dupN : "") + "</div>";
+  }
+  out.innerHTML = html;
+}
+
+function txRun(){
+  const src = document.getElementById("txIn").value;
+  if (!src){ toast("先粘贴或拖入文本"); txState.result = ""; txState.stats = null; txRender(); return; }
+  const stats = txProcess(src);
+  txState.result = stats.out;
+  txState.stats = stats;
+  txRender(stats);
+}
+
+function txCopy(){
+  if (!txState.result){ toast("还没有可复制的结果"); return; }
+  copyText(txState.result);
+}
+
+function txDownload(){
+  if (!txState.result){ toast("还没有可下载的结果"); return; }
+  const blob = new Blob([txState.result], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "文本处理结果.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast("已下载 txt");
+}
+
+function txClear(){
+  txState.result = ""; txState.stats = null;
+  ["txIn", "txFind", "txRepl"].forEach(function(id){ const el = document.getElementById(id); if (el) el.value = ""; });
+  txRender();
+}
+
+function initTextBatch(){
+  const rules = [
+    { id: "txTrim", key: "trim" },
+    { id: "txBlank", key: "blank" },
+    { id: "txCollapse", key: "collapse" },
+    { id: "txDedup", key: "dedup" }
+  ];
+  rules.forEach(function(r){
+    const el = document.getElementById(r.id);
+    if (el) el.onclick = function(){
+      txState.rules[r.key] = !txState.rules[r.key];
+      el.classList.toggle("on", txState.rules[r.key]);
+      const src = document.getElementById("txIn").value;
+      if (src.trim()) txRun();
+    };
+  });
+  ["txFind", "txRepl"].forEach(function(id){
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", function(){
+      const src = document.getElementById("txIn").value;
+      if (src.trim()) txRun();
+    });
+  });
+  const ta = document.getElementById("txIn");
+  if (ta){
+    ta.addEventListener("dragover", function(e){ e.preventDefault(); ta.classList.add("on"); });
+    ta.addEventListener("dragleave", function(){ ta.classList.remove("on"); });
+    ta.addEventListener("drop", function(e){
+      e.preventDefault(); ta.classList.remove("on");
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = function(){ ta.value = String(reader.result || ""); txRun(); };
+      reader.onerror = function(){ toast("文件读不出来，换一个试试"); };
+      reader.readAsText(f);
+    });
+  }
+  const run = document.getElementById("txRun"); if (run) run.onclick = txRun;
+  const cp = document.getElementById("txCopy"); if (cp) cp.onclick = txCopy;
+  const dl = document.getElementById("txDownload"); if (dl) dl.onclick = txDownload;
+  const cl = document.getElementById("txClear"); if (cl) cl.onclick = txClear;
+  txRender();
+}
+
 function initPlus(){
   initTools();
   const qt = document.getElementById("qrText");
@@ -4301,6 +4472,7 @@ function initPlus(){
   relayCheck();
   initRename();
   initImageCompress();
+  initTextBatch();
 }
 
 /* ==================== 启动 ==================== */
