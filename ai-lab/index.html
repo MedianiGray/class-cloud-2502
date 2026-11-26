@@ -30,6 +30,8 @@ body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMac
 .card p{font-size:13.5px;color:var(--ink2)}
 .card ul{margin:2px 0 0;padding-left:18px;display:grid;gap:5px;font-size:13px;color:var(--ink2)}
 .card .go{margin-top:auto;display:inline-flex;align-items:center;gap:6px;color:var(--green2);font-weight:600;font-size:13.5px}
+.card.wide{grid-column:1/-1}
+.card .site{font-family:var(--mono);font-size:12px;color:var(--ink3)}
 .note{margin-top:22px;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;font-size:13px;color:var(--ink2);line-height:1.7}
 .note b{color:var(--ink)}
 @media (max-width:640px){
@@ -71,10 +73,22 @@ body{background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMac
       </ul>
       <span class="go">打开本地推理 →</span>
     </a>
+
+    <a class="card wide" href="https://unkernel.dev" target="_blank" rel="noopener noreferrer">
+      <span class="tag">站外演示 · Wasm Linux</span>
+      <h2>Unkernel 浏览器内 Linux（官方 demo）</h2>
+      <p>真实 Linux 内核编译成单个 WebAssembly 模块，浏览器标签页里约一秒进到 shell；Alpine / Debian 软件包可直接装，改动存在本机浏览器。本站只给外链入口，不托管、不留存它的会话。</p>
+      <ul>
+        <li>官方演示站 <span class="site">unkernel.dev</span>，首下约 10MB；Chrome / Edge / Safari / Firefox 可开</li>
+        <li>开源：SDK 与页面 MIT，内核 GPL-2.0；源码 <span class="site">github.com/pithings/unkernel</span></li>
+        <li>仅作技术对照体验；自托管需可发隔离头的托管与自建代理，前置条件未凑齐，不在本站接入</li>
+      </ul>
+      <span class="go">打开官方 demo（新标签）→</span>
+    </a>
   </div>
 
   <div class="note">
-    <b>边界</b>：这两页都是练手实验，回答可能出错；正式通知、成绩、学籍、财务事项仍以学校官方渠道为准。模型 Key、对话记录都不写进公开代码，清浏览器数据即从本机删除。
+    <b>边界</b>：这两页都是练手实验，回答可能出错；正式通知、成绩、学籍、财务事项仍以学校官方渠道为准。模型 Key、对话记录都不写进公开代码，清浏览器数据即从本机删除。外链的站外演示站由第三方提供，其账号、文件与会话不在本站留存或管理。
   </div>
 </main>
 </body>
