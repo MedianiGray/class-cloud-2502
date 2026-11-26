@@ -1488,7 +1488,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">先有一个站内 AI 实验旁路（云端对话 / 本地推理），下面六张卡：34 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一套手机与电脑互相看对方界面的正确做法。这些工具本身都在浏览器里跑；只有「问问」的联网兜底走一个云端函数代理，班级文件仍不经过本站。</p>
+      <p class="page-lead">先有一个站内 AI 实验旁路（云端对话 / 本地推理），下面六张卡：42 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一套手机与电脑互相看对方界面的正确做法。这些工具本身都在浏览器里跑；只有「问问」的联网兜底走一个云端函数代理，班级文件仍不经过本站。</p>
     </div>
 
     <div class="task">
@@ -1504,7 +1504,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
     <div class="task">
       <div class="task-h"><span class="task-t">01 · AI 工具台</span><span class="task-meta">开箱即用 · 不用 Key</span></div>
       <div class="task-b">
-        <p>34 个入口按用途分七类，默认只露组名，用到哪组点开哪组。都不用申请密钥：标「免登录」的直接进；标「要登录」的注册个账号就有免费额度。</p>
+        <p>42 个入口按用途分七类，默认只露组名，用到哪组点开哪组。都不用申请密钥：标「免登录」的直接进；标「要登录」的注册个账号就有免费额度。</p>
         <div id="aiSites"></div>
         <p style="font-size:12.5px;color:var(--ink3);margin:14px 0 0">多数 AI 网站禁止被别的网页嵌进来看，所以「内嵌试一下」常常是一片空白，这是对方的安全设置；点「打开」在新标签里用最稳。</p>
         <div style="margin-top:20px;border-top:1px dashed var(--line);padding-top:16px">
@@ -3471,8 +3471,10 @@ const AI_SITES = [
   { g:"视频 / 数字人", n:"飞影数字人",  t:"要登录", u:"https://hifly.cc/home",              d:"数字人口播，照片一句话生成；可免费用" },
   { g:"视频 / 数字人", n:"剪映",        t:"要登录", u:"https://www.jianying.com/",          d:"内置数字人、字幕、剪辑；个人用免费" },
 
-  { g:"音频 / 音乐", n:"Fish Audio",  t:"要登录", u:"https://fish.audio/",                  d:"TTS、声音克隆；有免费额度" },
-  { g:"音频 / 音乐", n:"CosyVoice",   t:"免登录", u:"https://github.com/FunAudioLLM/CosyVoice", d:"阿里开源语音合成，可本地跑，永久免费" },
+  { g:"音频 / 音乐", n:"Fish Audio",  t:"要登录", u:"https://fish.audio/",                  d:"TTS、声音克隆、音色定制；有免费额度" },
+  { g:"音频 / 音乐", n:"CosyVoice",   t:"免登录", u:"https://github.com/FunAudioLLM/CosyVoice", d:"阿里开源语音合成；多语言多方言、跨语言克隆、流式；可本地跑，永久免费" },
+  { g:"音频 / 音乐", n:"Kokoro Web",  t:"免登录", u:"https://huggingface.co/spaces/Xenova/kokoro-web", d:"浏览器本地朗读（WASM/WebGPU）；无克隆，英文为主，免装后端" },
+  { g:"音频 / 音乐", n:"Piper",       t:"免登录", u:"https://github.com/rhasspy/piper",       d:"开源离线朗读，WASM 可在浏览器跑；24 语言，无克隆" },
 
   { g:"编程开发", n:"Trae",        t:"要登录", u:"https://www.trae.ai/",                     d:"免费 AI IDE，内置模型不用自己配" },
   { g:"编程开发", n:"Gemini CLI",  t:"免登录", u:"https://github.com/google-gemini/gemini-cli", d:"终端里的 AI 编程 Agent，免费额度" },
@@ -3488,7 +3490,13 @@ const AI_SITES = [
 
   { g:"对比 / 开源", n:"LMArena",       t:"免登录", u:"https://lmarena.ai/",                  d:"40+ 模型同题对比，每天有限次" },
   { g:"对比 / 开源", n:"Hugging Face",  t:"免登录", u:"https://huggingface.co/spaces",        d:"各家开源模型的在线试用，不用部署" },
-  { g:"对比 / 开源", n:"Wan2GP",        t:"免登录", u:"https://github.com/deepbeepmeep/Wan2GP", d:"开源本地跑视频/图/音频，免费但吃显卡" }
+  { g:"对比 / 开源", n:"Wan2GP",        t:"免登录", u:"https://github.com/deepbeepmeep/Wan2GP", d:"开源本地跑视频/图/音频，免费但吃显卡" },
+  { g:"对比 / 开源", n:"GPT-SoVITS",    t:"免登录", u:"https://github.com/RVC-Boss/GPT-SoVITS",  d:"零样本克隆 + 少样本微调；中英日韩粤语；另带分离/切分/ASR；需本地后端 GPU" },
+  { g:"对比 / 开源", n:"ChatTTS",       t:"免登录", u:"https://github.com/2noise/ChatTTS",        d:"对话式合成，多说话人、笑声停顿控制；采样音色非克隆；需本地后端" },
+  { g:"对比 / 开源", n:"Qwen3-TTS",     t:"免登录", u:"https://github.com/QwenLM/Qwen3-TTS",      d:"3 秒克隆、自然语言设计音色、流式；开源需本地后端，也有云端 API" },
+  { g:"对比 / 开源", n:"Voice-Pro",     t:"免登录", u:"https://github.com/abus-aikorea/voice-pro", d:"音视频全链路：下载→分离→识别→翻译→克隆配音→合成；本地 GPU 自托管" },
+  { g:"对比 / 开源", n:"Soundbox",      t:"免登录", u:"https://github.com/HamSanders/soundbox",   d:"音效/带歌词音乐/TTS/克隆；本地 GPU，桌面应用 + API + MCP" },
+  { g:"对比 / 开源", n:"Voicebox",      t:"免登录", u:"https://github.com/jamiepine/voicebox",     d:"克隆 + 23 语言多引擎 TTS + 全局听写；本地桌面应用" }
 ];
 
 
