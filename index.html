@@ -1679,6 +1679,11 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
         <div class="p-row">
           <label>最大宽度（px）<input id="icMaxW" class="p-in" type="number" value="1280" min="160"></label>
           <label>质量（0.3–1，越小越省）<input id="icQ" class="p-in" type="number" value="0.8" min="0.3" max="1" step="0.05"></label>
+          <label>输出格式<select id="icFormat" class="p-in">
+            <option value="jpeg">JPEG（铺白底）</option>
+            <option value="png">PNG（保留透明）</option>
+            <option value="webp">WebP（保留透明）</option>
+          </select></label>
         </div>
 
         <div class="link-acts">
@@ -1686,7 +1691,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <button class="btn btn-sm ghost" id="icClear">清空</button>
         </div>
         <div class="p-out" id="icOut">拖图片进来就会在这里预览每张的压缩前后大小。文件不上传，只在这台电脑的页面内存里过一遍。</div>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">透明背景的 PNG 压成 JPEG 会铺白底；GIF 动图只保留第一帧。需要保留透明或动图的，先别用这张卡。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">JPEG 会铺白底、丢掉透明通道；要保留透明背景选 PNG 或 WebP。GIF 动图只保留第一帧；WebP 需较新浏览器支持。需要保留动图的，先别用这张卡。</p>
       </div>
     </div>
 
@@ -3929,10 +3934,21 @@ function icKB(n){
   return Math.max(1, Math.round(n / 1024)) + " KB";
 }
 
+function icFmt(){
+  const el = document.getElementById("icFormat");
+  const v = el ? el.value : "jpeg";
+  return (v === "png" || v === "webp") ? v : "jpeg";
+}
+
+function icExt(fmt){ return fmt === "png" ? ".png" : fmt === "webp" ? ".webp" : ".jpg"; }
+
 function icCompressOne(file){
   return new Promise(function(resolve){
     const maxW = parseInt(document.getElementById("icMaxW").value, 10) || 1280;
     const q = Math.min(1, Math.max(0.3, parseFloat(document.getElementById("icQ").value) || 0.8));
+    const fmt = icFmt();
+    const mime = fmt === "png" ? "image/png" : fmt === "webp" ? "image/webp" : "image/jpeg";
+    const keepAlpha = fmt !== "jpeg";
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = function(){
@@ -3941,13 +3957,13 @@ function icCompressOne(file){
       const cv = document.createElement("canvas");
       cv.width = w; cv.height = h;
       const ctx = cv.getContext("2d");
-      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);   // JPEG 无透明通道，先铺白底
+      if (!keepAlpha){ ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }  // JPEG 无透明通道，先铺白底
       ctx.drawImage(img, 0, 0, w, h);
       cv.toBlob(function(blob){
         URL.revokeObjectURL(url);
         if (!blob){ resolve({ ok: false, err: "压缩失败" }); return; }
-        resolve({ ok: true, blob: blob, w: w, h: h });
-      }, "image/jpeg", q);
+        resolve({ ok: true, blob: blob, w: w, h: h, fmt: fmt });
+      }, mime, q);
     };
     img.onerror = function(){ URL.revokeObjectURL(url); resolve({ ok: false, err: "图片打不开" }); };
     img.src = url;
@@ -4026,10 +4042,11 @@ async function icZipDownload(){
   const zip = new JSZip();
   ok.forEach(function(r){
     const base = r.file.name.replace(/\.[^.]+$/, "") || "image";
-    let n = base + "-compressed.jpg";
+    const ext = icExt(r.fmt || "jpeg");
+    let n = base + "-compressed" + ext;
     if (used[n]){
       used[n]++;
-      n = base + "-compressed-" + used[n] + ".jpg";
+      n = base + "-compressed-" + used[n] + ext;
     } else { used[n] = 1; }
     zip.file(n, r.blob);
   });
@@ -4054,6 +4071,7 @@ function icClear(){
   icState.results = [];
   icState.busy = false;
   const pick = document.getElementById("icPick"); if (pick) pick.value = "";
+  const fm = document.getElementById("icFormat"); if (fm) fm.value = "jpeg";
   icRender();
 }
 
@@ -4070,6 +4088,8 @@ function initImageCompress(){
     const el = document.getElementById(id);
     if (el) el.addEventListener("input", function(){ if (icState.files.length) icProcess(); });
   });
+  const fm = document.getElementById("icFormat");
+  if (fm) fm.addEventListener("change", function(){ if (icState.files.length) icProcess(); });
   const z = document.getElementById("icZip");
   if (z) z.onclick = icZipDownload;
   const c = document.getElementById("icClear");
