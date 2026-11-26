@@ -778,6 +778,13 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
   left:12px;bottom:96px;top:auto}
 .pet-bar::-webkit-scrollbar{height:0;display:none}
 .pet-bar.on{display:flex}
+/* 鱼身状态角标：离线灰 / 在线绿 / 忙碌红脉动；挂在桌宠宿主右上角，不挡视频点击 */
+.pet-state{position:fixed;top:3px;right:3px;width:10px;height:10px;border-radius:50%;
+  background:var(--line2);border:1.5px solid var(--card);box-shadow:0 1px 3px rgba(0,0,0,.28);pointer-events:none;z-index:62}
+.pet-state.on{background:var(--green2)}
+.pet-state.busy{background:#B4543E;animation:petStatePulse 1.1s ease-in-out infinite}
+@keyframes petStatePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.65}}
+@media (prefers-reduced-motion: reduce){.pet-state.busy{animation:none}}
 .pet-bar button{flex:none;width:40px;height:40px;border:0;border-radius:10px;background:transparent;
   display:flex;align-items:center;justify-content:center;font-size:17px;line-height:1;color:#2B2118;cursor:pointer}
 .pet-bar button:active{background:#F4EBE1}
@@ -1675,7 +1682,7 @@ const MEMBERS = [
         <div class="step"><span class="step-n">09</span><div><b>首页一张主卡与那排小按钮</b>　<span class="mono">#view-home</span> 里搜 <span class="mono">class="quick"</span>，现在只剩一处：<span class="mono">data-go="#/res"</span> 的「专业学习资料」，宽屏也保持一列（<span class="mono">@media</span> 里 <span class="mono">grid-template-columns:1fr</span>）。它下面是 <span class="mono">.mini-nav</span> 四颗小胶囊：交作业（WPS 共享社区外链 <span class="mono">ctjLDPYcTofa</span>，直开新标签）、班级云库（<span class="mono">#/library</span>）、更多（<span class="mono">#/more</span>，聚合通知待办 / 写材料 / 学校入口 / 权限 / 高级功能 / 维护）、十件事（<span class="mono">./more.html</span>）。通知待办、写材料、学校信息这些不常直接用的页面都收进 <span class="mono">#/more</span> 分组，不在首页摆胶囊。<b>首页只留这一张卡加这排胶囊，别再摊开第三张卡或整块列表</b>：45 格成员端口和「全班共享库」那一行都在 <span class="mono">#/library</span> 里，首页只负责把人送到。交作业那颗是用户明确要求加在首页的（上传提交是高频动作），不是重复入口，别顺手删。原来首页那张「专业学习资料」外链的 <span class="mono">kdocs.cn/folder/cc8KmiqlrcMV</span> 本就是资料库里三个源库之一，两张卡指同一批东西属于重复，已经合掉。<b>这里有个坑，别再踩</b>：<span class="mono">data-go</span> 的点击是 <span class="mono">document</span> 级委托（<span class="mono">e.target.closest("[data-go],[data-ext],[data-seat]")</span>），原来只绑在 <span class="mono">.quick-grid</span> 上，新加的小胶囊点了没反应，改全局委托才对。换库时 <span class="mono">SHARED.slug</span> / <span class="mono">REPOS</span> / 这几处硬编码要一起改，漏一处就会出现「卡片进旧库、索引进新库」。</div></div>
         <div class="step"><span class="step-n">10</span><div><b>首页「记住我是谁」</b>　只把学号后三位存在本机 <span class="mono">localStorage</span> 的 <span class="mono">cl-seat-no</span> 键里，不上传、不写进页面。换设备要重输一次；改这个键名，全班同学的记忆都会失效。清掉的办法：把输入框改成自己的学号再点一次「打开」。</div></div>
         <div class="step"><span class="step-n">11</span><div><b>首页那只「大肥鱼」</b>　开源网页宠物 <span class="mono">dafeiyu</span>（MIT），动画素材来自 <span class="mono">dsh-pet</span>（MIT），角色是 DeepSeek 蓝鲸的社区二创、非官方。脚本和 20 个动画都在本站 <span class="mono">pet/</span> 目录（约 8.7 MB），不走外部 CDN——CDN 那条线路拉 400 KB 的视频会卡死，宠物二十秒后就自己退出了。页面静下来两秒后才加载；<span class="mono">prefers-reduced-motion</span> 下不加载。嫌它动：右键菜单点「睡觉」；想彻底去掉，删掉首页末尾那段宠物脚本即可，别动别处。素材别放进 <span class="mono">sw.js</span> 的缓存清单，9 MB 进 Cache API 会让首次访问多写一遍盘——<span class="mono">sw.js</span> 里已按 <span class="mono">/pet/</span> 跳过。<b>手机上也出现</b>，尺寸按视口分三档（118 / 146 / 210），并给它的视频补了 <span class="mono">touch-action:none</span>：不补这条，手指一压浏览器先当滚动，拖动会被 <span class="mono">pointercancel</span> 打断，表现就是一挪就闪、松手跳位、点一下点空。小助手面板开着时鱼会被 <span class="mono">visibility:hidden</span> 让位，关掉再回来。</div></div>
-        <div class="step"><span class="step-n">12</span><div><b>联网兜底的云端函数（可选）</b>　桌宠双击聊天面板还没做，目前只说本机台词；右下角「问问」的联网兜底走云端函数 <span class="mono">proxy/tcb/index.js</span>。模型 Key 只能存在函数环境变量里，<b>绝不能填进页面</b>——公开仓库写进来等于谁都能拿去烧额度。函数带了四道闸：只认班级站来源、每来源每天 40 次、历史 6 条每条 400 字、输出 240 tokens。<b>别给桌宠碎碎念接 AI</b>，那是定时自动说一句，接上就是定时烧额度，台词留在本地池。</div></div>
+        <div class="step"><span class="step-n">12</span><div><b>联网兜底的云端函数（可选）</b>　双击桌宠直接打开右下角「问问」卡片；桌宠自己的碎碎念仍只说本机台词，不接 AI。「问问」的联网兜底走云端函数 <span class="mono">proxy/tcb/index.js</span>。模型 Key 只能存在函数环境变量里，<b>绝不能填进页面</b>——公开仓库写进来等于谁都能拿去烧额度。函数带了四道闸：只认班级站来源、每来源每天 40 次、历史 6 条每条 400 字、输出 240 tokens。<b>别给桌宠碎碎念接 AI</b>，那是定时自动说一句，接上就是定时烧额度，台词留在本地池。</div></div>
         <div class="step"><span class="step-n">13</span><div><b>右下角「问问」是个能动手的 agent</b>　它不只是答话，手里有五样活：切分区（<span class="mono">h</span> 路由）、开外链（<span class="mono">o</span>）、复制地址（<span class="mono">c</span>）、跑一段函数（<span class="mono">do</span>）、按学号直接开那一格（说了三位数就认）。规则在 <span class="mono">RULES</span> 数组里，一条就是「关键词 + 回答 + 动作」，<span class="mono">a</span> 可以写成函数，这样它能报「你现在在哪、这区有几个入口」这种活信息。规则全没命中时会去 <span class="mono">RESOURCES</span> 和 <span class="mono">PORTALS</span> 里真搜一遍，搜到就给可点的按钮，不会一句「没学会」把人推回班群。<b>别给它加写操作</b>——它能读能跳能开，但不能替任何人改任何东西，这条线守住，坏不了事。宠物那边它调的是 <span class="mono">window.__PET</span>，能说话、能换动作、能收走；宠物没加载时按钮会明确说它不在这儿，不假装成功。</div></div>
 <div class="step"><span class="step-n">14</span><div><b>桌宠只挂大肥鱼这一只有完整动画的形象</b>　它是第三方开源库（MIT），骨骼加物理的那种，二十段真动画，能拖、能摸头、右键喂饭和下五子棋。早先的静态 PNG 贴纸（<span class="mono">pet/shapes/*@480.png</span>）和五只逐帧精灵图都已从选择列表撤下，素材文件保留在目录里没删；精灵图来自 <span class="mono">github.com/legeling/awesome-codex-pet</span>，素材 CC BY-NC 4.0。想再加形象，要接骨骼动画或 Live2D 素材，单张 PNG 不再进选择列表；目标形象清单、每个形象的素材状态与协议核对见根目录 <span class="mono">PET-ROSTER.md</span>。<b>这里有个坑，别再踩</b>：大肥鱼被 <span class="mono">destroy()</span> 之后重建不出来（实测切回就是 no-host），所以它只挂一次，隐藏时只 <span class="mono">display:none</span>；<b>也别去扒 B 站那种 Live2D 公皮</b>，作者明确禁止盗用。切换一句 <span class="mono">__PET_SWITCH("dafeiyu")</span>，可用 id 看 <span class="mono">__PET_LIST()</span>，选过的记在 <span class="mono">cl_pet_shape_v2</span>。</div></div>
       </div>
@@ -4613,6 +4620,9 @@ route();
   function saveOn(v){ try { localStorage.setItem("cl_ai_on", v ? "1" : "0"); } catch (e) {} }
   var netBtn = document.getElementById("botNet");
   var botSub = document.getElementById("botSub");
+  /* 对外暴露助手状态：桌宠角标据此显示在线 / 忙碌 / 离线；只读数，不在这里接定时调用 */
+  window.__BOT_STATE = { ready: false, busy: false };
+  function syncPetState(){ if (window.__PET_STATE_SYNC) window.__PET_STATE_SYNC(); }
 
   function aiReady(){ return aiOn || (store.get("cl_ai_backend") === "custom" && customReady()); }
   function paintNet(){
@@ -4623,6 +4633,7 @@ route();
       netBtn.classList.toggle("on", ready);
     }
     if (botSub) botSub.textContent = ready ? (be === "custom" ? " · 自己的 API" : " · 已接班级服务器") : " · 离线规则，不联网";
+    window.__BOT_STATE.ready = ready; syncPetState();
   }
   window.__paintNet = paintNet;
   paintNet();
@@ -4660,6 +4671,7 @@ route();
   var busy = false;
   function setBusy(v){
     busy = v;
+    window.__BOT_STATE.busy = v; syncPetState();
     if (txt) txt.disabled = v;
     var sb = form ? form.querySelector('button[type="submit"]') : null;
     if (sb) sb.disabled = v;
@@ -4766,6 +4778,8 @@ route();
   });
   /* 供写材料等模块带着指定问题唤起面板：打开问问并直接发问，不另起第二套对话界面 */
   window.__BOT_ASK = function(q){ toggle(true); ask(q); };
+  /* 只开卡不发问：桌宠双击走这个口，复用同一套开合与让位逻辑 */
+  window.__BOT_OPEN = function(){ toggle(true); };
 })();
 </script>
 
@@ -5175,7 +5189,8 @@ route();
      位置左下，避开右下角的「问问」；拉不到就不显示，页面本身照常工作 ===== -->
 <script>
 (function(){
-  /* 桌宠聊天面板还没做：PET_AI 留空，双击宠物不开聊天窗，碎碎念只走本地台词池。
+  /* PET_AI 留空：组件内置聊天窗不接 AI，碎碎念只走本地台词池。
+     双击鱼开的是门面「问问」卡（见下方导航那段），不在这个组件窗里；
      右下角「问问」的联网兜底走 proxy/tcb/index.js 云端函数；模型 Key 只能放函数环境变量，
      写进公开页面等于谁都能拿去烧额度。 */
   var PET_AI = "";
@@ -5514,21 +5529,72 @@ route();
     panel.style.bottom = Math.max(12, window.innerHeight - y + 10) + "px";
   }
 
-  /* 点鱼开面板：只认轻点，拖鱼、长按摸头都不会误触；用捕获阶段，内部 stopPropagation 也挡不住 */
+  /* 双击鱼直接开问问卡片；轻点一下仍只开鱼自己的功能条。只认轻点，拖鱼、长按摸头都不误触；
+     用捕获阶段，内部 stopPropagation 也挡不住 */
+  var stateDot = null, stateHost = null;
+  function openChat(){
+    placePanel();
+    if (window.__BOT_OPEN) { window.__BOT_OPEN(); }
+    else if (fab) { fab.click(); }
+  }
+  /* 鱼身上的状态角标：忙碌红、在线绿、离线灰；只读助手状态，不替它接定时调用。
+     宿主带 contain 隔离，light 子元素排不进去，角标挂 body 用 fixed 跟随宿主右上角 */
+  function placeStateDot(){
+    if (!stateDot || !stateHost) return;
+    var cs = getComputedStyle(stateHost);
+    var hidden = cs.visibility === "hidden" || cs.display === "none" || stateHost.style.display === "none";
+    stateDot.style.display = hidden ? "none" : "";
+    if (hidden) return;
+    var r = stateHost.getBoundingClientRect();
+    if (!r.width && !r.height) return;
+    stateDot.style.left = Math.round(r.right - 13) + "px";
+    stateDot.style.top = Math.round(r.top + 4) + "px";
+  }
+  function syncStateDot(){
+    if (!stateDot) return;
+    var st = window.__BOT_STATE || {};
+    stateDot.className = "pet-state " + (st.busy ? "busy" : (st.ready ? "on" : "off"));
+  }
+  window.__PET_STATE_SYNC = syncStateDot;
+  function mountStateDot(host){
+    stateHost = host;
+    if (stateDot) { placeStateDot(); return; }
+    stateDot = document.createElement("span");
+    stateDot.className = "pet-state off";
+    stateDot.setAttribute("aria-hidden", "true");
+    document.body.appendChild(stateDot);
+    placeStateDot(); syncStateDot();
+    window.addEventListener("resize", placeStateDot);
+    setInterval(placeStateDot, 1200);
+  }
   window.bindFishNav = function(host){
     if (!host || host === fishHost) return;
     fishHost = host;
-    var x0 = 0, y0 = 0, t0 = 0;
+    mountStateDot(host);
+    var x0 = 0, y0 = 0, t0 = 0, lastTap = 0, singleTimer = null;
     host.addEventListener("pointerdown", function(e){
       x0 = e.clientX; y0 = e.clientY; t0 = Date.now();
     }, true);
     host.addEventListener("pointerup", function(e){
       var dt = Date.now() - t0;
       var dd = Math.sqrt((e.clientX - x0) * (e.clientX - x0) + (e.clientY - y0) * (e.clientY - y0));
-      if (dt < 520 && dd < 12) {
-        /* 点鱼只开它自己的功能条，不再顺手把对话卡也拉出来 —— 两块分开了 */
-        if (window.__PET_BAR) { window.__PET_BAR(); }
-        else { placePanel(); if (fab) fab.click(); }
+      if (dt >= 520 || dd >= 12) return;
+      var now = Date.now();
+      var isDouble = now - lastTap < 300;
+      lastTap = now;
+      if (isDouble) {
+        /* 双击：撤掉还没开的功能条，直接开对话卡 */
+        if (singleTimer) { clearTimeout(singleTimer); singleTimer = null; }
+        if (window.__PET_BAR) { window.__PET_BAR(false); }
+        openChat();
+      } else {
+        /* 单击：等一小段看有没有第二下，没有再开功能条，免得双击先蹦出一条动作条 */
+        if (singleTimer) clearTimeout(singleTimer);
+        singleTimer = setTimeout(function(){
+          singleTimer = null;
+          if (window.__PET_BAR) { window.__PET_BAR(); }
+          else { openChat(); }
+        }, 260);
       }
     }, true);
   };
@@ -5561,6 +5627,7 @@ route();
     var hosts = petHosts(), i;
     if (fishHost) hosts.push(fishHost);
     for (i = 0; i < hosts.length; i++) hosts[i].style.visibility = open ? "hidden" : "";
+    placeStateDot();
     if (open && window.__PET_BAR) window.__PET_BAR(false);
     if (open && window.__clampPanel) setTimeout(window.__clampPanel, 30);
     /* 已经不铺遮罩了：卡是浮着的，点旁边照样能操作页面 */
