@@ -1699,6 +1699,8 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <button type="button" class="chip on" id="txBlank">删除空行</button>
           <button type="button" class="chip" id="txCollapse">行内多空格合一</button>
           <button type="button" class="chip" id="txDedup">整行去重</button>
+          <button type="button" class="chip" id="txSort">按字典序排序</button>
+          <button type="button" class="chip" id="txNumber">行首加序号</button>
         </div>
 
         <div class="p-row">
@@ -1713,7 +1715,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <button class="btn btn-sm ghost" id="txClear">清空</button>
         </div>
         <div class="p-out" id="txOut">粘贴文本后点「处理文本」，这里会预览清洗后的结果与前后行数。文本不上传，只在这台电脑的页面内存里过一遍。</div>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">查找替换按普通文字匹配，不是正则表达式；去重按整行完全相同判定，保留第一次出现的那条。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">查找替换按普通文字匹配，不是正则表达式；去重按整行完全相同判定，保留第一次出现的那条。排序按中文字典序升序；编号在排序之后从 01 起加在行首，位数随行数自适应。</p>
       </div>
     </div>
   </div>
@@ -4046,7 +4048,7 @@ function initImageCompress(){
 const txState = {
   result: "",
   stats: null,
-  rules: { trim: true, blank: true, collapse: false, dedup: false }
+  rules: { trim: true, blank: true, collapse: false, dedup: false, sort: false, number: false }
 };
 
 function txEsc(s){
@@ -4075,6 +4077,13 @@ function txProcess(src){
     const seen = {}; const before = work.length;
     work = work.filter(function(l){ if (seen[l]) return false; seen[l] = true; return true; });
     dupN = before - work.length;
+  }
+  if (txState.rules.sort){
+    work = work.slice().sort(function(a, b){ return a.localeCompare(b, "zh-Hans-CN"); });
+  }
+  if (txState.rules.number){
+    const pad = Math.max(1, String(work.length).length);
+    work = work.map(function(l, i){ return String(i + 1).padStart(pad, "0") + "、" + l; });
   }
   return { origN: lines.length, outN: work.length, blankN: blankN, dupN: dupN, out: work.join("\n") };
 }
@@ -4143,7 +4152,9 @@ function initTextBatch(){
     { id: "txTrim", key: "trim" },
     { id: "txBlank", key: "blank" },
     { id: "txCollapse", key: "collapse" },
-    { id: "txDedup", key: "dedup" }
+    { id: "txDedup", key: "dedup" },
+    { id: "txSort", key: "sort" },
+    { id: "txNumber", key: "number" }
   ];
   rules.forEach(function(r){
     const el = document.getElementById(r.id);
