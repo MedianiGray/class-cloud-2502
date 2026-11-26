@@ -4169,7 +4169,9 @@ route();
   <div class="set-body">
     <section class="set-sec">
       <h4>外观</h4>
-      <div class="set-row"><span class="set-label">强调色（按钮、选中态、重点标记）</span></div>
+      <div class="set-row"><span class="set-label">整套预设（一键搭配强调色、底色、字号、密度；下面单项仍可再调）</span></div>
+      <div class="set-chips" id="setThemePreset"></div>
+      <div class="set-row" style="margin-top:12px"><span class="set-label">强调色（按钮、选中态、重点标记）</span></div>
       <div class="set-chips" id="setAccent"></div>
       <label class="set-color-row">自定义颜色<input id="setAccentCustom" type="color" value="#2E5348" aria-label="自定义强调色"></label>
       <div class="set-row" style="margin-top:12px"><span class="set-label">页面底色（整站背景与卡片）</span></div>
@@ -4988,6 +4990,45 @@ route();
     else if (mq.addListener) mq.addListener(onScheme);
   }
 
+  /* ---- 外观：整套主题预设，一键组合强调色 / 底色 / 字号 / 密度；单项仍可单独改 ---- */
+  var THEME_PRESETS = [
+    { id:"default", name:"出厂墨绿", accent:"green", bg:"cream", fs:"normal", den:"comfort" },
+    { id:"fresh",   name:"清爽米白", accent:"teal",  bg:"white", fs:"normal", den:"comfort" },
+    { id:"office",  name:"紧凑办公", accent:"navy",  bg:"gray",  fs:"normal", den:"compact" },
+    { id:"night",   name:"夜间深色", accent:"green", bg:"dark",   fs:"normal", den:"comfort" },
+    { id:"big",     name:"大字护眼", accent:"sage",  bg:"cream", fs:"large",  den:"comfort" }
+  ];
+  var presetBox = $("setThemePreset");
+  function curPresetId(){
+    var a = store.get("cl_accent") || "green", b = store.get("cl_bg") || "cream",
+        f = store.get("cl_font_scale") || "normal", d = store.get("cl_density") || "comfort";
+    for (var i = 0; i < THEME_PRESETS.length; i++){ var p = THEME_PRESETS[i];
+      if (p.accent === a && p.bg === b && p.fs === f && p.den === d) return p.id; }
+    return null;
+  }
+  function applyPreset(p){
+    store.set("cl_accent", p.accent); applyAccent(p.accent);
+    store.set("cl_bg", p.bg); applyBg(p.bg);
+    store.set("cl_font_scale", p.fs); document.documentElement.style.zoom = FS[p.fs] || "1";
+    store.set("cl_density", p.den); applyDensity(p.den);
+    paintAccent(); paintBg(); paintFont(); paintDensity(); paintPreset();
+  }
+  function paintPreset(){
+    if (!presetBox) return;
+    var cur = curPresetId();
+    presetBox.innerHTML = "";
+    THEME_PRESETS.forEach(function(p){
+      var ac = window.__ACCENT_RESOLVE ? window.__ACCENT_RESOLVE(p.accent) : null;
+      var b = document.createElement("button");
+      b.type = "button"; b.dataset.id = p.id;
+      b.innerHTML = '<i style="background:' + (ac ? ac.base : "#2E5348") + '"></i>' + p.name;
+      b.classList.toggle("on", cur === p.id);
+      b.addEventListener("click", function(){ applyPreset(p); });
+      presetBox.appendChild(b);
+    });
+  }
+  paintPreset();
+
   /* ---- 后端二选一：云端额度 / 自己的 API ---- */
   var beSeg = $("setBackend");
   function paintBe(){
@@ -5266,7 +5307,7 @@ route();
   });
   paintPetLines();
 
-  function paintAll(){ paintAccent(); paintBg(); paintFont(); paintDensity(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintHistMax(); paintChips(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); paintPetLines(); }
+  function paintAll(){ paintAccent(); paintBg(); paintFont(); paintDensity(); paintPreset(); paintBe(); paintPref(); paintEff(); loadCfg(); paintSys(); paintHistMax(); paintChips(); paintPetVoice(); loadVoiceTune(); fillShapes(); paintShow(); paintPetLines(); }
 })();
 </script>
 
