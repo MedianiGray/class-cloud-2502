@@ -1516,7 +1516,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       </div>
     </div>
 
-    <div class="task">
+    <div class="task" id="task-transfer">
       <div class="task-h"><span class="task-t">02 · 传输助手</span><span class="task-meta">先选你在哪一头</span></div>
       <div class="task-b">
         <p>按文件大小选一条路：几百 MB 走微信或 PairDrop，几十 KB 压进链接；最后可以把地址变成二维码，让手机扫进来。</p>
@@ -1570,7 +1570,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       </div>
     </div>
 
-    <div class="task">
+    <div class="task" id="task-feedback">
       <div class="task-h"><span class="task-t">03 · 意见箱</span><span class="task-meta">直发学委邮箱</span></div>
       <div class="task-b">
         <p>收件人是 <b class="mono">himegikudirtsir@outlook.com</b>。点发送会调起你电脑上的邮件客户端，把主题和正文填好；网页本身不发请求、不存草稿。</p>
@@ -1631,7 +1631,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       </div>
     </div>
 
-    <div class="task">
+    <div class="task" id="task-rename">
       <div class="task-h"><span class="task-t">07 · 批量重命名</span><span class="task-meta">浏览器内改 · 打包新 zip 下载</span></div>
       <div class="task-b">
         <p>把一堆文件按同一套规则一起改名：加前缀 / 后缀、查找替换、按序号编排。改名只在这台电脑的页面内存里进行，<b>本机原文件一个都不会动</b>；预览没问题后，打包成一个新的 zip 下载。</p>
@@ -1665,7 +1665,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       </div>
     </div>
 
-    <div class="task">
+    <div class="task" id="task-image">
       <div class="task-h"><span class="task-t">08 · 图片压缩</span><span class="task-meta">浏览器内压 · 打包新 zip 下载</span></div>
       <div class="task-b">
         <p>活动照片、截图一批太大，发群或传库前先压一遍。压缩只在这台电脑的页面内存里进行，<b>原图不会被改动、也不上传</b>；压好后打包成一个新的 zip 下载。</p>
@@ -1686,7 +1686,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       </div>
     </div>
 
-    <div class="task">
+    <div class="task" id="task-text">
       <div class="task-h"><span class="task-t">09 · 文本批处理</span><span class="task-meta">浏览器内清洗 · 复制或下载 txt</span></div>
       <div class="task-b">
         <p>收上来的名单、签到、通知草稿粘贴进来，一次性去掉首尾空格、空行、重复行，再做查找替换。处理只在这台电脑的页面内存里进行，<b>不上传、不改本机文件</b>；结果可直接复制或下载成 txt。</p>
@@ -3351,11 +3351,13 @@ document.getElementById("chips").addEventListener("click", e => {
         '</div><span class="gh-go">' + ICON_GO + '</span></a>').join("") +
       '</div></div>').join("") + '</div>';
   }
-  function openPop(){
+  function openPop(q){
+    if (q != null) { input.value = q; }
     scrim.classList.add("on");
     renderPop(input.value);
     setTimeout(function(){ input.focus(); }, 30);
   }
+  window.__SEARCH_OPEN = openPop;
   function closePop(){
     scrim.classList.remove("on");
     input.blur();
@@ -4703,6 +4705,22 @@ route();
       a: "安卓：浏览器菜单 →「添加到主屏幕」。iPhone：Safari 底部分享 →「添加到主屏幕」。装完是独立图标，没网也能打开壳。" },
     { k: ["口令", "密码", "进不去", "打不开", "验证"],
       a: "口令向班委要，输一次这台设备就记住了。它不是安全措施，只是挡住随手点开的人；说得出班号就能进。" },
+    /* 站内效率工具直达：排在导航宽词规则之前，话里点到工具动作就直接跳到对应卡片 */
+    { k: ["全局搜索", "搜一下", "搜模板", "搜通知", "搜入口", "跨页面找", "哪里能找"],
+      a: "全局搜索能跨资料、模板、入口、通知、班委分工一起找；浮层里输关键词即可。找某同学的文件夹去成员索引按尾号搜。",
+      act: { t: "打开全局搜索", do: function(){ if (window.__SEARCH_OPEN) window.__SEARCH_OPEN(""); } } },
+    { k: ["重命名", "改名", "批量改名", "文件名", "前缀", "后缀", "序号编排", "一起改名", "改文件名"],
+      a: "批量重命名在高级功能里：加前缀 / 后缀、查找替换、序号编排，浏览器内预览，打包新 zip 下载，本机原文件不动。",
+      act: { t: "去批量重命名", h: "#/plus", do: function(){ jumpToTask("task-rename"); } } },
+    { k: ["压缩图片", "压图", "图片太大", "照片太大", "缩小图片", "图片压缩", "截图太大", "图片变小"],
+      a: "图片压缩在高级功能里：一批照片 / 截图按宽度和质量本地重编码，预览前后大小，打包新 zip，原图不动。",
+      act: { t: "去图片压缩", h: "#/plus", do: function(){ jumpToTask("task-image"); } } },
+    { k: ["清洗名单", "去重", "整理文本", "名单整理", "文本批处理", "排序编号", "名单去重", "清理草稿", "整理名单", "文本清洗"],
+      a: "文本批处理在高级功能里：去空格、空行、重复行、查找替换、字典序排序、行首编号，结果复制或下载 txt。",
+      act: { t: "去文本清洗", h: "#/plus", do: function(){ jumpToTask("task-text"); } } },
+    { k: ["提意见", "意见", "反馈", "建议", "报错", "意见箱", "找谁反映", "提个问题"],
+      a: "意见箱在高级功能里，直发学委邮箱；网页不存草稿，点发送调起邮件客户端，没装邮箱可复制正文去网页版。",
+      act: { t: "去意见箱", h: "#/plus", do: function(){ jumpToTask("task-feedback"); } } },
     { k: ["姓名", "名册", "名单", "谁是谁", "隐私"],
       a: "名册只存学号后三位和文件夹地址，故意不放姓名 —— 网页是公开的，整份名单不该跟着上网。" },
     { k: ["班委", "找谁", "找同学", "同学在哪", "管理员", "维护", "谁做"],
@@ -4714,10 +4732,14 @@ route();
     { k: ["资料", "四级", "真题", "题库", "考试", "资源", "网盘", "课件", "复习", "资源站"],
       a: "资料库页是校内资源站的入口，考试、题库、网盘都在那一栏。",
       act: { t: "去资料库", h: "#/res" } },
+    /* 清点 / 核对谁没交是站内传输助手的活，排在交作业外链之前，免得被「没交」「清单」抢去通知页 */
+    { k: ["清点", "谁没交", "没收齐", "收作业核对", "交了没", "点名", "催交", "文件清点", "传文件", "发到手机", "文件太大", "文件清单", "对清单"],
+      a: "传输助手在高级功能里：把文件拖进来数个数、看大小和超限、按尾号念出谁没交；大文件走微信或 PairDrop，小内容压成链接或二维码。",
+      act: { t: "去传输助手", h: "#/plus", do: function(){ jumpToTask("task-transfer"); } } },
     { k: ["作业", "交作业", "上传作业", "交报告", "交实训", "作业提交", "传作业", "交作业报告"],
       a: "作业和实训报告传到班级共享社区（WPS），点下面按钮直接打开上传；只交到你自己那一格不算提交，汇总收缴以共享社区为准。",
       act: { t: "打开共享社区交作业", o: "https://www.kdocs.cn/folder/ctjLDPYcTofa" } },
-    { k: ["待办", "截止", "要交", "什么时候交", "催办", "事项", "清单", "没交", "还差什么", "公告", "通知在哪", "班级通知", "通知看", "提醒"],
+    { k: ["待办", "截止", "要交", "什么时候交", "催办", "事项", "还差什么", "公告", "通知在哪", "班级通知", "通知看", "提醒"],
       a: "通知待办页把近期要办的事按截止时间排出来，勾「已办」只记在这台设备上；正式通知以班群和学校官方为准。",
       act: { t: "去通知待办", h: "#/notice" } },
     { k: ["通知", "新闻稿", "稿子", "总结", "申请书", "自荐", "方案", "策划", "新闻报道", "写材料", "材料", "模板", "分工表", "物资", "签到", "配套表"],
@@ -4972,6 +4994,42 @@ route();
     body.appendChild(b);
     body.scrollTop = body.scrollHeight;
   }
+  /* 跳到高级功能页后，滚到指定工具卡片：hash 切换是异步派发的，视图可能还没显示，
+     所以轮询等卡片真正可见再定位，最多探几轮；路由回顶发生在可见之前也不影响 */
+  function jumpToTask(id){
+    var tries = 0;
+    function step(){
+      var el = document.getElementById(id);
+      if (el && el.offsetParent !== null) {
+        el.scrollIntoView({ block: "start" });
+        return;
+      }
+      if (++tries < 6) setTimeout(step, 120);
+    }
+    setTimeout(step, 120);
+  }
+  /* AI 兜底回答后，再拿它的话跑一遍规则匹配：命中就把对应站内动作按钮补上，
+     不让模型只给一段文字、人却点不过去。动作只跳 / 只开 / 只复制，不写任何班级数据 */
+  function attachActions(text){
+    var s = String(text || "").toLowerCase(), seen = {}, i, j, k;
+    for (i = 0; i < RULES.length; i++) {
+      var hit = false;
+      for (j = 0; j < RULES[i].k.length; j++) {
+        if (s.indexOf(RULES[i].k[j].toLowerCase()) >= 0) { hit = true; break; }
+      }
+      if (!hit) continue;
+      var list = [];
+      if (RULES[i].act) list.push(RULES[i].act);
+      var many = (typeof RULES[i].acts === "function") ? RULES[i].acts() : RULES[i].acts;
+      if (many) list = list.concat(many);
+      for (k = 0; k < list.length; k++) {
+        var key = list[k].t;
+        if (seen[key]) continue;
+        seen[key] = 1;
+        actBtn(list[k]);
+      }
+    }
+  }
   function ask(q){
     q = String(q || "").trim();
     if (!q) return;
@@ -5054,7 +5112,7 @@ route();
     "回答要求：",
     "1. 先给结论，再补必要的步骤或入口；说不清楚就分点，一次 2~4 句、最多 120 字，别绕弯子。",
     "2. 不编。站内确实没有的东西就明说「这个我不清楚，问学委去」，不要瞎猜链接和地址。",
-    "3. 能提到的入口仅限站内：首页资料卡和小胶囊、成员索引（按学号后三位找格子）、共享库；不要自己造链接。",
+    "3. 能指的站内入口：概览（我的文件夹）、成员索引（按尾号找人 / 班委分工）、资料库、学校入口（VPN / 校内系统 / FTP）、通知待办、写材料模板、收集台账、档案交接、访问权限；高级功能里有传输助手（清点谁没交 / 传文件 / 二维码）、批量重命名、图片压缩、文本清洗、意见箱、虚拟机、远程协助。办事类问题优先引导到对应页面，不要自己造链接。",
     "4. 只答学习、资料、学校系统这类事；不聊政治，不评价老师同学，不替人写作业。",
     "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼；用户追问时接着上一句答，别重复自我介绍。",
     "6. 涉及通知、新闻稿、总结、申请书、活动方案这类班级文书，只给提纲、结构顺序和要点提示，不替人写成完整成稿；具体事实、措辞和占位信息由本人 / 班委自己填。"
@@ -5121,6 +5179,7 @@ route();
         /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
         if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
         speakReply(txt);
+        attachActions(txt);
         regenBtn(q);
       }
       else { throw new Error((d && d.e) || "服务器没回答"); }
@@ -5157,6 +5216,7 @@ route();
       setMsg(wait, txt);
       if (botSub) botSub.textContent = " · 自己的 API（" + c.model + "）";
       speakReply(txt);
+      attachActions(txt);
       regenBtn(q);
       setBusy(false);
       body.scrollTop = body.scrollHeight;
