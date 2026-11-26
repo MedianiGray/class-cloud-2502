@@ -1634,7 +1634,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
     <div class="task" id="task-rename">
       <div class="task-h"><span class="task-t">07 · 批量重命名</span><span class="task-meta">浏览器内改 · 打包新 zip 下载</span></div>
       <div class="task-b">
-        <p>把一堆文件按同一套规则一起改名：加前缀 / 后缀、查找替换、按序号编排。改名只在这台电脑的页面内存里进行，<b>本机原文件一个都不会动</b>；预览没问题后，打包成一个新的 zip 下载。</p>
+        <p>把一堆文件按同一套规则一起改名：加前缀 / 后缀、查找替换、按序号编排。序号可按加入顺序或按文件名排序后编号。改名只在这台电脑的页面内存里进行，<b>本机原文件一个都不会动</b>；预览没问题后，打包成一个新的 zip 下载。</p>
 
         <div class="p-drop" id="rnDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="rnPick" type="file" multiple aria-label="选择要批量重命名的文件"></span></div>
 
@@ -1655,6 +1655,10 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <label>起始编号<input id="rnStart" class="p-in" type="number" value="1" min="0"></label>
           <label>编号位数<input id="rnPad" class="p-in" type="number" value="2" min="1" max="6"></label>
           <label>编号与名字的分隔符<input id="rnSep" class="p-in" placeholder="例如 - 或 _"></label>
+          <label>编号顺序<select id="rnSortMode" class="p-in">
+            <option value="manual">按加入顺序</option>
+            <option value="name">按文件名排序</option>
+          </select></label>
         </div>
 
         <div class="link-acts">
@@ -3766,12 +3770,21 @@ function initTools(){
 }
 
 /* ==================== 07 · 批量重命名 ==================== */
-const rnState = { files: [], num: false };
+const rnState = { files: [], num: false, sortMode: "manual" };
 
 function rnSplitName(name){
   const dot = name.lastIndexOf(".");
   if (dot <= 0) return { base: name, ext: "" };
   return { base: name.slice(0, dot), ext: name.slice(dot) }; // ext 保留前导点
+}
+
+/* 预览与打包共用的有序列表：按文件名排序时返回副本排序，不改原始加入顺序 */
+function rnOrderedList(){
+  const mode = document.getElementById("rnSortMode");
+  if (mode && mode.value === "name"){
+    return rnState.files.slice().sort(function(a, b){ return a.name.localeCompare(b.name, "zh"); });
+  }
+  return rnState.files;
 }
 
 function rnNewName(f, idx){
@@ -3798,7 +3811,7 @@ function rnNewName(f, idx){
 function rnRender(){
   const out = document.getElementById("rnOut");
   if (!out) return;
-  const list = rnState.files;
+  const list = rnOrderedList();
   if (!list.length){
     out.dataset.dup = "";
     out.textContent = "拖文件进来就会在这里预览「原名 → 新名」。文件不上传，只在这台电脑的页面内存里过一遍。";
@@ -3836,7 +3849,7 @@ function rnAddFiles(files){
 }
 
 async function rnZipDownload(){
-  const list = rnState.files;
+  const list = rnOrderedList();
   if (!list.length){ toast("还没有文件"); return; }
   if (typeof JSZip === "undefined"){ toast("打包组件没加载上，刷新一下页面再试"); return; }
   const names = list.map(function(f, i){ return rnNewName(f, i); });
@@ -3870,6 +3883,8 @@ function rnClear(){
   });
   const st = document.getElementById("rnStart"); if (st) st.value = "1";
   const pd = document.getElementById("rnPad"); if (pd) pd.value = "2";
+  const sm = document.getElementById("rnSortMode"); if (sm) sm.value = "manual";
+  rnState.sortMode = "manual";
   const chip = document.getElementById("rnNumChip"); if (chip) chip.classList.remove("on");
   const opts = document.getElementById("rnNumOpts"); if (opts) opts.style.display = "none";
   const pick = document.getElementById("rnPick"); if (pick) pick.value = "";
@@ -3889,6 +3904,8 @@ function initRename(){
     const el = document.getElementById(id);
     if (el) el.addEventListener("input", rnRender);
   });
+  const sm = document.getElementById("rnSortMode");
+  if (sm) sm.addEventListener("change", rnRender);
   const chip = document.getElementById("rnNumChip");
   const opts = document.getElementById("rnNumOpts");
   if (chip) chip.onclick = function(){
