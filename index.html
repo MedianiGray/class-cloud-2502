@@ -1630,6 +1630,40 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
         <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">这些开关都在浏览器里，本站一个都碰不到，也不会记录你的设置。预览窗口里那颗<b>「换端」</b>只按你当前设备给对应做法，不会假装切换——换端要在服务端改 <span class="mono">User-Agent</span>，我们试过用云端代取，能拿到手机版的壳但文件列表是空的，所以没启用。想看真移动版，点地址栏右边 ▣ 扫码，手机打开就是 WPS 给的移动版。</p>
       </div>
     </div>
+
+    <div class="task">
+      <div class="task-h"><span class="task-t">07 · 批量重命名</span><span class="task-meta">浏览器内改 · 打包新 zip 下载</span></div>
+      <div class="task-b">
+        <p>把一堆文件按同一套规则一起改名：加前缀 / 后缀、查找替换、按序号编排。改名只在这台电脑的页面内存里进行，<b>本机原文件一个都不会动</b>；预览没问题后，打包成一个新的 zip 下载。</p>
+
+        <div class="p-drop" id="rnDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="rnPick" type="file" multiple aria-label="选择要批量重命名的文件"></span></div>
+
+        <div class="p-row">
+          <label>前缀<input id="rnPre" class="p-in" placeholder="例如 2502-"></label>
+          <label>后缀<input id="rnSuf" class="p-in" placeholder="加在扩展名前，例如 -初稿"></label>
+        </div>
+        <div class="p-row">
+          <label>查找<input id="rnFind" class="p-in" placeholder="要被替换掉的文字（留空不替换）"></label>
+          <label>替换为<input id="rnRepl" class="p-in" placeholder="留空表示删掉这段文字"></label>
+        </div>
+
+        <div class="eyebrow" style="margin:6px 0 8px">序号编排</div>
+        <div class="chips" style="margin-bottom:12px">
+          <button type="button" class="chip" id="rnNumChip">开序号（01、02…）</button>
+        </div>
+        <div class="p-row" id="rnNumOpts" style="display:none">
+          <label>起始编号<input id="rnStart" class="p-in" type="number" value="1" min="0"></label>
+          <label>编号位数<input id="rnPad" class="p-in" type="number" value="2" min="1" max="6"></label>
+          <label>编号与名字的分隔符<input id="rnSep" class="p-in" placeholder="例如 - 或 _"></label>
+        </div>
+
+        <div class="link-acts">
+          <button class="btn btn-sm" id="rnZip">打包下载改名后的文件</button>
+          <button class="btn btn-sm ghost" id="rnClear">清空</button>
+        </div>
+        <div class="p-out" id="rnOut">拖文件进来就会在这里预览「原名 → 新名」。文件不上传，只在这台电脑的页面内存里过一遍。</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1826,6 +1860,7 @@ git push</div>
 <div id="toast"></div>
 
 <script src="qrcode.min.js" defer></script>
+<script src="jszip.min.js" defer></script>
 <script>
 /* ==================== 配置区：日常只需改这一段 ==================== */
 const GATE_CODE = "2502";        // 班级口令
@@ -3903,6 +3938,145 @@ function initTools(){
   });
 }
 
+/* ==================== 07 · 批量重命名 ==================== */
+const rnState = { files: [], num: false };
+
+function rnSplitName(name){
+  const dot = name.lastIndexOf(".");
+  if (dot <= 0) return { base: name, ext: "" };
+  return { base: name.slice(0, dot), ext: name.slice(dot) }; // ext 保留前导点
+}
+
+function rnNewName(f, idx){
+  const parts = rnSplitName(f.name);
+  let base = parts.base;
+  const ext = parts.ext;
+  const pre = document.getElementById("rnPre").value;
+  const suf = document.getElementById("rnSuf").value;
+  const find = document.getElementById("rnFind").value;
+  const repl = document.getElementById("rnRepl").value;
+  base = pre + base;                                   // 前缀
+  if (find) base = base.split(find).join(repl);        // 查找替换（字面）
+  base = base + suf;                                   // 后缀，落在扩展名前
+  if (rnState.num){                                    // 序号，接在主名末尾
+    const start = parseInt(document.getElementById("rnStart").value, 10);
+    const pad = Math.max(1, parseInt(document.getElementById("rnPad").value, 10) || 2);
+    const sep = document.getElementById("rnSep").value;
+    const no = String((isNaN(start) ? 1 : start) + idx).padStart(pad, "0");
+    base = base + sep + no;
+  }
+  return base + ext;
+}
+
+function rnRender(){
+  const out = document.getElementById("rnOut");
+  if (!out) return;
+  const list = rnState.files;
+  if (!list.length){
+    out.dataset.dup = "";
+    out.textContent = "拖文件进来就会在这里预览「原名 → 新名」。文件不上传，只在这台电脑的页面内存里过一遍。";
+    return;
+  }
+  const names = list.map(function(f, i){ return rnNewName(f, i); });
+  const count = {};
+  names.forEach(function(n){ count[n] = (count[n] || 0) + 1; });
+  const dup = names.filter(function(n){ return count[n] > 1; });
+  const dupSet = {};
+  dup.forEach(function(n){ dupSet[n] = true; });
+  const dupCount = Object.keys(count).filter(function(n){ return count[n] > 1; }).length;
+  let html = '<div class="mono" style="font-size:12px;line-height:2">';
+  names.forEach(function(n, i){
+    const bad = dupSet[n];
+    html += '<div style="display:flex;gap:10px;align-items:baseline">' +
+      '<span style="flex:1;word-break:break-all;color:' + (bad ? "#d9534f" : "var(--ink)") + '">' +
+      list[i].name.replace(/</g, "&lt;") + ' → ' + n.replace(/</g, "&lt;") + '</span>' +
+      (bad ? '<span style="color:#d9534f;white-space:nowrap">重名</span>' : '') + '</div>';
+  });
+  html += "</div>";
+  if (dupCount){
+    html += '<div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);color:#d9534f;font-size:12.5px;line-height:1.9">有 ' + dupCount + ' 组重名，打包已拦截；改一下前缀、替换或序号，确保新名互不相同再下载。</div>';
+  }
+  out.innerHTML = '<b>' + list.length + ' 个文件</b>' + html;
+  out.dataset.dup = dupCount ? "1" : "";
+}
+
+function rnAddFiles(files){
+  Array.prototype.forEach.call(files, function(f){
+    const dup = rnState.files.some(function(x){ return x.name === f.name && x.size === f.size; });
+    if (!dup) rnState.files.push(f);
+  });
+  rnRender();
+}
+
+async function rnZipDownload(){
+  const list = rnState.files;
+  if (!list.length){ toast("还没有文件"); return; }
+  if (typeof JSZip === "undefined"){ toast("打包组件没加载上，刷新一下页面再试"); return; }
+  const names = list.map(function(f, i){ return rnNewName(f, i); });
+  const count = {};
+  names.forEach(function(n){ count[n] = (count[n] || 0) + 1; });
+  const dupCount = Object.keys(count).filter(function(n){ return count[n] > 1; }).length;
+  if (dupCount){ toast("有重名，已拦截打包；先把新名改到互不相同"); return; }
+  const zip = new JSZip();
+  for (let i = 0; i < list.length; i++) zip.file(names[i], list[i]);
+  try {
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "批量重命名.zip";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    toast("已打包 " + list.length + " 个文件");
+  } catch(e){
+    toast("打包失败，重试一次");
+  }
+}
+
+function rnClear(){
+  rnState.files = [];
+  rnState.num = false;
+  ["rnPre", "rnSuf", "rnFind", "rnRepl", "rnSep"].forEach(function(id){
+    const el = document.getElementById(id); if (el) el.value = "";
+  });
+  const st = document.getElementById("rnStart"); if (st) st.value = "1";
+  const pd = document.getElementById("rnPad"); if (pd) pd.value = "2";
+  const chip = document.getElementById("rnNumChip"); if (chip) chip.classList.remove("on");
+  const opts = document.getElementById("rnNumOpts"); if (opts) opts.style.display = "none";
+  const pick = document.getElementById("rnPick"); if (pick) pick.value = "";
+  rnRender();
+}
+
+function initRename(){
+  const drop = document.getElementById("rnDrop");
+  const pick = document.getElementById("rnPick");
+  if (pick) pick.onchange = function(){ rnAddFiles(pick.files); };
+  if (drop){
+    drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("on"); });
+    drop.addEventListener("dragleave", function(){ drop.classList.remove("on"); });
+    drop.addEventListener("drop", function(e){ e.preventDefault(); drop.classList.remove("on"); rnAddFiles(e.dataTransfer.files); });
+  }
+  ["rnPre", "rnSuf", "rnFind", "rnRepl", "rnStart", "rnPad", "rnSep"].forEach(function(id){
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", rnRender);
+  });
+  const chip = document.getElementById("rnNumChip");
+  const opts = document.getElementById("rnNumOpts");
+  if (chip) chip.onclick = function(){
+    rnState.num = !rnState.num;
+    chip.classList.toggle("on", rnState.num);
+    if (opts) opts.style.display = rnState.num ? "" : "none";
+    rnRender();
+  };
+  const z = document.getElementById("rnZip");
+  if (z) z.onclick = rnZipDownload;
+  const c = document.getElementById("rnClear");
+  if (c) c.onclick = rnClear;
+  rnRender();
+}
+
 function initPlus(){
   initTools();
   const qt = document.getElementById("qrText");
@@ -3948,6 +4122,7 @@ function initPlus(){
   if (vmSite) vmSite.onclick = function(){ window.open("https://copy.sh/v86/", "_blank", "noopener"); };
 
   relayCheck();
+  initRename();
 }
 
 /* ==================== 启动 ==================== */
