@@ -1014,6 +1014,8 @@ if (!navigator.gpu){
   setStatus("模型未加载", "");
 }
 renderHistory();
+/* 门面助手带问题过来：?q= 回填输入框，不自动发送，留给本人确认 */
+try { var _qp = new URLSearchParams(location.search).get("q"); if (_qp) input.value = _qp.slice(0, 500); } catch (e) {}
 input.focus();
 </script>
 </body>

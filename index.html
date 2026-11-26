@@ -4721,6 +4721,12 @@ route();
     { k: ["提意见", "意见", "反馈", "建议", "报错", "意见箱", "找谁反映", "提个问题"],
       a: "意见箱在高级功能里，直发学委邮箱；网页不存草稿，点发送调起邮件客户端，没装邮箱可复制正文去网页版。",
       act: { t: "去意见箱", h: "#/plus", do: function(){ jumpToTask("task-feedback"); } } },
+    { k: ["本地推理", "本地模型", "浏览器跑模型", "本地跑大模型", "离线模型", "webgpu", "本地加载模型", "跑大模型", "模型本地", "本地跑", "浏览器模型", "怎么跑模型"],
+      a: "浏览器本地推理在旁路实验页：Transformers.js 加载小模型，WebGPU 优先、WASM 降级，权重首次下载后缓存本机；门面不跑本地模型。当前这句会带过去。",
+      act: { t: "去本地推理实验", do: function(){ openLab("local"); } } },
+    { k: ["通用对话", "闲聊", "写代码", "编程", "写程序", "代码", "写文章", "写作文", "长对话", "识图", "看图片", "图片提问", "折腾模型", "大模型聊天", "通用模型", "问 AI 写"],
+      a: "这类通用写作、识图或模型折腾在旁路云端对话实验里，接外部接口；门面只答班级事务。点下面过去，当前这句会带过去。",
+      act: { t: "去云端对话实验", do: function(){ openLab("cloud"); } } },
     { k: ["姓名", "名册", "名单", "谁是谁", "隐私"],
       a: "名册只存学号后三位和文件夹地址，故意不放姓名 —— 网页是公开的，整份名单不该跟着上网。" },
     { k: ["班委", "找谁", "找同学", "同学在哪", "管理员", "维护", "谁做"],
@@ -4994,6 +5000,57 @@ route();
     body.appendChild(b);
     body.scrollTop = body.scrollHeight;
   }
+
+  /* 动作注册表：意图路由与规则直达共用同一份手脚。键名稳定，供模型动作标记点名 */
+  var ACTIONS = {
+    "home":     { t: "回首页", h: "#/home" },
+    "library":  { t: "去成员索引", h: "#/library" },
+    "res":      { t: "去资料库", h: "#/res" },
+    "portal":   { t: "去学校入口", h: "#/portal" },
+    "notice":   { t: "去通知待办", h: "#/notice" },
+    "templates":{ t: "去写材料", h: "#/templates" },
+    "ledger":   { t: "去收集台账", h: "#/ledger" },
+    "archive":  { t: "去档案交接", h: "#/archive" },
+    "access":   { t: "去访问权限", h: "#/access" },
+    "search":   { t: "打开全局搜索", do: function(){ if (window.__SEARCH_OPEN) window.__SEARCH_OPEN(""); } },
+    "task-transfer": { t: "去传输助手", h: "#/plus", do: function(){ jumpToTask("task-transfer"); } },
+    "task-rename":   { t: "去批量重命名", h: "#/plus", do: function(){ jumpToTask("task-rename"); } },
+    "task-image":    { t: "去图片压缩", h: "#/plus", do: function(){ jumpToTask("task-image"); } },
+    "task-text":     { t: "去文本清洗", h: "#/plus", do: function(){ jumpToTask("task-text"); } },
+    "task-feedback": { t: "去意见箱", h: "#/plus", do: function(){ jumpToTask("task-feedback"); } },
+    "lab-cloud": { t: "去云端对话实验", do: function(){ openLab("cloud"); } },
+    "lab-local":  { t: "去本地推理实验", do: function(){ openLab("local"); } },
+    "lab-index":  { t: "去 AI 实验目录", o: "ai-lab/index.html" }
+  };
+  /* 最近一句用户提问：带去旁路实验页时附在 ?q= 上，不自动发送，留给本人确认 */
+  var lastAsked = "";
+  function openLab(kind){
+    var file = kind === "local" ? "local-chat.html" : kind === "cloud" ? "cloud-chat.html" : "index.html";
+    var url = "ai-lab/" + file;
+    var q = String(lastAsked || "").slice(0, 300);
+    if (q) url += "?q=" + encodeURIComponent(q);
+    if (typeof window.brwPush === "function") { window.brwPush(url); toggle(false); }
+    else { var w = window.open(url, "_blank"); if (w) { try { w.opener = null; } catch(e){} } }
+  }
+  /* 动作标记：模型在回答末尾另起一行写「〔动作:键名〕」，前端解析后剥掉标记、触发对应动作；
+     一次可写多个，逗号 / 顿号分隔。解析不到合法键就忽略，不影响正文 */
+  var ACT_RE = /〔动作[:：]\s*([^〕]+)〕/g;
+  function parseAction(text){
+    var keys = [];
+    var cleaned = String(text == null ? "" : text).replace(ACT_RE, function(_, k){
+      String(k || "").split(/[,，、\s]+/).forEach(function(x){ x = x.trim(); if (x) keys.push(x); });
+      return "";
+    });
+    cleaned = cleaned.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    return { text: cleaned, keys: keys };
+  }
+  function fireActions(keys){
+    var done = {};
+    (keys || []).forEach(function(k){
+      var act = ACTIONS[k];
+      if (act && !done[k]) { done[k] = 1; actBtn(act); }
+    });
+  }
   /* 跳到高级功能页后，滚到指定工具卡片：hash 切换是异步派发的，视图可能还没显示，
      所以轮询等卡片真正可见再定位，最多探几轮；路由回顶发生在可见之前也不影响 */
   function jumpToTask(id){
@@ -5033,6 +5090,7 @@ route();
   function ask(q){
     q = String(q || "").trim();
     if (!q) return;
+    lastAsked = q;
     bubble(q, true);
     var s = q.toLowerCase(), hit = null, i, j, text;
 
@@ -5115,7 +5173,9 @@ route();
     "3. 能指的站内入口：概览（我的文件夹）、成员索引（按尾号找人 / 班委分工）、资料库、学校入口（VPN / 校内系统 / FTP）、通知待办、写材料模板、收集台账、档案交接、访问权限；高级功能里有传输助手（清点谁没交 / 传文件 / 二维码）、批量重命名、图片压缩、文本清洗、意见箱、虚拟机、远程协助。办事类问题优先引导到对应页面，不要自己造链接。",
     "4. 只答学习、资料、学校系统这类事；不聊政治，不评价老师同学，不替人写作业。",
     "5. 平实说话，不堆感叹号，不用 emoji，不用「亲爱的」这类称呼；用户追问时接着上一句答，别重复自我介绍。",
-    "6. 涉及通知、新闻稿、总结、申请书、活动方案这类班级文书，只给提纲、结构顺序和要点提示，不替人写成完整成稿；具体事实、措辞和占位信息由本人 / 班委自己填。"
+    "6. 涉及通知、新闻稿、总结、申请书、活动方案这类班级文书，只给提纲、结构顺序和要点提示，不替人写成完整成稿；具体事实、措辞和占位信息由本人 / 班委自己填。",
+    "7. 需要把用户带到某个站内功能时，在回答最后另起一行写动作标记，格式「〔动作:键名〕」。可用键名：home（回首页）、library（成员索引）、res（资料库）、portal（学校入口）、notice（通知待办）、templates（写材料）、ledger（收集台账）、archive（档案交接）、access（访问权限）、search（全局搜索）、task-transfer（传输助手）、task-rename（批量重命名）、task-image（图片压缩）、task-text（文本清洗）、task-feedback（意见箱）、lab-cloud（云端对话实验）、lab-local（本地推理实验）、lab-index（AI 实验目录）。一次最多写一个，正文里不要复述这个标记；不确定对应哪个功能就不要写。",
+    "8. 通用写作、写代码、长对话、识图看图、折腾本地模型这类超出班级事务的，不要硬答，简短说明后用动作标记 lab-cloud 或 lab-local 引导到旁路实验页；门面不承担通用创作和闲聊。"
   ].join("\n");
   function sysPrompt(){ var c = store.get("cl_ai_sys"); return c && c.trim() ? c.trim() : AI_SYS; }
   /* 多轮上下文：把本机最近几轮一起带上，才能接着上一句聊；系统提示单独放最前。
@@ -5174,12 +5234,12 @@ route();
       return r.json().catch(function(){ return {}; });
     }).then(function(d){
       if (d && d.d) {
-        var txt = String(d.d).trim().slice(0, 220);
-        setMsg(wait, txt);
+        var parsed = parseAction(String(d.d).trim().slice(0, 220));
+        setMsg(wait, parsed.text);
         /* 服务器会回 p=这次是哪家免费额度答的；轮换切换后这里跟着变 */
         if (d.p && botSub) botSub.textContent = " · 已接班级服务器（" + d.p + "）";
-        speakReply(txt);
-        attachActions(txt);
+        speakReply(parsed.text);
+        if (parsed.keys.length) fireActions(parsed.keys); else attachActions(parsed.text);
         regenBtn(q);
       }
       else { throw new Error((d && d.e) || "服务器没回答"); }
@@ -5213,10 +5273,11 @@ route();
         throw new Error(s + (bad ? "（Key 或模型名不对 / 余额不够）" : "（接口格式不对，检查地址是否以 /v1 结尾）"));
       }
       var txt = (d.choices[0].message ? d.choices[0].message.content : JSON.stringify(d)).trim().slice(0, 220);
-      setMsg(wait, txt);
+      var parsed = parseAction(txt);
+      setMsg(wait, parsed.text);
       if (botSub) botSub.textContent = " · 自己的 API（" + c.model + "）";
-      speakReply(txt);
-      attachActions(txt);
+      speakReply(parsed.text);
+      if (parsed.keys.length) fireActions(parsed.keys); else attachActions(parsed.text);
       regenBtn(q);
       setBusy(false);
       body.scrollTop = body.scrollHeight;

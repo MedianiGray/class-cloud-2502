@@ -1046,6 +1046,8 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
   applyAccent(cfg.accent);
   paintAccent();
   renderHistory();
+  /* 门面助手带问题过来：?q= 回填输入框，不自动发送，留给本人确认 */
+  try { var _qp = new URLSearchParams(location.search).get("q"); if (_qp) input.value = _qp.slice(0, 500); } catch (e) {}
   setStatus(cfg.mode === "proxy" ? "代理模式，待发送" : "直连模式，待发送", cfg.apiKey || cfg.proxyUrl ? "on" : "");
   input.focus();
 })();
