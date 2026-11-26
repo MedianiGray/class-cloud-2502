@@ -94,6 +94,9 @@ html[data-density="compact"] .wrap{padding-top:12px}
 html[data-density="compact"] .chat{gap:9px}
 html[data-density="compact"] .msg .bubble{padding:8px 10px}
 html[data-density="compact"] .scenes{padding-bottom:4px}
+/* 圆角档位：紧凑 / 标准 / 圆润；胶囊 999px 与圆点 50% 不跟随 */
+html[data-radius="sharp"]{--r-md:9px; --r-sm:6px}
+html[data-radius="round"]{--r-md:17px; --r-sm:12px}
 .note{font-size:12px;color:var(--ink3);line-height:1.6;background:var(--paper2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
 .note b{color:var(--ink2)}
 .sheet-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
@@ -174,6 +177,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
     r.setProperty("--green", ac.base); r.setProperty("--green2", ac.light); r.setProperty("--green-d", ac.dark);
     r.zoom = FS[c.fontScale] || "1";
     document.documentElement.dataset.density = c.density === "compact" ? "compact" : "comfort";
+    document.documentElement.dataset.radius = (c.radius === "sharp" || c.radius === "round") ? c.radius : "standard";
     document.documentElement.dataset.theme = bg.id === "dark" ? "dark" : "light";
   } catch(e){}
 })();
@@ -318,6 +322,14 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       </div>
     </div>
 
+    <div class="field">
+      <label>圆角档位</label>
+      <div class="seg" id="radiusSeg">
+        <button type="button" data-rad="sharp">紧凑</button>
+        <button type="button" data-rad="standard">标准</button>
+        <button type="button" data-rad="round">圆润</button>
+      </div>
+
     <div class="note">
       <b>硬件约束</b>：1.5B 模型约 1 GB，建议 Chrome / Edge 且有独显或较强核显；0.5B 约 400 MB，轻薄本核显更稳。浏览器不支持 WebGPU 时自动退回 WASM（CPU），速度会明显变慢。手机能跑但体验有限。模型越小越容易答得简短或跑题，属正常现象。
     </div>
@@ -372,6 +384,7 @@ var defaults = {
   fontScale: "normal",
   bgTone: "cream",
   density: "comfort",
+  radius: "standard",
   accent: "green",
   chips: null
 };
@@ -577,6 +590,13 @@ function paintDensity(){
   var box = $("densitySeg"); if (!box) return;
   Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
     b.classList.toggle("on", b.dataset.den === cfg.density);
+  });
+}
+function applyRadius(v){ document.documentElement.dataset.radius = (v === "sharp" || v === "round") ? v : "standard"; }
+function paintRadius(){
+  var box = $("radiusSeg"); if (!box) return;
+  Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
+    b.classList.toggle("on", b.dataset.rad === cfg.radius);
   });
 }
 function assistantActs(){
@@ -891,6 +911,7 @@ function fillSheet(){
   paintFont();
   paintBg();
   paintDensity();
+  paintRadius();
   paintAccent();
   paintChipsTa();
   paintSysPreset();
@@ -934,6 +955,10 @@ if (window.matchMedia) {
 $("densitySeg").addEventListener("click", function(e){
   var b = e.target.closest("[data-den]"); if (!b) return;
   cfg.density = b.dataset.den; applyDensity(b.dataset.den); paintDensity(); saveCfg(cfg);
+});
+$("radiusSeg").addEventListener("click", function(e){
+  var b = e.target.closest("[data-rad]"); if (!b) return;
+  cfg.radius = b.dataset.rad; applyRadius(b.dataset.rad); paintRadius(); saveCfg(cfg);
 });
 var accentCustom = $("accentCustom");
 if (accentCustom) accentCustom.addEventListener("input", function(){
@@ -980,6 +1005,7 @@ fillSheet();
 applyFont();
 applyBg(cfg.bgTone);
 applyDensity(cfg.density);
+applyRadius(cfg.radius);
 applyAccent(cfg.accent);
 paintAccent();
 if (!navigator.gpu){
