@@ -8,7 +8,7 @@
 <style>
 :root{
   --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5; --line:#CDD2C9; --line2:#B9C0B5;
-  --ink:#1F2A26; --ink2:#46544E; --ink3:#7A857E;
+  --ink:#1F2A26; --ink2:#46544E; --ink3:#5A675D;
   --green:#2E5348; --green2:#3E7D5F; --green-d:#263F36; --good:#2F7D5B; --bad:#9C4E52;
   --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --r-md:14px; --r-sm:9px;
@@ -152,10 +152,10 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
   window.__ACCENTS = ACCENTS;
   window.__ACCENT_RESOLVE = resolveAccent;
   var BGTONES = [
-    {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5", ink:"#1F2A26", ink2:"#46544E", ink3:"#7A857E"},
-    {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC", ink:"#1F2A26", ink2:"#46544E", ink3:"#7A857E"},
-    {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1", ink:"#1F2A26", ink2:"#46544E", ink3:"#7A857E"},
-    {id:"dark",  name:"深色",   paper:"#1A201D", paper2:"#222925", card:"#252D28", line:"#38423B", line2:"#4A554D", ink:"#E8EBE5", ink2:"#B6BFB5", ink3:"#879189"}
+    {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5", ink:"#1F2A26", ink2:"#46544E", ink3:"#5A675D"},
+    {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC", ink:"#1F2A26", ink2:"#46544E", ink3:"#5A675D"},
+    {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1", ink:"#1F2A26", ink2:"#46544E", ink3:"#5A675D"},
+    {id:"dark",  name:"深色",   paper:"#1A201D", paper2:"#222925", card:"#252D28", line:"#38423B", line2:"#4A554D", ink:"#E8EBE5", ink2:"#B6BFB5", ink3:"#8F9991"}
   ];
   window.__BG_TONES = BGTONES;
   function resolveBg(v){ for(var i=0;i<BGTONES.length;i++) if(BGTONES[i].id===v) return BGTONES[i]; return BGTONES[0]; }
@@ -243,9 +243,9 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
     </div>
 
     <div class="field">
-      <label>温度 <span id="tempVal"></span></label>
+      <label for="temperature">温度 <span id="tempVal"></span></label>
       <input id="temperature" type="range" min="0.1" max="1" step="0.1" value="0.5">
-      <label style="margin-top:8px">最大生成字数</label>
+      <label style="margin-top:8px" for="maxTokens">最大生成字数</label>
       <input id="maxTokens" type="number" min="64" max="1024" step="32" value="256">
     </div>
 

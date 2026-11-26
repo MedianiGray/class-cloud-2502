@@ -15,7 +15,7 @@
 <style>
 :root{
   --paper:#F2F1EC; --paper2:#E6E7DF; --card:#FBFAF5;
-  --ink:#17211D; --ink2:#4C594F; --ink3:#87918A;
+  --ink:#17211D; --ink2:#4C594F; --ink3:#5A675D;
   --line:#CDD2C9; --line2:#B9C0B5;
   --green:#2E5348; --green2:#3E7D5F; --green-d:#263F36; --amber:#B4812A; --red:#9B3B2E;
   --mono:ui-monospace,"SF Mono","JetBrains Mono",Consolas,"Liberation Mono",monospace;
@@ -997,13 +997,13 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
   /* 整站底色四档：奶油纸 / 米白 / 雾灰 / 深色；浅色三档墨色不动，深色档连墨色一起翻 */
   var BGTONES = [
     {id:"cream", name:"奶油纸", paper:"#F2F1EC", paper2:"#E6E7DF", card:"#FBFAF5", line:"#CDD2C9", line2:"#B9C0B5",
-     ink:"#17211D", ink2:"#4C594F", ink3:"#87918A"},
+     ink:"#17211D", ink2:"#4C594F", ink3:"#5A675D"},
     {id:"white", name:"米白",   paper:"#F6F5F1", paper2:"#EBEAE3", card:"#FFFFFF", line:"#D8D9D2", line2:"#C2C4BC",
-     ink:"#17211D", ink2:"#4C594F", ink3:"#87918A"},
+     ink:"#17211D", ink2:"#4C594F", ink3:"#5A675D"},
     {id:"gray",  name:"雾灰",   paper:"#ECEDEB", paper2:"#E0E2DF", card:"#F4F5F3", line:"#C9CCC6", line2:"#B4B8B1",
-     ink:"#17211D", ink2:"#4C594F", ink3:"#87918A"},
+     ink:"#17211D", ink2:"#4C594F", ink3:"#5A675D"},
     {id:"dark",  name:"深色",   paper:"#1A201D", paper2:"#222925", card:"#252D28", line:"#38423B", line2:"#4A554D",
-     ink:"#E8EBE5", ink2:"#B6BFB5", ink3:"#879189"}
+     ink:"#E8EBE5", ink2:"#B6BFB5", ink3:"#8F9991"}
   ];
   function resolveBg(v){
     var i; for(i=0;i<BGTONES.length;i++) if(BGTONES[i].id===v) return BGTONES[i];
@@ -1082,7 +1082,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       <a href="#/more" data-v="admin">更多</a>
     </nav>
     <div class="bar-tools">
-      <button class="icon-btn" id="lockBtn" title="退出并重新验证">
+      <button class="icon-btn" id="lockBtn" title="退出并重新验证" aria-label="退出并重新验证">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
       </button>
     </div>
@@ -1488,7 +1488,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把要发的文件拖进来：能看有几个、多大、哪个超限、哪个格式不对；收作业时还能直接念出「谁没交」——按文件名里的学号尾号认人。</p>
 
           <p>把要交的文件拖进来，或者一次多选。这里帮你数清楚：有几个、多大、哪个超限、哪个格式不对，最后能复制一份清单发群里。</p>
-          <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple></span></div>
+          <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple aria-label="选择要清点的文件"></span></div>
           <div class="p-row">
             <label>单文件上限（MB）<input id="fMax" class="p-in" type="number" value="200"></label>
             <label>只允许这些扩展名<input id="fExt" class="p-in" placeholder="mp4,docx,pdf（留空不查）"></label>
@@ -1788,7 +1788,7 @@ git push</div>
 
 <div id="toast"></div>
 
-<script src="qrcode.min.js"></script>
+<script src="qrcode.min.js" defer></script>
 <script>
 /* ==================== 配置区：日常只需改这一段 ==================== */
 const GATE_CODE = "2502";        // 班级口令
@@ -3881,19 +3881,19 @@ route();
 <div class="brw" id="brw" aria-hidden="true">
   <div class="brw-top">
     <div class="brw-tabs" id="brwTabs"></div>
-    <button class="brw-new" id="brwNew" title="新建标签页">+</button>
+    <button class="brw-new" id="brwNew" title="新建标签页" aria-label="新建标签页">+</button>
   </div>
   <div class="brw-bar">
-    <button class="brw-ico" id="brwBack" title="后退">&#8592;</button>
-    <button class="brw-ico" id="brwFwd" title="前进">&#8594;</button>
-    <button class="brw-ico" id="brwReload" title="刷新">&#8635;</button>
-    <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开"></div>
+    <button class="brw-ico" id="brwBack" title="后退" aria-label="后退">&#8592;</button>
+    <button class="brw-ico" id="brwFwd" title="前进" aria-label="前进">&#8594;</button>
+    <button class="brw-ico" id="brwReload" title="刷新" aria-label="刷新">&#8635;</button>
+    <div class="brw-addr"><input id="brwUrl" spellcheck="false" placeholder="输入地址，回车打开" aria-label="浏览器地址栏，输入网址回车打开"></div>
     <div class="brw-dev" id="brwDev">
       <button class="brw-dev-b" id="brwDevSwap" data-brwdev="swap" title="换端：电脑看手机版 / 手机看电脑版">换端</button>
     </div>
-    <button class="brw-ico" id="brwQr" title="扫码在手机上打开">&#9635;</button>
-    <button class="brw-ico" id="brwExt" title="用系统浏览器打开">&#8599;</button>
-    <button class="brw-close" id="brwClose" title="关闭">&#10005;</button>
+    <button class="brw-ico" id="brwQr" title="扫码在手机上打开" aria-label="扫码在手机上打开">&#9635;</button>
+    <button class="brw-ico" id="brwExt" title="用系统浏览器打开" aria-label="用系统浏览器打开">&#8599;</button>
+    <button class="brw-close" id="brwClose" title="关闭" aria-label="关闭">&#10005;</button>
   </div>
   <div class="brw-tip" id="brwTip"><span id="brwTipTxt"></span><button type="button" id="brwTipCopy" hidden>复制网址</button><button type="button" id="brwTipX">知道了</button></div>
   <div class="brw-book" id="brwBook"></div>
@@ -4060,7 +4060,7 @@ route();
     <button type="submit">发</button>
   </form>
   <div class="bot-menu" id="botMenu" aria-label="功能菜单"></div>
-  <input type="file" id="botFile" multiple hidden>
+  <input type="file" id="botFile" multiple hidden aria-label="上传对话附件">
 </div>
 
 <!-- 大肥鱼自己的功能条：挂在小助手外面，点鱼才出来，跟对话卡互不打扰 -->
