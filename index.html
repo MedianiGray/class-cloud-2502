@@ -1523,7 +1523,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
 
           <div class="eyebrow" style="margin:18px 0 8px">① 先把要发的文件过一遍</div>
           <p style="font-size:12.5px;color:var(--ink3);margin:0 0 10px">把要交的文件拖进来，或一次多选：帮你数清楚有几个、多大、哪个超限、哪个格式不对；收作业时还能按文件名里的学号尾号念出「谁没交」，最后复制一份清单发群里。</p>
-          <div class="p-drop" id="fDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="fPick" type="file" multiple aria-label="选择要清点的文件"></span></div>
+          <div class="p-drop" id="fDrop">把文件拖到这里，或 <label class="p-pick" tabindex="0">点这里选<input id="fPick" type="file" multiple aria-label="选择要清点的文件"></label></div>
           <div class="p-row">
             <label>单文件上限（MB）<input id="fMax" class="p-in" type="number" value="200"></label>
             <label>只允许这些扩展名<input id="fExt" class="p-in" placeholder="mp4,docx,pdf（留空不查）"></label>
@@ -1634,7 +1634,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       <div class="task-b">
         <p>把一堆文件按同一套规则一起改名：加前缀 / 后缀、查找替换、按序号编排。序号可按加入顺序或按文件名排序后编号。改名只在这台电脑的页面内存里进行，<b>本机原文件一个都不会动</b>；预览没问题后，打包成一个新的 zip 下载。</p>
 
-        <div class="p-drop" id="rnDrop">把文件拖到这里，或 <span class="p-pick">点这里选<input id="rnPick" type="file" multiple aria-label="选择要批量重命名的文件"></span></div>
+        <div class="p-drop" id="rnDrop">把文件拖到这里，或 <label class="p-pick" tabindex="0">点这里选<input id="rnPick" type="file" multiple aria-label="选择要批量重命名的文件"></label></div>
 
         <div class="p-row">
           <label>前缀<input id="rnPre" class="p-in" placeholder="例如 2502-"></label>
@@ -1676,7 +1676,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
       <div class="task-b">
         <p>活动照片、截图一批太大，发群或传库前先压一遍。压缩只在这台电脑的页面内存里进行，<b>原图不会被改动、也不上传</b>；压好后打包成一个新的 zip 下载。</p>
 
-        <div class="p-drop" id="icDrop">把图片拖到这里，或 <span class="p-pick">点这里选<input id="icPick" type="file" multiple accept="image/*" aria-label="选择要压缩的图片"></span></div>
+        <div class="p-drop" id="icDrop">把图片拖到这里，或 <label class="p-pick" tabindex="0">点这里选<input id="icPick" type="file" multiple accept="image/*" aria-label="选择要压缩的图片"></label></div>
 
         <div class="p-row">
           <label>最大宽度（px）<input id="icMaxW" class="p-in" type="number" value="1280" min="160"></label>
@@ -3768,6 +3768,11 @@ function initTools(){
   const drop = document.getElementById("fDrop");
   const pick = document.getElementById("fPick");
   if (pick) pick.onchange = function(){ fileAdd(pick.files); };
+  if (pick && pick.parentElement){
+    pick.parentElement.addEventListener("keydown", function(e){
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pick.click(); }
+    });
+  }
   if (drop) {
     drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("on"); });
     drop.addEventListener("dragleave", function(){ drop.classList.remove("on"); });
@@ -3908,6 +3913,11 @@ function initRename(){
   const drop = document.getElementById("rnDrop");
   const pick = document.getElementById("rnPick");
   if (pick) pick.onchange = function(){ rnAddFiles(pick.files); };
+  if (pick && pick.parentElement){
+    pick.parentElement.addEventListener("keydown", function(e){
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pick.click(); }
+    });
+  }
   if (drop){
     drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("on"); });
     drop.addEventListener("dragleave", function(){ drop.classList.remove("on"); });
@@ -3923,12 +3933,16 @@ function initRename(){
   if (np) np.addEventListener("change", rnRender);
   const chip = document.getElementById("rnNumChip");
   const opts = document.getElementById("rnNumOpts");
-  if (chip) chip.onclick = function(){
-    rnState.num = !rnState.num;
-    chip.classList.toggle("on", rnState.num);
-    if (opts) opts.style.display = rnState.num ? "" : "none";
-    rnRender();
-  };
+  if (chip){
+    chip.setAttribute("aria-pressed", rnState.num ? "true" : "false");
+    chip.onclick = function(){
+      rnState.num = !rnState.num;
+      chip.classList.toggle("on", rnState.num);
+      chip.setAttribute("aria-pressed", rnState.num ? "true" : "false");
+      if (opts) opts.style.display = rnState.num ? "" : "none";
+      rnRender();
+    };
+  }
   const z = document.getElementById("rnZip");
   if (z) z.onclick = rnZipDownload;
   const c = document.getElementById("rnClear");
@@ -4095,6 +4109,11 @@ function initImageCompress(){
   const drop = document.getElementById("icDrop");
   const pick = document.getElementById("icPick");
   if (pick) pick.onchange = function(){ icAddFiles(pick.files); };
+  if (pick && pick.parentElement){
+    pick.parentElement.addEventListener("keydown", function(e){
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); pick.click(); }
+    });
+  }
   if (drop){
     drop.addEventListener("dragover", function(e){ e.preventDefault(); drop.classList.add("on"); });
     drop.addEventListener("dragleave", function(){ drop.classList.remove("on"); });
@@ -4250,16 +4269,20 @@ function initTextBatch(){
   ];
   rules.forEach(function(r){
     const el = document.getElementById(r.id);
-    if (el) el.onclick = function(){
-      txState.rules[r.key] = !txState.rules[r.key];
-      el.classList.toggle("on", txState.rules[r.key]);
-      if (r.key === "extract"){
-        const row = document.getElementById("txColRow");
-        if (row) row.style.display = txState.rules.extract ? "" : "none";
-      }
-      const src = document.getElementById("txIn").value;
-      if (src.trim()) txRun();
-    };
+    if (el){
+      el.setAttribute("aria-pressed", txState.rules[r.key] ? "true" : "false");
+      el.onclick = function(){
+        txState.rules[r.key] = !txState.rules[r.key];
+        el.classList.toggle("on", txState.rules[r.key]);
+        el.setAttribute("aria-pressed", txState.rules[r.key] ? "true" : "false");
+        if (r.key === "extract"){
+          const row = document.getElementById("txColRow");
+          if (row) row.style.display = txState.rules.extract ? "" : "none";
+        }
+        const src = document.getElementById("txIn").value;
+        if (src.trim()) txRun();
+      };
+    }
   });
   ["txFind", "txRepl", "txColSep", "txColIdx"].forEach(function(id){
     const el = document.getElementById(id);
