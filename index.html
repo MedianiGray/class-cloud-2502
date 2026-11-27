@@ -1488,7 +1488,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
   <div class="wrap">
     <div class="page-head">
       <h1 class="page-h1">高级功能</h1>
-      <p class="page-lead">先有一个站内 AI 实验旁路（云端对话 / 本地推理），下面六张卡：42 个开箱即用的 AI 入口、一个能先查出「谁没交」的传输助手、一个直通学委的邮箱、一台真跑的 x86 虚拟机、一份远程协助的正确姿势，还有一套手机与电脑互相看对方界面的正确做法。这些工具本身都在浏览器里跑；只有「问问」的联网兜底走一个云端函数代理，班级文件仍不经过本站。</p>
+      <p class="page-lead">先有一个站内 AI 实验旁路（云端对话 / 本地推理）。下面分两类：一类是办事帮手——42 个免 Key 的 AI 入口、查「谁没交」的传输助手、直通学委的意见箱，以及批量重命名、图片压缩、文本清洗三件本地小工具；另一类是折腾与做法指引——一台真跑的 x86 虚拟机、远程协助的三条路、手机与电脑互相看界面的正确做法。这些工具本身都在浏览器里跑；只有「问问」的联网兜底走一个云端函数代理，班级文件仍不经过本站。</p>
     </div>
 
     <div class="task">
@@ -1657,6 +1657,10 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
             <option value="manual">按加入顺序</option>
             <option value="name">按文件名排序</option>
           </select></label>
+          <label>序号位置<select id="rnNumPos" class="p-in">
+            <option value="tail">序号在末尾</option>
+            <option value="head">序号在开头</option>
+          </select></label>
         </div>
 
         <div class="link-acts">
@@ -1681,6 +1685,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
             <option value="jpeg">JPEG（铺白底）</option>
             <option value="png">PNG（保留透明）</option>
             <option value="webp">WebP（保留透明）</option>
+            <option value="auto">按原图格式</option>
           </select></label>
         </div>
 
@@ -1689,7 +1694,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <button class="btn btn-sm ghost" id="icClear">清空</button>
         </div>
         <div class="p-out" id="icOut">拖图片进来就会在这里预览每张的压缩前后大小。文件不上传，只在这台电脑的页面内存里过一遍。</div>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">JPEG 会铺白底、丢掉透明通道；要保留透明背景选 PNG 或 WebP。GIF 动图只保留第一帧；WebP 需较新浏览器支持。需要保留动图的，先别用这张卡。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">选「按原图格式」时，PNG / WebP 保留透明，JPEG 铺白底；JPEG 本身会丢掉透明通道。GIF 动图只保留第一帧；WebP 需较新浏览器支持。需要保留动图的，先别用这张卡。</p>
       </div>
     </div>
 
@@ -3801,12 +3806,14 @@ function rnNewName(f, idx){
   base = pre + base;                                   // 前缀
   if (find) base = base.split(find).join(repl);        // 查找替换（字面）
   base = base + suf;                                   // 后缀，落在扩展名前
-  if (rnState.num){                                    // 序号，接在主名末尾
+  if (rnState.num){                                    // 序号，可在开头或末尾
     const start = parseInt(document.getElementById("rnStart").value, 10);
     const pad = Math.max(1, parseInt(document.getElementById("rnPad").value, 10) || 2);
     const sep = document.getElementById("rnSep").value;
     const no = String((isNaN(start) ? 1 : start) + idx).padStart(pad, "0");
-    base = base + sep + no;
+    const posEl = document.getElementById("rnNumPos");
+    const atHead = posEl && posEl.value === "head";
+    base = atHead ? (no + sep + base) : (base + sep + no);
   }
   return base + ext;
 }
@@ -3888,6 +3895,7 @@ function rnClear(){
   const pd = document.getElementById("rnPad"); if (pd) pd.value = "2";
   const sm = document.getElementById("rnSortMode"); if (sm) sm.value = "manual";
   rnState.sortMode = "manual";
+  const np = document.getElementById("rnNumPos"); if (np) np.value = "tail";
   const chip = document.getElementById("rnNumChip"); if (chip) chip.classList.remove("on");
   const opts = document.getElementById("rnNumOpts"); if (opts) opts.style.display = "none";
   const pick = document.getElementById("rnPick"); if (pick) pick.value = "";
@@ -3909,6 +3917,8 @@ function initRename(){
   });
   const sm = document.getElementById("rnSortMode");
   if (sm) sm.addEventListener("change", rnRender);
+  const np = document.getElementById("rnNumPos");
+  if (np) np.addEventListener("change", rnRender);
   const chip = document.getElementById("rnNumChip");
   const opts = document.getElementById("rnNumOpts");
   if (chip) chip.onclick = function(){
@@ -3932,9 +3942,15 @@ function icKB(n){
   return Math.max(1, Math.round(n / 1024)) + " KB";
 }
 
-function icFmt(){
+function icFmt(file){
   const el = document.getElementById("icFormat");
   const v = el ? el.value : "jpeg";
+  if (v === "auto"){
+    const t = file && file.type ? file.type : "";
+    if (t === "image/png") return "png";
+    if (t === "image/webp") return "webp";
+    return "jpeg";
+  }
   return (v === "png" || v === "webp") ? v : "jpeg";
 }
 
@@ -3944,7 +3960,7 @@ function icCompressOne(file){
   return new Promise(function(resolve){
     const maxW = parseInt(document.getElementById("icMaxW").value, 10) || 1280;
     const q = Math.min(1, Math.max(0.3, parseFloat(document.getElementById("icQ").value) || 0.8));
-    const fmt = icFmt();
+    const fmt = icFmt(file);
     const mime = fmt === "png" ? "image/png" : fmt === "webp" ? "image/webp" : "image/jpeg";
     const keepAlpha = fmt !== "jpeg";
     const img = new Image();
