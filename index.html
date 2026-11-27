@@ -1710,6 +1710,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <button type="button" class="chip on" id="txTrim">去每行首尾空格</button>
           <button type="button" class="chip on" id="txBlank">删除空行</button>
           <button type="button" class="chip" id="txCollapse">行内多空格合一</button>
+          <button type="button" class="chip" id="txCleanWs">去不可见字符</button>
           <button type="button" class="chip" id="txStripNo">去行首编号</button>
           <button type="button" class="chip" id="txStripBracket">去括号备注</button>
           <button type="button" class="chip" id="txDedup">整行去重</button>
@@ -1735,7 +1736,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
           <button class="btn btn-sm ghost" id="txClear">清空</button>
         </div>
         <div class="p-out" id="txOut">粘贴文本后点「处理文本」，这里会预览清洗后的结果与前后行数。文本不上传，只在这台电脑的页面内存里过一遍。</div>
-        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">查找替换按普通文字匹配，不是正则表达式；去重按整行完全相同判定，保留第一次出现的那条。去行首编号剥掉行首 `1、` `1.` `1)` `（1）` `1-` `1：` 这类编号前缀（数字后须跟分隔符，年份等不会被误剥）；去括号备注删掉中英文圆括号及其内文字，括号内为空也剥，只处理单层括号。排序按中文字典序升序；编号在排序之后从 01 起加在行首，位数随行数自适应。「提取指定列」按分隔符把每行切成几列再取那一列，取不到该列的行按空行处理；分隔符按普通文字匹配。</p>
+        <p style="font-size:12.5px;color:var(--ink3);margin:12px 0 0">查找替换按普通文字匹配，不是正则表达式；去重按整行完全相同判定，保留第一次出现的那条。去行首编号剥掉行首 `1、` `1.` `1)` `（1）` `1-` `1：` 这类编号前缀（数字后须跟分隔符，年份等不会被误剥）；去括号备注删掉中英文圆括号及其内文字，括号内为空也剥，只处理单层括号。去不可见字符删掉零宽空格 / 零宽连接符 / 软连字符 / BOM 等隐形字符，全角空格与不间断空格归一为普通空格，避免隐形字符让两条看似相同的行去重失败。排序按中文字典序升序；编号在排序之后从 01 起加在行首，位数随行数自适应。「提取指定列」按分隔符把每行切成几列再取那一列，取不到该列的行按空行处理；分隔符按普通文字匹配。</p>
       </div>
     </div>
   </div>
@@ -4168,7 +4169,7 @@ function initImageCompress(){
 const txState = {
   result: "",
   stats: null,
-  rules: { trim: true, blank: true, collapse: false, stripNo: false, stripBracket: false, dedup: false, sort: false, number: false, extract: false }
+  rules: { trim: true, blank: true, collapse: false, cleanWs: false, stripNo: false, stripBracket: false, dedup: false, sort: false, number: false, extract: false }
 };
 
 function txEsc(s){
@@ -4190,6 +4191,10 @@ function txProcess(src){
   const lines = src.split(/\r?\n/);
   let work = lines.map(function(line){
     let l = line;
+    if (txState.rules.cleanWs){
+      // 删零宽 / 不可见字符，全角空格与 NBSP 归一为普通空格，避免去重与列提取被隐形字符破坏
+      l = l.replace(/[\u200B\u200C\u200D\u2060\uFEFF]/g, "").replace(/[\u3000\u00A0]/g, " ");
+    }
     if (txState.rules.trim) l = l.trim();
     if (txState.rules.stripNo) l = l.replace(/^\s*[（(]?\d{1,4}[）)、.．:：\-—]\s*/, "");
     if (txState.rules.stripBracket) l = l.replace(/[（(][^（）()]*[）)]/g, "").trim();
@@ -4292,6 +4297,7 @@ function initTextBatch(){
     { id: "txTrim", key: "trim" },
     { id: "txBlank", key: "blank" },
     { id: "txCollapse", key: "collapse" },
+    { id: "txCleanWs", key: "cleanWs" },
     { id: "txStripNo", key: "stripNo" },
     { id: "txStripBracket", key: "stripBracket" },
     { id: "txDedup", key: "dedup" },
