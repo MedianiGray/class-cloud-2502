@@ -3220,11 +3220,15 @@ function route(){
   const curKey = focus || group;
   const navKey = group === "admin" ? "admin" : curKey;
   Array.prototype.forEach.call(document.querySelectorAll("#nav a"), function(a){
-    a.classList.toggle("on", a.dataset.v === navKey);
+    var on = a.dataset.v === navKey;
+    a.classList.toggle("on", on);
+    a.setAttribute("aria-current", on ? "page" : "false");
   });
   const tabKey = group === "admin" ? "more" : (focus || GROUPS[group][0]);
   Array.prototype.forEach.call(document.querySelectorAll(".m-tabbar a"), function(a){
-    a.classList.toggle("on", (a.dataset.k || "") === tabKey);
+    var on = (a.dataset.k || "") === tabKey;
+    a.classList.toggle("on", on);
+    a.setAttribute("aria-current", on ? "page" : "false");
   });
   paintSubnav(group, focus);
   /* 折叠只留给 admin：main 的每一页都独占一屏，没有需要收起来的东西 */
@@ -6511,7 +6515,9 @@ route();
     Array.prototype.forEach.call(d.querySelectorAll("a"), function(a){ keys.push(a.dataset.k); });
     if (keys.indexOf(page) < 0) page = group;
     Array.prototype.forEach.call(d.querySelectorAll("a"), function(a){
-      a.classList.toggle("on", a.dataset.k === page);
+      var on = a.dataset.k === page;
+      a.classList.toggle("on", on);
+      a.setAttribute("aria-current", on ? "page" : "false");
     });
   };
   window.syncNavDock();
