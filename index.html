@@ -1199,8 +1199,8 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:rgba(160,170,160,.3
         <input id="search" type="search" placeholder="搜成员尾号 / 序号，也能找资料、模板、入口" aria-label="全局搜索">
       </div>
       <div class="chips" id="chips">
-        <button class="chip on" data-s="no">按尾号</button>
-        <button class="chip" data-s="idx">按序号</button>
+        <button class="chip on" data-s="no" aria-pressed="true">按尾号</button>
+        <button class="chip" data-s="idx" aria-pressed="false">按序号</button>
       </div>
     </div>
 
@@ -3343,7 +3343,11 @@ document.getElementById("chips").addEventListener("click", e => {
   const c = e.target.closest(".chip");
   if (!c) return;
   state.sort = c.dataset.s;
-  Array.prototype.forEach.call(document.querySelectorAll("#chips .chip"), x => x.classList.toggle("on", x === c));
+  Array.prototype.forEach.call(document.querySelectorAll("#chips .chip"), x => {
+    var on = x === c;
+    x.classList.toggle("on", on);
+    x.setAttribute("aria-pressed", on ? "true" : "false");
+  });
   renderGrid();
 });
 
@@ -5532,7 +5536,9 @@ route();
       var b = document.createElement("button");
       b.type = "button"; b.dataset.id = a.id;
       b.innerHTML = "<i style=\"background:" + a.base + "\"></i>" + a.name;
-      b.classList.toggle("on", cur === a.id);
+      var on = cur === a.id;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
       b.addEventListener("click", function(){ store.set("cl_accent", a.id); applyAccent(a.id); paintAccent(); });
       accentBox.appendChild(b);
     });
@@ -5552,7 +5558,9 @@ route();
     var cur = store.get("cl_font_scale") || "normal";
     if (!fsBox) return;
     Array.prototype.slice.call(fsBox.querySelectorAll("button")).forEach(function(b){
-      b.classList.toggle("on", b.dataset.fs === cur);
+      var on = b.dataset.fs === cur;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
   if (fsBox) fsBox.addEventListener("click", function(e){
@@ -5572,7 +5580,9 @@ route();
     var cur = store.get("cl_density") || "comfort";
     if (!denBox) return;
     Array.prototype.slice.call(denBox.querySelectorAll("button")).forEach(function(b){
-      b.classList.toggle("on", b.dataset.den === cur);
+      var on = b.dataset.den === cur;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
   if (denBox) denBox.addEventListener("click", function(e){
@@ -5592,7 +5602,9 @@ route();
     var cur = store.get("cl_radius") || "standard";
     if (!radBox) return;
     Array.prototype.slice.call(radBox.querySelectorAll("button")).forEach(function(b){
-      b.classList.toggle("on", b.dataset.rad === cur);
+      var on = b.dataset.rad === cur;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
   if (radBox) radBox.addEventListener("click", function(e){
@@ -5623,7 +5635,9 @@ route();
     var cur = store.get("cl_bg") || "cream";
     if (!bgBox) return;
     Array.prototype.slice.call(bgBox.querySelectorAll("button")).forEach(function(b){
-      b.classList.toggle("on", b.dataset.bg === cur);
+      var on = b.dataset.bg === cur;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
   if (bgBox) bgBox.addEventListener("click", function(e){
@@ -5672,7 +5686,9 @@ route();
       var b = document.createElement("button");
       b.type = "button"; b.dataset.id = p.id;
       b.innerHTML = '<i style="background:' + (ac ? ac.base : "#2E5348") + '"></i>' + p.name;
-      b.classList.toggle("on", cur === p.id);
+      var on = cur === p.id;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
       b.addEventListener("click", function(){ applyPreset(p); });
       presetBox.appendChild(b);
     });
@@ -5683,7 +5699,11 @@ route();
   var beSeg = $("setBackend");
   function paintBe(){
     var be = store.get("cl_ai_backend") || "cloud";
-    Array.prototype.forEach.call(beSeg.children, function(b){ b.classList.toggle("on", b.dataset.be === be); });
+    Array.prototype.forEach.call(beSeg.children, function(b){
+      var on = b.dataset.be === be;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
     $("setCloud").style.display = be === "cloud" ? "" : "none";
     $("setApi").classList.toggle("on", be === "custom");
   }
@@ -5697,7 +5717,11 @@ route();
   var prefBox = $("setPref");
   function paintPref(){
     var cur = store.get("cl_ai_pref") || "";
-    Array.prototype.forEach.call(prefBox.children, function(c){ c.classList.toggle("on", !!cur && c.dataset.name === cur); });
+    Array.prototype.forEach.call(prefBox.children, function(c){
+      var on = !!cur && c.dataset.name === cur;
+      c.classList.toggle("on", on);
+      c.setAttribute("aria-pressed", on ? "true" : "false");
+    });
   }
   fetch(BACKEND + "/pool", { cache: "no-store" }).then(function(r){ return r.json(); }).then(function(d){
     var list = (d && d.pool) || (d && d.list) || [];
@@ -5724,7 +5748,11 @@ route();
   var effSeg = $("setEffort");
   function paintEff(){
     var e = store.get("cl_ai_effort") || "medium";
-    Array.prototype.forEach.call(effSeg.children, function(b){ b.classList.toggle("on", b.dataset.eff === e); });
+    Array.prototype.forEach.call(effSeg.children, function(b){
+      var on = b.dataset.eff === e;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
   }
   effSeg.addEventListener("click", function(e){
     var b = e.target.closest("button[data-eff]"); if (!b) return;
@@ -5782,7 +5810,9 @@ route();
     var cur = store.get("cl_ai_hist_max") || "30";
     if (!hmBox) return;
     Array.prototype.slice.call(hmBox.querySelectorAll("button")).forEach(function(b){
-      b.classList.toggle("on", b.dataset.hm === cur);
+      var on = b.dataset.hm === cur;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
   if (hmBox) hmBox.addEventListener("click", function(e){
