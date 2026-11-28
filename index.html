@@ -2843,6 +2843,34 @@ function renderNotice(){
 
 renderNotice();
 
+/* ---- 本地通知最小入口：前台检测临近 / 过期条目，按天去重；不联网、不收集数据 ---- */
+const NOTIFY_KEY = "cl_notify", NOTIFY_FIRED_KEY = "cl_notify_fired_v1";
+function notifyTodayStr(){ var t = new Date(); return t.getFullYear() + "-" + String(t.getMonth() + 1).padStart(2, "0") + "-" + String(t.getDate()).padStart(2, "0"); }
+function notifyFiredMap(){ try { return JSON.parse(store.get(NOTIFY_FIRED_KEY) || "{}") || {}; } catch(e){ return {}; } }
+function notifySupported(){ return "Notification" in window; }
+function notifyGranted(){ return notifySupported() && Notification.permission === "granted"; }
+function scanNotices(){
+  if (store.get(NOTIFY_KEY) !== "1" || !notifyGranted()) return;
+  var doneMap = noticeDoneMap(), fired = notifyFiredMap(), today = notifyTodayStr(), changed = false;
+  Object.keys(fired).forEach(function(id){ if (fired[id] !== today) { delete fired[id]; changed = true; } });
+  NOTICES.forEach(function(n){
+    if (doneMap[n.id]) return;
+    var st = noticeState(n, false);
+    if (st !== "near" && st !== "overdue") return;
+    if (fired[n.id] === today) return;
+    var body = (st === "overdue" ? "已过期：" : "临近截止：") + (n.due || "时间待定") + " · 来源 " + (n.src || "班群");
+    try {
+      var nt = new Notification(n.title, { body: body, tag: n.id + "-" + today });
+      nt.onclick = function(){ window.focus(); try { nt.close(); } catch(e){} };
+    } catch(e){}
+    fired[n.id] = today; changed = true;
+  });
+  if (changed) store.set(NOTIFY_FIRED_KEY, JSON.stringify(fired));
+}
+window.__scanNotices = scanNotices;
+setTimeout(scanNotices, 2500);
+setInterval(scanNotices, 5 * 60 * 1000);
+
 /* ==================== 收集台账（模板骨架 + 本机最小台账） ==================== */
 const LEDGER_KEY = "cl_ledger_v1";
 const LEDGER_TPLS = [
@@ -4690,6 +4718,10 @@ route();
           <button type="button" data-eff="medium">适中</button>
           <button type="button" data-eff="high">活</button>
         </div>
+        <div class="set-row" style="margin-top:12px">
+          <span class="set-label">额度状态</span>
+          <div class="set-note" id="setQuotaBox">云端健康度与用量暂未接入：可用 / 失败次数 / 冷却、今日调用次数待云函数补字段后在此显示；当前仍按自动轮换兜底。</div>
+        </div>
       </div>
       <div class="set-api" id="setApi">
         <label>接口地址<input id="setBase" class="set-input" placeholder="https://api.openai.com/v1"></label>
@@ -4743,6 +4775,14 @@ route();
         <span class="set-label">桌宠语音</span>
         <button class="set-switch" id="setPetVoice" type="button" role="switch" aria-label="桌宠语音"></button>
       </div>
+    </section>
+    <section class="set-sec">
+      <h4>通知提醒</h4>
+      <div class="set-row">
+        <span class="set-label">本地临近 / 过期提醒</span>
+        <button class="set-switch" id="setNotify" type="button" role="switch" aria-label="本地临近/过期提醒"></button>
+      </div>
+      <span class="set-note">只在本页面打开或装成桌面应用的前台时检测：临近（3 天内）/ 已过期且未办的条目弹一次系统通知，当天不重复。浏览器关闭不会后台推送，离线推送排阶段二；不联网、不收集数据。</span>
     </section>
     <section class="set-sec">
       <h4>桌宠</h4>
@@ -5877,6 +5917,23 @@ route();
     var on = store.get("cl_ai_speak") !== "1";
     store.set("cl_ai_speak", on ? "1" : "0"); paintSw(speakSw, on);
   });
+
+  var notifySw = $("setNotify");
+  function paintNotify(){ paintSw(notifySw, store.get(NOTIFY_KEY) === "1"); }
+  if (notifySw) {
+    paintNotify();
+    notifySw.addEventListener("click", function(){
+      var want = store.get(NOTIFY_KEY) !== "1";
+      if (!want) { store.set(NOTIFY_KEY, "0"); paintNotify(); return; }
+      if (!notifySupported()) { toast("这个浏览器不支持系统通知，保持关闭。"); store.set(NOTIFY_KEY, "0"); paintNotify(); return; }
+      if (Notification.permission === "granted") { store.set(NOTIFY_KEY, "1"); paintNotify(); scanNotices(); return; }
+      if (Notification.permission === "denied") { toast("浏览器已拒绝通知权限，需在站点设置里重新允许；本次保持关闭。"); store.set(NOTIFY_KEY, "0"); paintNotify(); return; }
+      Notification.requestPermission().then(function(perm){
+        if (perm === "granted") { store.set(NOTIFY_KEY, "1"); paintNotify(); scanNotices(); }
+        else { store.set(NOTIFY_KEY, "0"); paintNotify(); toast(perm === "denied" ? "通知权限被拒绝，保持关闭。" : "未授权通知，保持关闭。"); }
+      });
+    });
+  }
 
   var FEMALE_RE = /xiao|晓|小|萱|瑶|婷|欣|梦|涵|妍|妮|huiting|huihui|yaoyao|yunxia|meijia|female|女|zira|sera/i;
   var MALE_RE = /yunxi|yunjian|yunyang|kangjian|yunfeng|yunye|云希|云扬|云健|云野|男|male|david|guy|jian/i;
