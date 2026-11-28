@@ -51,6 +51,10 @@
 │   ├── shapes.js         # 静态形象休眠外壳（列表已撤下，文件保留）
 │   ├── assets/          # 20 段真动画 webm
 │   └── shapes/           # 已撤下的静态 PNG，文件保留未删
+├── ext/
+│   ├── desktop-pet/       # 桌宠 MV3 扩展源码：manifest / content.js / init.js / 库副本 / README
+│   ├── desktop-pet.zip    # 打包好的桌宠扩展，开发者模式加载
+│   └── mobile-preview.zip # 历史遗留：UA 切换桥扩展，未挂门面入口，勿删
 ├── proxy/
 │   ├── tcb/index.js      # 现行：腾讯云开发云函数（/proxy/chat 对话兜底，/proxy/wps 换端代取）
 │   ├── wps-proxy.js      # 历史试错：Cloudflare Worker，未启用
@@ -152,6 +156,15 @@ GitHub Pages 本身就是 `https`，这一套自动生效，不需要额外配�
 - 装好后是全屏、无地址栏、独立图标；清单里的 `start_url` 带 `?embed=1`，进去就是移动端紧凑版。
 - 电脑上想预览这条提示：地址后面加 `?env=1`。
 - `sw.js` 会缓存一份页面壳，断网能打开页面框架；具体内容仍要联网（WPS 在外网）。
+
+## 浏览器扩展（可选，把鱼带到别的网页）
+
+桌宠原本只挂在本站网页内。`ext/desktop-pet.zip` 是一个 MV3 浏览器扩展，装一次后大肥鱼会出现在任意网页左下角，可拖、可摸头、可喂食，台词走本地内置池。
+
+- **下载**：「这个站能做什么」页桌宠条目里的「下载浏览器扩展（zip）」，或直接取仓库 `ext/desktop-pet.zip`。
+- **安装**：解压成文件夹 → Chrome / Edge 打开 `chrome://extensions/`（Edge 为 `edge://extensions/`）→ 开「开发者模式」→「加载已解压的扩展程序」选中解压目录。
+- **口径**：素材（webm 动画）复用本站线上 `pet/assets/`，扩展包不带 8.7 MB 视频；不读页面内容、不收集数据，好感度按站点本地存。本站站内已有原生鱼，扩展自动跳过，不会一条页面挂两条。
+- **边界**：未上浏览器商店，只能开发者模式手动加载；强 CSP 站点可能注入失败，失败不影响该页面。源码与协议署名见 `ext/desktop-pet/README.md`。
 
 ## 维护与稳定性
 

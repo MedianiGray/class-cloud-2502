@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "班级云库 · 大肥鱼桌宠",
+  "version": "0.1.0",
+  "description": "把门户大肥鱼桌宠挂到任意网页左下角，可拖动、摸头、喂食、聊两句；台词走本地池，不接 AI 定时调用。",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dafeiyu.iife.js", "init.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
