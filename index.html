@@ -866,7 +866,7 @@ body::after{width:40vw;height:40vw;right:-12vw;top:16vh;background:rgba(46,83,72
 
 /* ==================== 深色档覆写（html[data-theme="dark"]）====================
    浅色源码保持不动；本块只在深色档翻转暖白卡片、输入框、描边与阴影。
-   注入菜单(dfy)、个别 JS 内联底色等次级项遗留后续补。 */
+   dfy 原生菜单已移出画面、由站内复刻工具条承接（见 petBar 段）；JS 内联底色仅高亮闪烁与强调色圆点，深色档已逐视图核过无偏白块。 */
 html[data-theme="dark"]{
   --field:#202723; --card-hover:#2C3530;
   --sh-1:0 2px 6px rgba(0,0,0,.25);
@@ -3409,7 +3409,7 @@ document.getElementById("chips").addEventListener("click", e => {
       '</div></div>').join("") + '</div>';
   }
   function openPop(q){
-    if (q != null) { input.value = q; }
+    if (typeof q === "string") { input.value = q; }
     scrim.classList.add("on");
     renderPop(input.value);
     setTimeout(function(){ input.focus(); }, 30);
@@ -3421,7 +3421,7 @@ document.getElementById("chips").addEventListener("click", e => {
     input.value = "";
     renderPop("");
   }
-  btn.addEventListener("click", openPop);
+  btn.addEventListener("click", function(){ openPop(); });
   closeBtn.addEventListener("click", closePop);
   input.addEventListener("input", function(){ renderPop(input.value); });
   scrim.addEventListener("mousedown", function(e){ if (e.target === scrim) closePop(); });
