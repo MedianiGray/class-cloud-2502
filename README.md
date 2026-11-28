@@ -97,7 +97,7 @@
 - 额度池多家免费模型轮换，某家用完冷却 20 分钟自动跳下一家；每来源每天 40 次、单条 400 字、输出 240 tokens；CORS + Origin 只放行本站和本机。
 - **Key 绝不能写进页面**：这是公开仓库，写进来等于谁都能拿去烧额度。
 
-早期试过 Cloudflare Workers、Deno Deploy、Netlify Functions、Vercel，分别卡在 `workers.dev` DNS 污染、Deno 停注册、Netlify 新站访问保护、`vercel.app` 解析失败；`proxy/` 下对应文件保留作记录，均未启用。
+早期试过 Cloudflare Workers、Deno Deploy、Netlify Functions、Vercel，分别卡在 `workers.dev` DNS 污染、Deno 停注册、Netlify 新站访问保护、`vercel.app` 解析失败；前三者与早期 Cloudbase 换端方案的代码留在 `proxy/` 下作记录，Vercel 未留存文件，均未启用。
 
 ## 日常维护
 
