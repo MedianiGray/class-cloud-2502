@@ -32,6 +32,7 @@
 ├── more.html         # 「这个站能做什么」子页
 ├── ref-index.html    # 整页索引：WPS 库 / 校内站 / 系统 / 成员 / 对照
 ├── 404.html          # 路径不存在时回首页
+├── .nojekyll         # 关闭 Jekyll 处理，保证点开头文件与根目录原样发布
 ├── manifest.json     # PWA 清单：装到主屏后的名字、图标、启动参数
 ├── sw.js             # Service Worker：网络优先，断网回落到上一版
 ├── icon-180/192/512.png  # PWA 与 iOS 主屏图标
@@ -107,13 +108,13 @@ const GATE_CODE = "2502";
 
 // 2) 名册
 const MEMBERS = [
-  { no:"201", name:"王苏子明", slug:"ctWvsvDFbsPW" },
+  { no:"201", slug:"ctWvsvDFbsPW" },
   // ...
 ];
 ```
 
 - **学号只写后三位**：`no` 字段填 `"201"` 这样的三位，不填完整学号。排序、检索、计数都会自动适应。
-- **加人**：照抄一行，改后三位学号、姓名、`slug`。`slug` 取自 WPS 文件夹链接 `https://www.kdocs.cn/folder/xxxx` 里的 `xxxx` 那段。
+- **加人**：照抄一行，改后三位学号与 `slug`。`slug` 取自 WPS 文件夹链接 `https://www.kdocs.cn/folder/xxxx` 里的 `xxxx` 那段。
 - **删人**：删掉对应一行即可。
 - **换口令**：改 `GATE_CODE`。它写在源码里，只能挡住随手点开的人，不是真正的鉴权。
 - **改学校入口 / 资源站**：`PORTALS`（办事入口、官网、FTP）与 `RESOURCES`（校内资源目录）两个数组，格式照现有条目。
@@ -122,12 +123,12 @@ const MEMBERS = [
 
 ## 先说清楚的三件事
 
-**一、公开仓库仍然公开姓名与文件夹地址。** GitHub Pages 免费版只能挂公开仓库，任何人拿到链接都能看到 45 位同学的姓名和 WPS 文件夹地址。学号已经处理掉了（只存后三位），但姓名和文件夹 slug 依然在。页面另外做了两道遮挡：`noindex` 阻止搜索引擎收录、口令门挡住随手点开的人。这两道都不是安全措施。
+**一、公开仓库仍会公开序号、学号后三位与文件夹地址。** GitHub Pages 免费版只能挂公开仓库，任何人拿到链接都能看到 45 位同学的端口序号、学号后三位和 WPS 文件夹地址。完整学号和姓名都不落网页，但文件夹 slug 依然在。页面另外做了两道遮挡：`noindex` 阻止搜索引擎收录、口令门挡住随手点开的人。这两道都不是安全措施。
 
 如果班级不接受这种暴露，两条更稳的路：
 
 - 用学校提供的主机或教育网空间托管，做真实登录鉴权；
-- 名册只留「序号 + 姓名」，连后三位也不要。
+- 名册只留端口序号，连后三位也不要。
 
 文档本身不因网页公开而泄露，因为点开链接后 WPS 还会校验账号权限。
 
@@ -211,7 +212,7 @@ git commit -m "revert index.html" && git push
 
 ## 技术说明
 
-- 原生 JavaScript，无框架、无构建、无 `type="module"`，`file://` 双击可用
+- 主站 `index.html` 为原生 JavaScript，无框架、无构建、无 `type="module"`，`file://` 双击可用；旁路本地推理页 `ai-lab/local-chat.html` 例外，含一个 `type="module"` 块加载 Transformers.js
 - 数据固化在脚本里而不是 `fetch` JSON，因为 `file://` 下不能读本地文件
 - 移动端优先设计，断点 640 / 1024
 - 页内 hash 路由：`#/main` 组（概览 / 成员索引 / 资料库，首页只留高频入口）；`#/more` 起归入「更多」组（通知待办 / 写材料 / 学校入口 / 收集台账 / 档案交接 / 权限说明 / 高级功能 / 部署维护，首项为聚合概览）；旧地址如 `#/home`、`#/library`、`#/desk`、`#/lessons`、`#/notice`、`#/templates`、`#/portal`、`#/ledger`、`#/archive` 仍然直达，会落到对应视图
