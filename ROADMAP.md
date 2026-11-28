@@ -262,7 +262,7 @@
 
 **本机工具链现状（2026-11-28 探测）**
 
-- 已在 PATH：Node v22.23.2 / npm 10.9.8、Python 3.13.18、Rust 1.100.0（cargo 1.100.0）、JDK（keytool 在 PATH）、.NET SDK。
+- 已在 PATH：Node v22.12.0 / npm 10.9.0、Python 3.13.18、Rust 1.100.0（cargo 1.100.0）、JDK（keytool 在 PATH）、.NET SDK。
 - 未装：Android SDK / ADB、Flutter。
 - 密钥口径：扩展无需密钥；APK debug 密钥由 Gradle / 构建工具生成；发布密钥与 exe 签名证书等真打包、主体定下来后再生成或申请，现在不产生长期密钥。
 
