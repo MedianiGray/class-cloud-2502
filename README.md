@@ -33,6 +33,7 @@
 ├── ref-index.html    # 整页索引：WPS 库 / 校内站 / 系统 / 成员 / 对照
 ├── 404.html          # 路径不存在时回首页
 ├── .nojekyll         # 关闭 Jekyll 处理，保证点开头文件与根目录原样发布
+├── .gitignore        # 忽略本地密钥配置与系统垃圾文件，不进公开仓库
 ├── manifest.json     # PWA 清单：装到主屏后的名字、图标、启动参数
 ├── sw.js             # Service Worker：网络优先，断网回落到上一版
 ├── icon-180/192/512.png  # PWA 与 iOS 主屏图标
@@ -57,7 +58,7 @@
 │   ├── desktop-pet.zip    # 打包好的桌宠扩展，开发者模式加载
 │   └── mobile-preview.zip # 历史遗留：UA 切换桥扩展，未挂门面入口，勿删
 ├── proxy/
-│   ├── tcb/index.js      # 现行：腾讯云开发云函数（/proxy/chat 对话兜底，/proxy/wps 换端代取）
+│   ├── tcb/index.js      # 现行：腾讯云开发云函数（/proxy/chat 对话兜底；/proxy/wps 换端代取当前未启用）
 │   ├── wps-proxy.js      # 历史试错：Cloudflare Worker，未启用
 │   ├── pet-ai.js         # 历史试错：桌宠对话后端，未启用
 │   ├── deno/             # 历史试错：Deno Deploy，停注册，未启用
