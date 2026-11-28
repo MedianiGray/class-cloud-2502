@@ -4532,21 +4532,21 @@ route();
   });
   window.addEventListener("appinstalled", function(){
     promptEvt = null;
-    show("已经装到主屏了，以后从桌面图标直接进。", null, null);
+    show("已经装成应用了，以后从桌面 / 开始菜单图标直接进。", null, null);
     setTimeout(hide, 2600);
   });
 
   function paint(){
     if (!bar) return;
     if (document.documentElement.classList.contains("is-embed")) { hide(); return; }
-    if (!IS_ANY_MOBILE && !FORCE_ENV) { hide(); return; }
 
     if (IS_WX || IS_QQ) {
       show("微信 / QQ 内置浏览器：点右上角 ⋯ 选「在浏览器打开」，才能装到主屏，也才能跳到 WPS App。", "知道了", hide);
       return;
     }
     if (promptEvt) {
-      show("把这个页面装到主屏：全屏、免地址栏，下次一点就开。", "装到主屏", function(){
+      var installLabel = IS_ANY_MOBILE ? "装到主屏" : "安装到桌面";
+      show("把这个页面装成应用：独立窗口、免地址栏，下次一点就开。", installLabel, function(){
         if (!promptEvt) return;
         promptEvt.prompt();
         promptEvt = null;
@@ -4554,11 +4554,17 @@ route();
       });
       return;
     }
-    if ((IS_IOS || FORCE_ENV) && recalled() !== "off") {
+    if (recalled() === "off") { hide(); return; }
+    if (IS_IOS) {
       show("iPhone 装到主屏：点底部中间的分享 □↑ → 「添加到主屏幕」，之后像 App 一样打开。", null, null);
       return;
     }
-    hide();
+    if (IS_ANY_MOBILE || FORCE_ENV) {
+      show("安卓装到主屏：浏览器菜单 ⋮ → 「添加到主屏幕 / 安装应用」，之后像 App 一样打开。", null, null);
+      return;
+    }
+    /* 桌面 Chrome / Edge：浏览器没主动给安装弹窗时，走菜单手动装成窗口应用 */
+    show("电脑上装成应用：浏览器右上角菜单 ⋮（Edge 为 ⋯）→ 「安装此网站 / 应用」或「创建快捷方式」，勾选「作为窗口打开」。", null, null);
   }
 
   window.__paintEnv = paint;   /* 自测入口，不影响正常流程 */
