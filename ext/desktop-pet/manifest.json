@@ -3,6 +3,17 @@
   "name": "班级云库 · 大肥鱼桌宠",
   "version": "0.1.0",
   "description": "把门户大肥鱼桌宠挂到任意网页左下角，可拖动、摸头、喂食、聊两句；台词走本地池，不接 AI 定时调用。",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png"
+    }
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],

@@ -52,7 +52,7 @@
 │   ├── assets/          # 20 段真动画 webm
 │   └── shapes/           # 已撤下的静态 PNG，文件保留未删
 ├── ext/
-│   ├── desktop-pet/       # 桌宠 MV3 扩展源码：manifest / content.js / init.js / 库副本 / README
+│   ├── desktop-pet/       # 桌宠 MV3 扩展源码：manifest / content.js / init.js / 库副本 / icons 三档图标 / README
 │   ├── desktop-pet.zip    # 打包好的桌宠扩展，开发者模式加载
 │   └── mobile-preview.zip # 历史遗留：UA 切换桥扩展，未挂门面入口，勿删
 ├── proxy/
