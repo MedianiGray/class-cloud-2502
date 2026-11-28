@@ -544,7 +544,9 @@ function applyFont(){ document.documentElement.style.zoom = FS[cfg.fontScale] ||
 function paintFont(){
   var box = $("fontSeg"); if (!box) return;
   Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
-    b.classList.toggle("on", b.dataset.fs === cfg.fontScale);
+    var on = b.dataset.fs === cfg.fontScale;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 function applyBg(v){
@@ -559,7 +561,9 @@ function applyBg(v){
 function paintBg(){
   var box = $("bgSeg"); if (!box) return;
   Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
-    b.classList.toggle("on", b.dataset.bg === cfg.bgTone);
+    var on = b.dataset.bg === cfg.bgTone;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 function applyAccent(v){
@@ -575,7 +579,9 @@ function paintAccent(){
     var b = document.createElement("button");
     b.type = "button"; b.dataset.id = a.id;
     b.innerHTML = '<i style="background:' + a.base + '"></i>' + a.name;
-    b.classList.toggle("on", cfg.accent === a.id);
+    var on = cfg.accent === a.id;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
     b.addEventListener("click", function(){
       cfg.accent = a.id; applyAccent(a.id); paintAccent(); saveCfg(cfg);
     });
@@ -589,14 +595,18 @@ function applyDensity(v){ document.documentElement.dataset.density = v === "comp
 function paintDensity(){
   var box = $("densitySeg"); if (!box) return;
   Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
-    b.classList.toggle("on", b.dataset.den === cfg.density);
+    var on = b.dataset.den === cfg.density;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 function applyRadius(v){ document.documentElement.dataset.radius = (v === "sharp" || v === "round") ? v : "standard"; }
 function paintRadius(){
   var box = $("radiusSeg"); if (!box) return;
   Array.prototype.slice.call(box.querySelectorAll("button")).forEach(function(b){
-    b.classList.toggle("on", b.dataset.rad === cfg.radius);
+    var on = b.dataset.rad === cfg.radius;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 function assistantActs(){
@@ -683,7 +693,9 @@ function sceneByLabel(label){
 }
 function paintScene(id){
   Array.prototype.slice.call(scenes.children).forEach(function(c){
-    c.classList.toggle("on", c.dataset.id === id);
+    var on = c.dataset.id === id;
+    c.classList.toggle("on", on);
+    c.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 function applyScene(sc){
@@ -701,6 +713,7 @@ function renderChips(){
     var sc = sceneByLabel(label);
     var b = document.createElement("button");
     b.type = "button"; b.className = "chip"; b.textContent = label;
+    b.setAttribute("aria-pressed", "false");
     if (sc){
       b.dataset.id = sc.id;
       b.addEventListener("click", function(){ applyScene(sc); });
@@ -729,7 +742,9 @@ function paintSysPreset(){
   var cur = cfg.system || "";
   Array.prototype.slice.call(box.children).forEach(function(b, i){
     var p = SYS_PRESETS[i]; if (!p) return;
-    b.classList.toggle("on", p.v === "" ? cur === defaults.system : cur === p.v);
+    var on = p.v === "" ? cur === defaults.system : cur === p.v;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 function renderSysPreset(){
