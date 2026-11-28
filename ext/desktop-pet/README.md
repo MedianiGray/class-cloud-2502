@@ -66,4 +66,4 @@
 
 ## 打包成 zip（分发给本机他人时）
 
-在 `ext/` 目录下把 `desktop-pet/` 文件夹整体压缩为 `desktop-pet.zip`（manifest.json 位于压缩包根目录，不要多套一层文件夹）；他人解压后按上面「安装」步骤加载解压目录即可。
+在 `ext/` 目录下把 `desktop-pet/` 内的运行时文件压缩为 `desktop-pet.zip`（manifest.json 位于压缩包根目录，不要多套一层文件夹）；`screenshots/` 是商店上架材料，不进分发包。他人解压后按上面「安装」步骤加载解压目录即可。
